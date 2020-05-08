@@ -165,5 +165,5 @@ def approve_token(reqid, config):
     stdout, stderr = process.communicate(input=b"yes\n")
     if process.returncode:
         raise CondorToolException(
-            f"Failed to approve request: {stderr.decode('utf-8')}"
+            "Failed to approve request: {}".format(stderr.decode("utf-8"))
         )
