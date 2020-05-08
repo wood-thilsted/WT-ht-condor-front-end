@@ -1,20 +1,19 @@
-#!/usr/bin/env python3
-
-
-from pathlib import Path
+import os
 
 from flask import Flask
 
 from .code import code_bp
 
-HERE = Path(__file__).parent
+HERE = os.path.dirname(__file__)
 
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
 
     if test_config is None:
-        app.config.from_pyfile(HERE.parent / "config.py", silent=True)
+        app.config.from_pyfile(
+            os.path.join(os.path.dirname(HERE), "config.py"), silent=True
+        )
     else:
         app.config.update(test_config)
 
@@ -23,8 +22,10 @@ def create_app(test_config=None):
 
         @app.route("/health")
         def health():
+            app.logger.debug("Health!")
             return "Hello!"
 
+    app.logger.debug("Created!")
     return app
 
 

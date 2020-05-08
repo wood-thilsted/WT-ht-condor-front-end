@@ -105,7 +105,7 @@ def code_submit():
         )
 
     context = {"info": "Request approved."}
-    response = make_response(render_template("condor_submit.html", **context))
+    response = make_response(render_template("code_submit.html", **context))
     return response
 
 
@@ -135,7 +135,7 @@ def fetch_tokens(reqid, config):
     stdout, stderr = process.communicate()
     if process.returncode:
         raise CondorToolException(
-            f"Failed to list internal requests: {stderr.decode('utf-8')}"
+            "Failed to list internal requests: {}".format(stderr.decode("utf-8"))
         )
     try:
         json_obj = json.loads(stdout)
@@ -162,7 +162,7 @@ def approve_token(reqid, config):
         stdin=subprocess.PIPE,
         env=req_environ,
     )
-    stdout, stderr = process.communicate(input="yes\n")
+    stdout, stderr = process.communicate(input=b"yes\n")
     if process.returncode:
         raise CondorToolException(
             f"Failed to approve request: {stderr.decode('utf-8')}"
