@@ -23,7 +23,7 @@ def create_app(test_config=None):
         @app.route("/health")
         def health():
             app.logger.debug("Health!")
-            return "Hello!"
+            return "Hello!\n"
 
     app.logger.debug("Created!")
     return app

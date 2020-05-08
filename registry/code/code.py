@@ -1,3 +1,4 @@
+import collections
 import subprocess
 import os
 import json
@@ -17,12 +18,9 @@ class CondorToolException(Exception):
     pass
 
 
-@code_bp.route("/code", methods=["GET", "POST"])
-def code():
-    if request.method == "POST":
-        return code_submit()
-
-    response = make_response(render_template("code.html"))
+@code_bp.route("/code", methods=["GET"])
+def code_get():
+    response = make_response(render_template("code_submit.html"))
     response.headers[
         "Strict-Transport-Security"
     ] = "max-age=31536000; includeSubDomains"
@@ -30,93 +28,87 @@ def code():
     return response
 
 
-def code_submit():
+@code_bp.route("/code", methods=["POST"])
+def code_post():
     if "code" not in request.form:
-        context = {"info": "The code parameter is missing"}
-        return make_response(
-            render_template("code_submit_failure.html", **context), 400
-        )
+        return error("The code parameter is missing", 400)
 
     user_id_env_var = current_app.config.get("USER_ID_ENV_VAR", None)
     if not user_id_env_var:
-        context = {"info": "Server configuration error"}
-        make_response(render_template("code_submit_failure.html", **context), 500)
+        return error("Server configuration error", 500)
 
-    osgid = request.environ.get(user_id_env_var, None)
-    if not osgid:
-        context = {"info": "Unknown user"}
-        make_response(render_template("code_submit_failure.html", **context), 401)
+    user_id = request.environ.get(user_id_env_var, None)
+    if not user_id:
+        return error("Unknown user", 401)
 
     try:
         result = fetch_tokens(request.form.get("code"), current_app.config)
     except CondorToolException as cte:
-        context = {"info": str(cte)}
-        return make_response(
-            render_template("code_submit_failure.html", **context), 400
-        )
+        return error(str(cte), 400)
 
     if not result:
-        context = {"info": "Request %s is unknown" % request.form.get("code")}
-        return make_response(
-            render_template("code_submit_failure.html", **context), 400
-        )
+        return error("Request {} is unknown".format(request.form.get("code")), 400)
     result = result[0]
 
     authz = result.get("LimitAuthorization")
     if authz != "ADVERTISE_SCHEDD":
-        context = {
-            "info": "Token must be limited to the ADVERTISE_SCHEDD authorization"
-        }
-        return make_response(
-            render_template("code_submit_failure.html", **context), 400
-        )
+        return error("Token must be limited to the ADVERTISE_SCHEDD authorization", 400)
 
-    allowed_identity = user_id_to_token_id(osgid)
-    if not allowed_identity:
-        context = {"info": "User not associated with any known token identity"}
-        return make_response(
-            render_template("code_submit_failure.html", **context), 400
-        )
+    allowed_token_ids = valid_token_ids(user_id)
+    if not allowed_token_ids:
+        return error("User not associated with any known token identity", 400)
 
     found_requested_identity = False
-    for hostname in allowed_identity:
+    for hostname in allowed_token_ids:
         identity = hostname + "@users.htcondor.org"
         if identity == result.get("RequestedIdentity"):
             found_requested_identity = True
             break
 
     if not found_requested_identity:
-        context = {
-            "info": "Requested identity (%s) not in the list of allowed CEs (%s)"
-            % (result.get("RequestedIdentity"), ", ".join(allowed_identity))
-        }
-        return make_response(
-            render_template("code_submit_failure.html", **context), 400
+        return error(
+            "Requested identity ({}) not in the list of allowed CEs ({})".format(
+                result.get("RequestedIdentity"), ", ".join(allowed_token_ids)
+            ),
+            400,
         )
 
     try:
         approve_token(request.form.get("code"), current_app.config)
     except CondorToolException as cte:
-        context = {
-            "info": "Token must be limited to the ADVERTISE_SCHEDD authorization"
-        }
-        return make_response(
-            render_template("code_submit_failure.html", **context), 400
-        )
+        return error("Token must be limited to the ADVERTISE_SCHEDD authorization", 400)
 
     context = {"info": "Request approved."}
-    response = make_response(render_template("code_submit.html", **context))
+    response = make_response(render_template("code_submit_success.html", **context))
     return response
 
 
-def user_id_to_token_id(osgid):
+def error(info, status_code):
+    context = {"info": info}
+    return make_response(
+        render_template("code_submit_failure.html", **context), status_code
+    )
+
+
+def valid_token_ids(user_id):
     """
-    Map a given OSG ID to a list of authorized CEs they can
-    register
+    Map a given OSG ID to a list of authorized CEs they canregister
     """
-    # TODO: Here, we need to create a mapping from CILogon IDs to authorized CEs.
-    if osgid == "OSG1000001":
-        return ["hcc-briantest7.unl.edu"]
+    user_id_token_ids = current_app.config["MAPFILE"]
+
+    return user_id_token_ids.get(user_id, [])
+
+
+def _parse_mapfile():
+    mapfile = current_app.config["MAPFILE"]
+
+    user_to_token_ids = collections.defaultdict(set)
+    with open(mapfile) as f:
+        for line in f:
+            user, token = line.split()
+            user_to_token_ids[user].add(token)
+
+    return user_to_token_ids
 
 
 def fetch_tokens(reqid, config):
