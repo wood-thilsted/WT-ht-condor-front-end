@@ -2,7 +2,12 @@ import collections
 import subprocess
 import os
 import json
-import configparser
+
+try:  # py3
+    from configparser import ConfigParser
+except ImportError:  # py2
+    from ConfigParser import ConfigParser
+
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
@@ -113,7 +118,7 @@ def get_allowed_sources(user_id):
             "Config variable HUMANS_FILE not set; this should be set to the path of the file containing the information on humans."
         )
         raise
-    humans = configparser.ConfigParser()
+    humans = ConfigParser()
     humans.read(humans_file)
 
     names_to_sources = {
