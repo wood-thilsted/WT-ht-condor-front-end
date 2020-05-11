@@ -13,27 +13,37 @@ import htcondor
 import classad
 
 logger = logging.getLogger("register")
-logger.setLevel(100)
+logger.setLevel(logging.ERROR + 10)
 
-DEFAULT_COLLECTOR_PORT = "9618"
-DEFAULT_TARGET = "htpheno-cm.chtc.wisc.edu:{}".format(DEFAULT_COLLECTOR_PORT)
+DEFAULT_PORT = "9618"
+DEFAULT_TARGET = "htpheno-cm.chtc.wisc.edu:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "registration/code"
 RECONFIG_COMMAND = ["condor_reconfig"]
 TOKEN_BOUNDING_SET = ["ADVERTISE_STARTD"]
+SOURCE_POSTFIX = "users.htcondor.org"
+NUM_RETRIES = 10
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Register a source with HT Phenotyping."
+        description="Register a source with the HT Phenotyping project."
     )
 
+    default_source = socket.getfqdn()
+
     parser.add_argument(
-        "--source", help="The source name to register.", required=True,
+        "--source",
+        help="The source name to register. Defaults to this computer's hostname: {}".format(
+            default_source
+        ),
+        default=default_source,
     )
 
     parser.add_argument(
         "--pool",
-        help="The pool to register with. Defaults to {}".format(DEFAULT_TARGET),
+        help="The pool to register with. Defaults to {}. If you specify a custom pool but don't include a port, the default port will be used ({}).".format(
+            DEFAULT_TARGET, DEFAULT_PORT
+        ),
         default=DEFAULT_TARGET,
     )
 
@@ -76,9 +86,12 @@ def main():
             "This command must be run as root (on Linux/Mac) or as an administrator (on Windows)"
         )
 
-    # pool = args.pool
-    # if not pool.startswith("<") and pool.find(":") < 0:
-    #     pool += ":" + DEFAULT_COLLECTOR_PORT
+    logger.debug('Setting SEC_CLIENT_AUTHENTICATION_METHODS to "SSL"')
+    htcondor.param["SEC_CLIENT_AUTHENTICATION_METHODS"] = "SSL"
+
+    pool = args.pool
+    if not pool.startswith("<") and ":" not in pool:
+        pool = "{}:{}".format(pool, DEFAULT_PORT)
 
     success = request_token(pool=args.pool, source=args.source)
 
@@ -114,8 +127,11 @@ def request_token(pool, source):
     token = request_token_and_wait_for_approval(source, alias, collector_ad=coll_ad)
 
     if token is None:
-        print("Token request was not approved.")
+        # TODO: provide support email here, once we have one
+        print("Token request was not approved. Please try again.")
         return False
+
+    print("Token request approved!")
 
     token.write("50-{}-registration".format(alias))
     print("Registration of source {} with {} is complete!".format(source, alias))
@@ -124,16 +140,19 @@ def request_token(pool, source):
 
 
 def request_token_and_wait_for_approval(source, alias, collector_ad):
-    identity = "{}@users.htcondor.org".format(source)
+    identity = "{}@{}".format(source, SOURCE_POSTFIX)
 
-    for idx in range(10):
+    for attempt in range(1, NUM_RETRIES + 1):
+        print(
+            "Attempting to get token (attempt {}/{}) ...".format(attempt, NUM_RETRIES)
+        )
         try:
             req = htcondor.TokenRequest(identity, bounding_set=TOKEN_BOUNDING_SET)
             req.submit(collector_ad)
             reqid = req.request_id
         except Exception as e:
             logger.exception("Token request failed.")
-            error("Token request failed due to: {}".format(e))
+            print("Token request failed.")
             continue
 
         try:
@@ -147,11 +166,7 @@ def request_token_and_wait_for_approval(source, alias, collector_ad):
             return req.result(600)
         except Exception as e:
             logger.exception("Exception while waiting for token approval.")
-            print(
-                "An error occurred while waiting for token approval: {}; will retry with a new request.".format(
-                    e
-                )
-            )
+            print("An error occurred while waiting for token approval: {}".format(e))
 
 
 def reconfig():
@@ -170,4 +185,7 @@ def error(msg, exit_code=1):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Aborted!", file=sys.stderr)
