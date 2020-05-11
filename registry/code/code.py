@@ -2,6 +2,7 @@ import collections
 import subprocess
 import os
 import json
+import configparser
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
@@ -29,51 +30,63 @@ def code_post():
     if "code" not in request.form:
         return error("The code parameter is missing", 400)
 
-    user_id_env_var = current_app.config.get("USER_ID_ENV_VAR", None)
-    if not user_id_env_var:
+    try:
+        user_id_env_var = current_app.config["USER_ID_ENV_VAR"]
+    except KeyError:
         current_app.logger.error(
             "Config variable USER_ID_ENV_VAR not set; this should be set to the name of the environment variable that holds the user's identity (perhaps REMOTE_USER ?)"
         )
         return error("Server configuration error", 500)
 
+    current_app.logger.debug(
+        "Will read user ID from request environment variable {}".format(user_id_env_var)
+    )
+
     user_id = request.environ.get(user_id_env_var, None)
+    current_app.logger.debug("User ID is {}".format(user_id))
     if not user_id:
         return error("Unknown user", 401)
 
     try:
-        result = fetch_tokens(request.form.get("code"), current_app.config)
+        result = fetch_tokens(request.form.get("code"))
     except CondorToolException as cte:
+        current_app.logger.exception("Wasn't able to fetch token requests.")
         return error(str(cte), 400)
 
     if not result:
         return error("Request {} is unknown".format(request.form.get("code")), 400)
+    # TODO: this is a hack that relies on the first token in the list being the most recent one; replace with a search over the pending tokens
     result = result[0]
 
     authz = result.get("LimitAuthorization")
-    if authz != "ADVERTISE_SCHEDD":
-        return error("Token must be limited to the ADVERTISE_SCHEDD authorization", 400)
+    if authz != "ADVERTISE_STARTD":
+        return error("Token must be limited to the ADVERTISE_STARTD authorization", 400)
 
-    allowed_token_ids = valid_token_ids(user_id)
-    if not allowed_token_ids:
+    try:
+        allowed_sources = get_allowed_sources(user_id)
+    except Exception:
+        return error("Server configuration error", 500)
+
+    if not allowed_sources:
         return error("User not associated with any known token identity", 400)
 
     found_requested_identity = False
-    for hostname in allowed_token_ids:
-        identity = hostname + "@users.htcondor.org"
+    for source in allowed_sources:
+        identity = source + "@users.htcondor.org"
         if identity == result.get("RequestedIdentity"):
             found_requested_identity = True
             break
 
     if not found_requested_identity:
         return error(
-            "Requested identity ({}) not in the list of allowed CEs ({})".format(
-                result.get("RequestedIdentity"), ", ".join(allowed_token_ids)
+            "Requested identity ({}) not in the list of allowed sources ({})".format(
+                result.get("RequestedIdentity"), ", ".join(allowed_sources)
             ),
             400,
         )
 
     try:
-        approve_token(request.form.get("code"), current_app.config)
+        approve_token(request.form.get("code"))
     except CondorToolException as cte:
         return error("Token must be limited to the ADVERTISE_SCHEDD authorization", 400)
 
@@ -89,13 +102,25 @@ def error(info, status_code):
     )
 
 
-def valid_token_ids(user_id):
+def get_allowed_sources(user_id):
     """
-    Map a given OSG ID to a list of authorized CEs they canregister
+    Map a given user ID to a list of sources they are authorized to register.
     """
-    user_id_token_ids = current_app.config["MAPFILE"]
+    try:
+        humans_file = current_app.config["HUMANS_FILE"]
+    except KeyError:
+        current_app.logger.error(
+            "Config variable HUMANS_FILE not set; this should be set to the path of the file containing the information on humans."
+        )
+        raise
+    humans = configparser.ConfigParser()
+    humans.read(humans_file)
 
-    return user_id_token_ids.get(user_id, [])
+    names_to_sources = {
+        entry["Name"]: entry["Sources"].split() for entry in humans.values()
+    }
+
+    return names_to_sources.get(user_id, [])
 
 
 def _parse_mapfile():
@@ -110,21 +135,19 @@ def _parse_mapfile():
     return user_to_token_ids
 
 
-def fetch_tokens(reqid, config):
+def fetch_tokens(reqid):
+    config = current_app.config
     binary = config.get("CONDOR_TOKEN_REQUEST_LIST", "condor_token_request_list")
-    pool = config.get("CONDORCE_COLLECTOR")
     args = [binary, "-reqid", str(reqid), "-json"]
-    if pool:
-        args.extend(["-pool", pool])
     req_environ = dict(os.environ)
-    req_environ.setdefault("CONDOR_CONFIG", "/etc/condor-ce/condor_config")
+    req_environ.setdefault("CONDOR_CONFIG", "/etc/condor/condor_config")
     req_environ["_condor_SEC_CLIENT_AUTHENTICATION_METHODS"] = "TOKEN"
-    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/condor-ce/webapp.tokens.d"
+    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/condor/tokens.d"
     process = subprocess.Popen(
         args, stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=req_environ
     )
     stdout, stderr = process.communicate()
-    if process.returncode:
+    if process.returncode != 0:
         raise CondorToolException(
             "Failed to list internal requests: {}".format(stderr.decode("utf-8"))
         )
@@ -136,16 +159,14 @@ def fetch_tokens(reqid, config):
     return json_obj
 
 
-def approve_token(reqid, config):
+def approve_token(reqid):
+    config = current_app.config
     binary = config.get("CONDOR_TOKEN_REQUEST_APPROVE", "condor_token_request_approve")
-    pool = config.get("CONDORCE_COLLECTOR")
     args = [binary, "-reqid", str(reqid)]
-    if pool:
-        args.extend(["-pool", pool])
     req_environ = dict(os.environ)
-    req_environ.setdefault("CONDOR_CONFIG", "/etc/condor-ce/condor_config")
+    req_environ.setdefault("CONDOR_CONFIG", "/etc/condor/condor_config")
     req_environ["_condor_SEC_CLIENT_AUTHENTICATION_METHODS"] = "TOKEN"
-    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/condor-ce/webapp.tokens.d"
+    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/tokens.d"
     process = subprocess.Popen(
         args,
         stderr=subprocess.PIPE,
