@@ -21,10 +21,6 @@ class CondorToolException(Exception):
 @code_bp.route("/code", methods=["GET"])
 def code_get():
     response = make_response(render_template("code_submit.html"))
-    response.headers[
-        "Strict-Transport-Security"
-    ] = "max-age=31536000; includeSubDomains"
-    response.headers["Content-Security-Policy"] = "frame-ancestors 'none';"
     return response
 
 
@@ -35,6 +31,9 @@ def code_post():
 
     user_id_env_var = current_app.config.get("USER_ID_ENV_VAR", None)
     if not user_id_env_var:
+        current_app.logger.error(
+            "Config variable USER_ID_ENV_VAR not set; this should be set to the name of the environment variable that holds the user's identity (perhaps REMOTE_USER ?)"
+        )
         return error("Server configuration error", 500)
 
     user_id = request.environ.get(user_id_env_var, None)
