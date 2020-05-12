@@ -189,6 +189,6 @@ def make_request_environment():
     req_environ = dict(os.environ)
     req_environ.setdefault("CONDOR_CONFIG", "/etc/condor/condor_config")
     req_environ["_condor_SEC_CLIENT_AUTHENTICATION_METHODS"] = "TOKEN"
-    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/tokens.d"
+    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/condor/tokens.d"
 
     return req_environ
