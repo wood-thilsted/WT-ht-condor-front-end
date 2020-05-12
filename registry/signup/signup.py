@@ -22,7 +22,6 @@ def signup_get():
 
 @signup_bp.route("/signup", methods=["POST"])
 def signup_post():
-
     for varname in ["contact", "email", "source", "sourcePath"]:
         if varname not in request.form:
             return error("The '{}' parameter is missing".format(varname), 400)

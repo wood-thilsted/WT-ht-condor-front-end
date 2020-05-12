@@ -53,7 +53,7 @@ def code_post():
         return error("Unknown user", 401)
 
     try:
-        result = fetch_tokens(request.form.get("code"))
+        result = get_pending_token_request(request.form.get("code"))
     except CondorToolException as cte:
         current_app.logger.exception("Wasn't able to fetch token requests.")
         return error(str(cte), 400)
@@ -95,7 +95,7 @@ def code_post():
         )
 
     try:
-        approve_token(request.form.get("code"))
+        approve_token_request(request.form.get("code"))
     except CondorToolException:
         current_app.logger.exception(
             "Token must be limited to the ADVERTISE_STARTD authorization."
@@ -153,11 +153,11 @@ def config_to_entries(config):
     return entries
 
 
-def fetch_tokens(reqid):
+def get_pending_token_request(request_id):
     binary = current_app.config.get(
         "CONDOR_TOKEN_REQUEST_LIST", "condor_token_request_list"
     )
-    args = [binary, "-reqid", str(reqid), "-json"]
+    args = [binary, "-reqid", str(request_id), "-json"]
 
     current_app.logger.debug("Running {}".format(" ".join(args)))
 
@@ -180,11 +180,11 @@ def fetch_tokens(reqid):
     return json_obj
 
 
-def approve_token(reqid):
+def approve_token_request(request_id):
     binary = current_app.config.get(
         "CONDOR_TOKEN_REQUEST_APPROVE", "condor_token_request_approve"
     )
-    args = [binary, "-reqid", str(reqid)]
+    args = [binary, "-reqid", str(request_id)]
 
     current_app.logger.debug("Running {}".format(" ".join(args)))
 
@@ -196,6 +196,7 @@ def approve_token(reqid):
         env=make_request_environment(),
     )
     stdout, stderr = process.communicate(input=b"yes\n")
+
     if process.returncode:
         raise CondorToolException(
             "Failed to approve request: {}".format(stderr.decode("utf-8"))
