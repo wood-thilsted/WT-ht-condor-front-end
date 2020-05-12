@@ -119,7 +119,7 @@ def get_allowed_sources(user_id):
     Map a given user ID to a list of sources they are authorized to register.
     """
     names_to_sources = {
-        entry["Name"]: entry["Sources"].split() for entry in parse_humans_file()
+        entry["name"]: entry["sources"].split() for entry in parse_humans_file()
     }
     return names_to_sources.get(user_id, [])
 
@@ -147,6 +147,8 @@ def config_to_entries(config):
         entry = {}
         for option in config.options(section):
             entry[option] = config.get(section, option)
+
+        entries.append(entry)
 
     return entries
 
