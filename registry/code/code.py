@@ -32,8 +32,17 @@ def code_get():
 
 @code_bp.route("/code", methods=["POST"])
 def code_post():
-    if "code" not in request.form:
+    request_id = request.form.get("code", None)
+
+    if request_id is None:
         return error("The code parameter is missing", 400)
+    if not request_id.isdigit():
+        return error(
+            'The request ID you entered was not a sequence of numbers (it was "{}"). Make sure it was copied correctly.'.format(
+                request_id
+            ),
+            400,
+        )
 
     try:
         user_id_env_var = current_app.config["USER_ID_ENV_VAR"]
@@ -53,13 +62,13 @@ def code_post():
         return error("Unknown user", 401)
 
     try:
-        result = get_pending_token_request(request.form.get("code"))
+        result = get_pending_token_request(request_id)
     except CondorToolException as cte:
         current_app.logger.exception("Wasn't able to fetch token requests.")
         return error(str(cte), 400)
 
     if not result:
-        return error("Request {} is unknown".format(request.form.get("code")), 400)
+        return error("Request {} is unknown".format(request_id), 400)
     result = result[0]
 
     authz = result.get("LimitAuthorization")
