@@ -118,6 +118,13 @@ def get_allowed_sources(user_id):
     """
     Map a given user ID to a list of sources they are authorized to register.
     """
+    names_to_sources = {
+        entry["Name"]: entry["Sources"].split() for entry in parse_humans_file()
+    }
+    return names_to_sources.get(user_id, [])
+
+
+def parse_humans_file():
     try:
         humans_file = current_app.config["HUMANS_FILE"]
     except KeyError:
@@ -126,14 +133,22 @@ def get_allowed_sources(user_id):
         )
         raise
 
-    humans = ConfigParser()
-    humans.read(humans_file)
+    config = ConfigParser()
+    config.read(humans_file)
 
-    names_to_sources = {
-        entry["Name"]: entry["Sources"].split() for entry in humans.values()
-    }
+    entries = config_to_entries(config)
 
-    return names_to_sources.get(user_id, [])
+    return entries
+
+
+def config_to_entries(config):
+    entries = []
+    for section in config.sections():
+        entry = {}
+        for option in config.options(section):
+            entry[option] = config.get(section, option)
+
+    return entries
 
 
 def fetch_tokens(reqid):
