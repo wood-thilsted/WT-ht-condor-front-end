@@ -137,12 +137,12 @@ def get_allowed_sources(user_id):
 
 
 def fetch_tokens(reqid):
-    config = current_app.config
-
-    binary = config.get("CONDOR_TOKEN_REQUEST_LIST", "condor_token_request_list")
+    binary = current_app.config.get(
+        "CONDOR_TOKEN_REQUEST_LIST", "condor_token_request_list"
+    )
     args = [binary, "-reqid", str(reqid), "-json"]
 
-    current_app.logger.debug("Running {}", " ".join(args))
+    current_app.logger.debug("Running {}".join(args))
 
     process = subprocess.Popen(
         args,
@@ -164,12 +164,12 @@ def fetch_tokens(reqid):
 
 
 def approve_token(reqid):
-    config = current_app.config
-
-    binary = config.get("CONDOR_TOKEN_REQUEST_APPROVE", "condor_token_request_approve")
+    binary = current_app.config.get(
+        "CONDOR_TOKEN_REQUEST_APPROVE", "condor_token_request_approve"
+    )
     args = [binary, "-reqid", str(reqid)]
 
-    current_app.logger.debug("Running {}", " ".join(args))
+    current_app.logger.debug("Running {}".join(args))
 
     process = subprocess.Popen(
         args,
