@@ -29,15 +29,7 @@ def parse_args():
         description="Register a source with the HT Phenotyping project."
     )
 
-    default_source = socket.getfqdn()
-
-    parser.add_argument(
-        "--source",
-        help="The source name to register. Defaults to this computer's hostname: {}".format(
-            default_source
-        ),
-        default=default_source,
-    )
+    parser.add_argument("--source", help="The source name to register.", required=True)
 
     parser.add_argument(
         "--pool",
