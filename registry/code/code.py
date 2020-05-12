@@ -60,7 +60,6 @@ def code_post():
 
     if not result:
         return error("Request {} is unknown".format(request.form.get("code")), 400)
-    # TODO: this is a hack that relies on the first token in the list being the most recent one; replace with a search over the pending tokens
     result = result[0]
 
     authz = result.get("LimitAuthorization")
@@ -70,7 +69,12 @@ def code_post():
     try:
         allowed_sources = get_allowed_sources(user_id)
     except Exception:
+        logger.exception("Failed to get allowed sources.")
         return error("Server configuration error", 500)
+
+    current_app.logger.debug(
+        "Allowed sources for user {} are {}".format(user_id, allowed_sources)
+    )
 
     if not allowed_sources:
         return error("User not associated with any known token identity", 400)
@@ -118,6 +122,7 @@ def get_allowed_sources(user_id):
             "Config variable HUMANS_FILE not set; this should be set to the path of the file containing the information on humans."
         )
         raise
+
     humans = ConfigParser()
     humans.read(humans_file)
 
@@ -128,28 +133,19 @@ def get_allowed_sources(user_id):
     return names_to_sources.get(user_id, [])
 
 
-def _parse_mapfile():
-    mapfile = current_app.config["MAPFILE"]
-
-    user_to_token_ids = collections.defaultdict(set)
-    with open(mapfile) as f:
-        for line in f:
-            user, token = line.split()
-            user_to_token_ids[user].add(token)
-
-    return user_to_token_ids
-
-
 def fetch_tokens(reqid):
     config = current_app.config
+
     binary = config.get("CONDOR_TOKEN_REQUEST_LIST", "condor_token_request_list")
     args = [binary, "-reqid", str(reqid), "-json"]
-    req_environ = dict(os.environ)
-    req_environ.setdefault("CONDOR_CONFIG", "/etc/condor/condor_config")
-    req_environ["_condor_SEC_CLIENT_AUTHENTICATION_METHODS"] = "TOKEN"
-    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/condor/tokens.d"
+
+    current_app.logger.debug("Running {}", " ".join(args))
+
     process = subprocess.Popen(
-        args, stderr=subprocess.PIPE, stdout=subprocess.PIPE, env=req_environ
+        args,
+        stderr=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        env=make_request_environment(),
     )
     stdout, stderr = process.communicate()
     if process.returncode != 0:
@@ -166,21 +162,30 @@ def fetch_tokens(reqid):
 
 def approve_token(reqid):
     config = current_app.config
+
     binary = config.get("CONDOR_TOKEN_REQUEST_APPROVE", "condor_token_request_approve")
     args = [binary, "-reqid", str(reqid)]
-    req_environ = dict(os.environ)
-    req_environ.setdefault("CONDOR_CONFIG", "/etc/condor/condor_config")
-    req_environ["_condor_SEC_CLIENT_AUTHENTICATION_METHODS"] = "TOKEN"
-    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/tokens.d"
+
+    current_app.logger.debug("Running {}", " ".join(args))
+
     process = subprocess.Popen(
         args,
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stdin=subprocess.PIPE,
-        env=req_environ,
+        env=make_request_environment(),
     )
     stdout, stderr = process.communicate(input=b"yes\n")
     if process.returncode:
         raise CondorToolException(
             "Failed to approve request: {}".format(stderr.decode("utf-8"))
         )
+
+
+def make_request_environment():
+    req_environ = dict(os.environ)
+    req_environ.setdefault("CONDOR_CONFIG", "/etc/condor/condor_config")
+    req_environ["_condor_SEC_CLIENT_AUTHENTICATION_METHODS"] = "TOKEN"
+    req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/tokens.d"
+
+    return req_environ
