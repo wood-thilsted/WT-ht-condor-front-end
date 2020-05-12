@@ -2,6 +2,7 @@ import os
 
 from flask import Flask
 
+from .index import index_bp
 from .code import code_bp
 from .signup import signup_bp
 
@@ -19,13 +20,9 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     with app.app_context():
+        app.register_blueprint(index_bp)
         app.register_blueprint(code_bp)
         app.register_blueprint(signup_bp)
-
-        @app.route("/health")
-        def health():
-            app.logger.debug("Health!")
-            return "Hello!\n"
 
     app.logger.debug("Created!")
     return app
