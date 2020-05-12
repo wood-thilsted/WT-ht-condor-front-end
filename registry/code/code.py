@@ -142,7 +142,7 @@ def fetch_tokens(reqid):
     )
     args = [binary, "-reqid", str(reqid), "-json"]
 
-    current_app.logger.debug("Running {}".join(args))
+    current_app.logger.debug("Running {}".format(" ".join(args)))
 
     process = subprocess.Popen(
         args,
@@ -169,7 +169,7 @@ def approve_token(reqid):
     )
     args = [binary, "-reqid", str(reqid)]
 
-    current_app.logger.debug("Running {}".join(args))
+    current_app.logger.debug("Running {}".format(" ".join(args)))
 
     process = subprocess.Popen(
         args,
