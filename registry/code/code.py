@@ -104,7 +104,7 @@ def code_post():
         )
 
     try:
-        approve_token_request(request.form.get("code"))
+        approve_token_request(request_id)
     except CondorToolException:
         current_app.logger.exception(
             "Token must be limited to the ADVERTISE_STARTD authorization."
@@ -179,7 +179,9 @@ def get_pending_token_request(request_id):
     stdout, stderr = process.communicate()
     if process.returncode != 0:
         raise CondorToolException(
-            "Failed to list internal requests: {}".format(stderr.decode("utf-8"))
+            "Failed to list internal requests: {}\nMake sure you entered the correct request ID.".format(
+                stderr.decode("utf-8")
+            )
         )
     try:
         json_obj = json.loads(stdout)
