@@ -176,6 +176,7 @@ def get_pending_token_request(request_id):
         json_obj = json.loads(stdout)
     except json.JSONDecodeError:
         raise CondorToolException("Internal error: invalid format of request list")
+    current_app.logger.debug("Resulting token list:\n{}".format(json_obj))
 
     return json_obj
 
