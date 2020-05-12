@@ -21,19 +21,22 @@
 
 <body>
 {% block navbar %}
-<nav class="navbar navbar-default">
-  <div class="container">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">
-        HT Phenotyping Registration
-      </a>
-        <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('signup.signup_get') }}">Register a New Data Source</a></li>
-            <li><a href="{{ url_for('code.code_get') }}">Approve a Token Request</a></li>
-        </ul>
-    </div>
-  </div>
-</nav>
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">
+                    HT Phenotyping Registration
+                </a>
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('signup.signup_get') }}">Register a New Data Source</a></li>
+                    <li><a href="{{ url_for('code.code_get') }}">Approve a Token Request</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="{{ url_for('index.logout') }}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 {% endblock %}
 {% block body %}{% endblock %}
 </body>

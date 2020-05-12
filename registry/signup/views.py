@@ -30,7 +30,7 @@ def signup_post():
         admin_emails = current_app.config["ADMIN_EMAILS"]
     except KeyError:
         current_app.logger.error(
-            "Invalid internal configuration: ADMIN_EMAILS parameter is not set"
+            "Invalid internal configuration: ADMIN_EMAILS is not set"
         )
         return error("Server configuration error", 500)
 

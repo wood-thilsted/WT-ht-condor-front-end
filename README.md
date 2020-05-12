@@ -26,10 +26,11 @@ USER_ID_ENV_VAR = "REMOTE_USER"
 These configuration options **must** be set.
 They do not have defaults.
 
+* `SERVER_NAME` - The name of the host server.
+* `OIDC_REDIRECT_URI` - The URI for the OIDC redirect.
 * `USER_ID_ENV_VAR` - The request environment variable that holds the user's identity.
 * `HUMANS_FILE` - The path to the file that contains information on humans.
 * `ADMIN_EMAILS` - The email addresses that will receive mail when users sign up, like `ADMIN_EMAILS = "Foo Bar <foobar@university.edu>, Wiz Bang <wizbang@organization.org>"`.
-
 
 ### Optional
 
