@@ -40,7 +40,15 @@ def logout():
         current_app.logger.error(
             "Invalid internal configuration: OIDC_REDIRECT_URI is not set"
         )
-        return
-    params = {"logout": url_for("index.index", _external=True)}
-    # TODO: build the url using urllib
-    return redirect("{}?{}".format(redirect_uri, urlencode(params)))
+        return "Error!"
+    # TODO: build the urls using urllib; this is pretty gnarly...
+    try:
+        params = {"logout": "https://" + current_app.config["SERVER_NAME"]}
+    except KeyError:
+        current_app.logger.error(
+            "Invalid internal configuration: SERVER_NAME is not set"
+        )
+        return "Error!"
+    url = "{}?{}".format(redirect_uri, urlencode(params))
+    current_app.logger.debug("Redirecting logout to", url)
+    return redirect(url)
