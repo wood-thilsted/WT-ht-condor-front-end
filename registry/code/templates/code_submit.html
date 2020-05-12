@@ -18,6 +18,15 @@
                     },
                 })
                 .data("plugin_pincodeInput").focus();
+            if ("URLSearchParams" in window) {
+                const searchParams = new URLSearchParams(window.location.search);
+                if (searchParams.has("code")) {
+                    var code = searchParams.get("code");
+                    $("#registration_code").data("plugin_pincodeInput")._setValue(code, function () {
+                    });
+                    $("#submit_button").focus();
+                }
+            }
         });
     </script>
 

@@ -69,7 +69,7 @@ def code_post():
     try:
         allowed_sources = get_allowed_sources(user_id)
     except Exception:
-        logger.exception("Failed to get allowed sources.")
+        current_app.logger.exception("Failed to get allowed sources.")
         return error("Server configuration error", 500)
 
     current_app.logger.debug(
@@ -96,8 +96,11 @@ def code_post():
 
     try:
         approve_token(request.form.get("code"))
-    except CondorToolException as cte:
-        return error("Token must be limited to the ADVERTISE_SCHEDD authorization", 400)
+    except CondorToolException:
+        current_app.logger.exception(
+            "Token must be limited to the ADVERTISE_STARTD authorization."
+        )
+        return error("Token must be limited to the ADVERTISE_STARTD authorization", 400)
 
     context = {"info": "Request approved."}
     response = make_response(render_template("code_submit_success.html", **context))
