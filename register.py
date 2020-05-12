@@ -132,16 +132,12 @@ def request_token(pool, source):
 
 
 def request_token_and_wait_for_approval(source, alias, collector_ad):
-    identity = "{}@{}".format(source, SOURCE_POSTFIX)
-
     for attempt in range(1, NUM_RETRIES + 1):
         print(
             "Attempting to get token (attempt {}/{}) ...".format(attempt, NUM_RETRIES)
         )
         try:
-            req = htcondor.TokenRequest(identity, bounding_set=TOKEN_BOUNDING_SET)
-            req.submit(collector_ad)
-            reqid = req.request_id
+            req = make_token_request(collector_ad, source)
         except Exception as e:
             logger.exception("Token request failed.")
             print("Token request failed.")
@@ -150,15 +146,37 @@ def request_token_and_wait_for_approval(source, alias, collector_ad):
         try:
             # TODO: the url construction here is very manual; use urllib instead
             print(
-                "Request is queued; please approve it by visiting https://{}/{}?code={}".format(
-                    alias, REGISTRATION_CODE_PATH, reqid
+                "Token request is queued; please approve it by following the instructions at https://{}/{}?code={}".format(
+                    alias, REGISTRATION_CODE_PATH, req.request_id
                 )
             )
-            print("Request ID is {}".format(reqid))
-            return req.result(600)
+            print(
+                "Token request ID is {} (if you need to enter it manually)".format(
+                    req.request_id
+                )
+            )
+            return req.result(0)
         except Exception as e:
             logger.exception("Exception while waiting for token approval.")
             print("An error occurred while waiting for token approval: {}".format(e))
+
+
+def make_token_request(collector_ad, source):
+    identity = "{}@{}".format(source, SOURCE_POSTFIX)
+
+    req = htcondor.TokenRequest(identity, bounding_set=TOKEN_BOUNDING_SET)
+    req.submit(collector_ad)
+
+    # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/10
+    # Yes, we could, in principle, hit the recursion limit here, but we would have to
+    # get exceedingly unlucky, and this is a simple, straightforward fix.
+    # Once we upgrade the server to whatever version of HTCondor this is fixed in,
+    # we can drop this code entirely.
+    if req.request_id.startswith("0"):
+        logger.debug("Got a token with a leading 0; trying again.")
+        return make_token_request(collector_ad, source)
+
+    return req
 
 
 def reconfig():
