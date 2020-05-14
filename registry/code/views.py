@@ -2,6 +2,7 @@ import collections
 import subprocess
 import os
 import json
+import re
 
 try:  # py3
     from configparser import ConfigParser
@@ -31,7 +32,8 @@ def code_get():
 
 
 SOURCE_PREFIX = "SOURCE_"
-SOURCE_POSTFIX = "users.htcondor.org"
+SOURCE_POSTFIX = "htpheno-cm.chtc.wisc.edu"
+SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
 ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD"}
 
 
@@ -81,6 +83,20 @@ def code_post():
         return error("Request {} is unknown".format(request_id), 400)
     result = result[0]
 
+    requested_source = result.get("RequestedIdentity").split("@")[0][
+                       len(SOURCE_PREFIX):
+                       ]
+    if not SOURCE_CHECK.match(requested_source):
+        current_app.logger.debug(
+            "The requested source name was {}, which is invalid.".format(
+                requested_source
+            )
+        )
+        return error(
+            "The source name must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), and underscores (_). It may not begin with a digit.",
+            400,
+        )
+
     requested_authorizations = set(result.get("LimitAuthorization").split(","))
     if not requested_authorizations.issubset(ALLOWED_AUTHORIZATIONS):
         return error(
@@ -120,9 +136,7 @@ def code_post():
     if not found_requested_identity:
         return error(
             "The requested source ({}) was not in the list of allowed sources for user {} ({})".format(
-                result.get("RequestedIdentity").split("@")[0][len(SOURCE_PREFIX) :],
-                user_id,
-                ", ".join(allowed_sources),
+                requested_source, user_id, ", ".join(allowed_sources),
             ),
             400,
         )
