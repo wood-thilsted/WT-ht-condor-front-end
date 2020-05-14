@@ -85,9 +85,7 @@ def main():
     success = request_token(pool=args.pool, source=args.source)
 
     if not success:
-        error(
-            "Failed to complete the token request workflow.\nIf the error isn't clear, try running in verbose mode (--verbose)."
-        )
+        error("Failed to complete the token request workflow.")
 
     print(
         'Sending a "reconfigure" command to HTCondor (so that it picks up the new token).'
