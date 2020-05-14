@@ -9,6 +9,7 @@ import socket
 import subprocess
 import sys
 import traceback
+import time
 
 import htcondor
 import classad
@@ -133,7 +134,9 @@ def request_token(pool, source):
     return True
 
 
-def request_token_and_wait_for_approval(source, alias, collector_ad, retries=10):
+def request_token_and_wait_for_approval(
+    source, alias, collector_ad, retries=10, retry_delay=5
+):
     """
     This function requests a token and waits for the request to be authorized.
     If the authorization flow is successful, it will return the token.
@@ -154,13 +157,25 @@ def request_token_and_wait_for_approval(source, alias, collector_ad, retries=10)
     -------
 
     """
+    start_time = None
     for attempt in range(1, retries + 1):
+        if start_time is not None:
+            elapsed_time = time.time() - start_time
+            wait_time = retry_delay - elapsed_time
+            if wait_time > 0:
+                print(
+                    "Waiting for ~{:.1f} seconds before retrying...".format(wait_time)
+                )
+                time.sleep(wait_time)
+
+        start_time = time.time()
+
         print("Attempting to get token (attempt {}/{}) ...".format(attempt, retries))
         try:
             req = make_token_request(collector_ad, source)
         except Exception as e:
-            logger.exception("Token request failed.")
-            print("Token request failed.")
+            logger.exception("Token request failed")
+            print("Token request failed due to: {}".format(e))
             continue
 
         try:
