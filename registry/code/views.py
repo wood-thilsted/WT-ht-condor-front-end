@@ -54,7 +54,9 @@ def code_post():
         current_app.logger.error(
             "Config variable USER_ID_ENV_VAR not set; this should be set to the name of the environment variable that holds the user's identity (perhaps REMOTE_USER ?)"
         )
-        return error("Server configuration error", 500)
+        return error(
+            "Server configuration error. Please contact the administrators.", 500
+        )
 
     current_app.logger.debug(
         "Will read user ID from request environment variable {}".format(user_id_env_var)
@@ -67,9 +69,12 @@ def code_post():
 
     try:
         result = get_pending_token_request(request_id)
-    except CondorToolException as cte:
-        current_app.logger.exception("Wasn't able to fetch token requests.")
-        return error(str(cte), 400)
+    except CondorToolException:
+        current_app.logger.exception("Error while fetching token requests.")
+        return error(
+            "Was not able to fetch token requests. Please try again or contact the administrators.",
+            400,
+        )
 
     if not result:
         return error("Request {} is unknown".format(request_id), 400)
@@ -86,7 +91,9 @@ def code_post():
         allowed_sources = get_allowed_sources(user_id)
     except Exception:
         current_app.logger.exception("Failed to get allowed sources.")
-        return error("Server configuration error", 500)
+        return error(
+            "Server configuration error. Please contact the administrators.", 500
+        )
 
     current_app.logger.debug(
         "The allowed sources for user {} are {}".format(user_id, allowed_sources)
@@ -120,10 +127,11 @@ def code_post():
     try:
         approve_token_request(request_id)
     except CondorToolException:
-        current_app.logger.exception(
-            "Token must be limited to the ADVERTISE_STARTD authorization."
+        current_app.logger.exception("Error while approving token request.")
+        return error(
+            "Was not able to approve token request. Please try again or contact the administrators.",
+            400,
         )
-        return error("Token must be limited to the ADVERTISE_STARTD authorization", 400)
 
     context = {"info": "Request approved."}
     response = make_response(render_template("code_submit_success.html", **context))
