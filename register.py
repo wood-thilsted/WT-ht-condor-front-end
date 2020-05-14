@@ -82,6 +82,10 @@ def main():
     logger.debug('Setting SEC_CLIENT_AUTHENTICATION_METHODS to "SSL"')
     htcondor.param["SEC_CLIENT_AUTHENTICATION_METHODS"] = "SSL"
 
+    # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/17
+    if htcondor.param["AUTH_SSL_CLIENT_CAFILE"] == "/etc/ssl/certs/ca-bundle.crt":
+        htcondor.param["AUTH_SSL_CLIENT_CAFILE"] = "/etc/ssl/certs/ca-certificates.crt"
+
     success = request_token(pool=args.pool, source=args.source)
 
     if not success:
