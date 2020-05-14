@@ -82,7 +82,7 @@ def code_post():
     result = result[0]
 
     requested_authorizations = set(result.get("LimitAuthorization").split(","))
-    if requested_authorizations.issubset(ALLOWED_AUTHORIZATIONS):
+    if not requested_authorizations.issubset(ALLOWED_AUTHORIZATIONS):
         return error(
             "The requested token must be limited to the authorizations {}; but you requested {}.".format(
                 ", ".join(ALLOWED_AUTHORIZATIONS), ", ".join(requested_authorizations)
