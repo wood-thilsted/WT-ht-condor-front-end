@@ -32,7 +32,7 @@ def code_get():
 
 
 SOURCE_PREFIX = "SOURCE_"
-SOURCE_POSTFIX = "users.htcondor.org"
+SOURCE_POSTFIX = "htpheno-cm.chtc.wisc.edu"
 SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
 
 
