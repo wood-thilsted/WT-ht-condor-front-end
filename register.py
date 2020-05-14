@@ -8,6 +8,7 @@ import os
 import socket
 import subprocess
 import sys
+import traceback
 
 import htcondor
 import classad
@@ -81,17 +82,17 @@ def main():
     logger.debug('Setting SEC_CLIENT_AUTHENTICATION_METHODS to "SSL"')
     htcondor.param["SEC_CLIENT_AUTHENTICATION_METHODS"] = "SSL"
 
-    pool = args.pool
-    if not pool.startswith("<") and ":" not in pool:
-        pool = "{}:{}".format(pool, DEFAULT_PORT)
-
     success = request_token(pool=args.pool, source=args.source)
 
-    if success:
-        print(
-            "Sending a reconfigure command to HTCondor (so that it picks up the new token)."
+    if not success:
+        error(
+            "Failed to complete the token request workflow.\nIf the error isn't clear, try running in verbose mode (--verbose)."
         )
-        reconfig()
+
+    print(
+        'Sending a "reconfigure" command to HTCondor (so that it picks up the new token).'
+    )
+    reconfig()
 
 
 def is_admin():
@@ -119,23 +120,40 @@ def request_token(pool, source):
     token = request_token_and_wait_for_approval(source, alias, collector_ad=coll_ad)
 
     if token is None:
-        # TODO: provide support email here, once we have one
-        print("Token request was not approved. Please try again.")
         return False
 
     print("Token request approved!")
 
     token.write("50-{}-registration".format(alias))
+
     print("Registration of source {} with {} is complete!".format(source, alias))
 
     return True
 
 
-def request_token_and_wait_for_approval(source, alias, collector_ad):
-    for attempt in range(1, NUM_RETRIES + 1):
-        print(
-            "Attempting to get token (attempt {}/{}) ...".format(attempt, NUM_RETRIES)
-        )
+def request_token_and_wait_for_approval(source, alias, collector_ad, retries=10):
+    """
+    This function requests a token and waits for the request to be authorized.
+    If the authorization flow is successful, it will return the token.
+    Otherwise, it will return ``None``.
+
+    Parameters
+    ----------
+    source
+        The data source name to request a token for.
+    alias
+        The alias of the server (only used for user-facing messages).
+    collector_ad
+        The ClassAd used to contact the collector to make the token request to.
+    retries
+        The number of times to attempt the token authorization flow.
+
+    Returns
+    -------
+
+    """
+    for attempt in range(1, retries + 1):
+        print("Attempting to get token (attempt {}/{}) ...".format(attempt, retries))
         try:
             req = make_token_request(collector_ad, source)
         except Exception as e:
@@ -157,7 +175,7 @@ def request_token_and_wait_for_approval(source, alias, collector_ad):
             )
             return req.result(0)
         except Exception as e:
-            logger.exception("Exception while waiting for token approval.")
+            logger.exception("Error while waiting for token approval.")
             print("An error occurred while waiting for token approval: {}".format(e))
 
 
@@ -198,4 +216,7 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("Aborted!", file=sys.stderr)
+        error("Aborted!")
+    except Exception as e:
+        traceback.format_exc()
+        error("Unknown error!")
