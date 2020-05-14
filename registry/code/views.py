@@ -30,6 +30,10 @@ def code_get():
     return response
 
 
+SOURCE_PREFIX = "SOURCE_"
+SOURCE_POSTFIX = "users.htcondor.org"
+
+
 @code_bp.route("/code", methods=["POST"])
 def code_post():
     request_id = request.form.get("code", None)
@@ -90,7 +94,7 @@ def code_post():
 
     found_requested_identity = False
     for source in allowed_sources:
-        identity = source + "@users.htcondor.org"
+        identity = "{}{}@{}".format(SOURCE_PREFIX, source, SOURCE_POSTFIX)
         if identity == result.get("RequestedIdentity"):
             found_requested_identity = True
             break
