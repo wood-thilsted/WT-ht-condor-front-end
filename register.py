@@ -10,6 +10,7 @@ import subprocess
 import sys
 import traceback
 import time
+import shutil
 
 import htcondor
 import classad
@@ -25,6 +26,7 @@ TOKEN_BOUNDING_SET = ["ADVERTISE_STARTD"]
 SOURCE_PREFIX = "SOURCE_"
 SOURCE_POSTFIX = "users.htcondor.org"
 NUM_RETRIES = 10
+TOKEN_OWNER_USER = TOKEN_OWNER_GROUP = "condor"
 
 
 def parse_args():
@@ -128,7 +130,17 @@ def request_token(pool, source):
 
     print("Token request approved!")
 
-    token.write("50-{}-registration".format(alias))
+    token_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
+    token_name = "50-{}-registration".format(alias)
+    token_path = os.path.join(token_dir, token_name)
+
+    logger.debug("Writing token to disk (in {})".format(token_dir))
+    token.write(token_name)
+    logger.debug("Wrote token to disk (at {})".format(token_path))
+
+    logger.debug("Correcting token file permissions...")
+    shutil.chown(token_path, user=TOKEN_OWNER_USER, group=TOKEN_OWNER_GROUP)
+    logger.debug("Corrected token file permissions...")
 
     print("Registration of source {} with {} is complete!".format(source, alias))
 
@@ -236,5 +248,5 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         error("Aborted!")
     except Exception as e:
-        traceback.format_exc()
-        error("Unknown error!")
+        traceback.print_exc()
+        error("Encountered unhandled error: {}".format(e))
