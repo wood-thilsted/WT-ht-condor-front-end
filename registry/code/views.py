@@ -34,6 +34,7 @@ def code_get():
 SOURCE_PREFIX = "SOURCE_"
 SOURCE_POSTFIX = "htpheno-cm.chtc.wisc.edu"
 SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
+ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD"}
 
 
 @code_bp.route("/code", methods=["POST"])
@@ -96,10 +97,12 @@ def code_post():
             400,
         )
 
-    authz = result.get("LimitAuthorization")
-    if authz != "ADVERTISE_STARTD":
+    requested_authorizations = set(result.get("LimitAuthorization").split(","))
+    if not requested_authorizations.issubset(ALLOWED_AUTHORIZATIONS):
         return error(
-            "The requested token must be limited to the ADVERTISE_STARTD authorization",
+            "The requested token must be limited to the authorizations {}; but you requested {}.".format(
+                ", ".join(ALLOWED_AUTHORIZATIONS), ", ".join(requested_authorizations)
+            ),
             400,
         )
 
