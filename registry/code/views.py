@@ -101,8 +101,9 @@ def code_post():
 
     if not found_requested_identity:
         return error(
-            "Requested identity ({}) not in the list of allowed sources ({})".format(
-                result.get("RequestedIdentity"), ", ".join(allowed_sources)
+            "Requested source ({}) not in the list of allowed sources ({})".format(
+                result.get("RequestedIdentity").split("@")[0][len(SOURCE_PREFIX) :],
+                ", ".join(allowed_sources),
             ),
             400,
         )
