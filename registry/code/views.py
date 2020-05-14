@@ -30,6 +30,10 @@ def code_get():
     return response
 
 
+SOURCE_PREFIX = "SOURCE_"
+SOURCE_POSTFIX = "users.htcondor.org"
+
+
 @code_bp.route("/code", methods=["POST"])
 def code_post():
     request_id = request.form.get("code", None)
@@ -73,7 +77,10 @@ def code_post():
 
     authz = result.get("LimitAuthorization")
     if authz != "ADVERTISE_STARTD":
-        return error("Token must be limited to the ADVERTISE_STARTD authorization", 400)
+        return error(
+            "The requested token must be limited to the ADVERTISE_STARTD authorization",
+            400,
+        )
 
     try:
         allowed_sources = get_allowed_sources(user_id)
@@ -82,23 +89,30 @@ def code_post():
         return error("Server configuration error", 500)
 
     current_app.logger.debug(
-        "Allowed sources for user {} are {}".format(user_id, allowed_sources)
+        "The allowed sources for user {} are {}".format(user_id, allowed_sources)
     )
 
     if not allowed_sources:
-        return error("User not associated with any known token identity", 400)
+        return error(
+            "User {} does not have any sources they are allowed to manage!".format(
+                user_id
+            ),
+            400,
+        )
 
     found_requested_identity = False
     for source in allowed_sources:
-        identity = source + "@users.htcondor.org"
+        identity = "{}{}@{}".format(SOURCE_PREFIX, source, SOURCE_POSTFIX)
         if identity == result.get("RequestedIdentity"):
             found_requested_identity = True
             break
 
     if not found_requested_identity:
         return error(
-            "Requested identity ({}) not in the list of allowed sources ({})".format(
-                result.get("RequestedIdentity"), ", ".join(allowed_sources)
+            "The requested source ({}) was not in the list of allowed sources for user {} ({})".format(
+                result.get("RequestedIdentity").split("@")[0][len(SOURCE_PREFIX) :],
+                user_id,
+                ", ".join(allowed_sources),
             ),
             400,
         )

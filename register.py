@@ -22,6 +22,7 @@ DEFAULT_TARGET = "htpheno-cm.chtc.wisc.edu:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "registration/code"
 RECONFIG_COMMAND = ["condor_reconfig"]
 TOKEN_BOUNDING_SET = ["ADVERTISE_STARTD"]
+SOURCE_PREFIX = "SOURCE_"
 SOURCE_POSTFIX = "users.htcondor.org"
 NUM_RETRIES = 10
 
@@ -197,7 +198,7 @@ def request_token_and_wait_for_approval(
 
 
 def make_token_request(collector_ad, source):
-    identity = "{}@{}".format(source, SOURCE_POSTFIX)
+    identity = "{}{}@{}".format(SOURCE_PREFIX, source, SOURCE_POSTFIX)
 
     req = htcondor.TokenRequest(identity, bounding_set=TOKEN_BOUNDING_SET)
     req.submit(collector_ad)
