@@ -60,11 +60,7 @@ Sources = University_Bar
 ...
 ```
 
-The field are described below:
-
-### Required Fields
-
-This data is used internally by this application.
+The field used by this application are described below:
 
 * `Name` - The user's identity; whatever comes from OIDC (like their ePPN).
   These must be globally unique (though we have no way to enforce that).
@@ -72,11 +68,3 @@ This data is used internally by this application.
   A user may have multiple sources (separated by newlines, as above), and the
   same source may be "owned" by multiple users. Source names must be globally
   unique.
-
-### Optional Fields
-
-Additional optional metadata can be included in each section. This application
-does not consume these, but other parts of the HT Phenotyping system might.
-
-* `ContactName` - The name given by the user in the signup form.
-* `Email` - The contact email given by the user in the signup form.
