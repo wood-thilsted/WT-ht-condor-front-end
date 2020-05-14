@@ -32,6 +32,7 @@ def code_get():
 
 SOURCE_PREFIX = "SOURCE_"
 SOURCE_POSTFIX = "users.htcondor.org"
+ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD"}
 
 
 @code_bp.route("/code", methods=["POST"])
@@ -80,10 +81,12 @@ def code_post():
         return error("Request {} is unknown".format(request_id), 400)
     result = result[0]
 
-    authz = result.get("LimitAuthorization")
-    if authz != "ADVERTISE_STARTD":
+    requested_authorizations = set(result.get("LimitAuthorization").split(","))
+    if requested_authorizations.issubset(ALLOWED_AUTHORIZATIONS):
         return error(
-            "The requested token must be limited to the ADVERTISE_STARTD authorization",
+            "The requested token must be limited to the authorizations {}; but you requested {}.".format(
+                ", ".join(ALLOWED_AUTHORIZATIONS), ", ".join(requested_authorizations)
+            ),
             400,
         )
 
