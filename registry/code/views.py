@@ -84,8 +84,8 @@ def code_post():
     result = result[0]
 
     requested_source = result.get("RequestedIdentity").split("@")[0][
-                       len(SOURCE_PREFIX):
-                       ]
+        len(SOURCE_PREFIX) :
+    ]
     if not SOURCE_CHECK.match(requested_source):
         current_app.logger.debug(
             "The requested source name was {}, which is invalid.".format(
