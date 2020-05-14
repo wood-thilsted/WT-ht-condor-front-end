@@ -11,6 +11,7 @@ import sys
 import traceback
 import time
 import shutil
+import re
 
 import htcondor
 import classad
@@ -27,6 +28,7 @@ SOURCE_PREFIX = "SOURCE_"
 SOURCE_POSTFIX = "users.htcondor.org"
 NUM_RETRIES = 10
 TOKEN_OWNER_USER = TOKEN_OWNER_GROUP = "condor"
+SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
 
 
 def parse_args():
@@ -77,6 +79,11 @@ def main():
         )
 
         logger.addHandler(handler)
+
+    if not SOURCE_CHECK.match(args.source):
+        error(
+            "The source name must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), and underscores (_). It may not begin with a digit."
+        )
 
     if not is_admin():
         error(
