@@ -122,7 +122,7 @@ def code_post():
             "User {} does not have any sources they are allowed to manage!".format(
                 user_id
             ),
-            400,
+            403,
         )
 
     found_requested_identity = False
@@ -137,7 +137,7 @@ def code_post():
             "The requested source ({}) was not in the list of allowed sources for user {} ({})".format(
                 requested_source, user_id, ", ".join(allowed_sources),
             ),
-            400,
+            403,
         )
 
     try:
