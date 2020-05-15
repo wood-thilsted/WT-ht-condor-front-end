@@ -1,5 +1,15 @@
 # registration
 
+## Development
+
+To run the registration server locally, run
+
+```shell script
+$ FLASK_DEBUG=true python -m registry
+```
+
+You will need a `config.py` file with settings in it, as described below.
+
 ## Installation
 
 Clone the repository to wherever you would like to serve the application from

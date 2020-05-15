@@ -9,7 +9,6 @@ try:  # py3
 except ImportError:  # py2
     from ConfigParser import ConfigParser
 
-
 from flask import Blueprint, request, current_app, make_response, render_template
 
 code_bp = Blueprint(
@@ -150,8 +149,7 @@ def code_post():
             400,
         )
 
-    context = {"info": "Request approved."}
-    response = make_response(render_template("code_submit_success.html", **context))
+    response = make_response(render_template("code_submit_success.html"))
     return response
 
 

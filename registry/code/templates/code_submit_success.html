@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="container">
-        <h1>HT Phenotyping Registration Success</h1>
+        <h1>HT Phenotyping Registration Succeeded</h1>
 
         <div class="container-fluid">
             <div class="row">
@@ -12,9 +12,28 @@
                     <p>
                         Congratulations! Your registration was successful.
                     </p>
-                    {% if info %}
-                        {{ info }}
-                    {% endif %}
+                    <p>
+                        Within a minute, you should see a message in your
+                        terminal that looks like
+                    </p>
+                    <p>
+                        <img src="{{ url_for('code.static', filename="token-request-approval.png") }}" alt="Terminal message for registration approval">
+                    </p>
+                    <pre>
+Token request approved!
+Registration of source Wisconsin_Bucky with htpheno-cm.chtc.wisc.edu is complete!
+Sending a "reconfigure" command to HTCondor (so that it picks up the new token).
+Sent "Reconfig" command to local master.</pre>
+                    <p>
+                        If you don't, your computer was not able to confirm
+                        that registration succeeded.
+                        You may see an error message with more instructions
+                        in that case.
+                    </p>
+                    <p>
+                        Whether your registration was confirmed or not,
+                        continue following the instructions in your terminal.
+                    </p>
                 </div>
             </div>
         </div>
