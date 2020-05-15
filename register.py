@@ -205,7 +205,10 @@ def request_token_and_wait_for_approval(
         try:
             # TODO: the url construction here is very manual; use urllib instead
             print(
-                "Token request is queued; please approve it by following the instructions at https://{}/{}?code={}".format(
+                "Token request is queued; please approve it by following the instructions at:"
+            )
+            print(
+                "https://{}/{}?code={}".format(
                     alias, REGISTRATION_CODE_PATH, req.request_id
                 )
             )
