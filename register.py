@@ -118,7 +118,11 @@ def is_admin():
 
 
 def request_token(pool, source):
-    alias, port = pool.split(":")
+    if ":" in pool:
+        alias, port = pool.split(":")
+    else:
+        alias = pool
+        port = DEFAULT_PORT
     ip, port = socket.getaddrinfo(alias, int(port), socket.AF_INET)[0][4]
     coll_ad = classad.ClassAd(
         {
