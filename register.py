@@ -194,7 +194,7 @@ def request_token_and_wait_for_approval(
 
         start_time = time.time()
 
-        print("Attempting to get token (attempt {}/{}) ...".format(attempt, retries))
+        print("\nAttempting to get token (attempt {}/{}) ...".format(attempt, retries))
         try:
             req = make_token_request(collector_ad, source)
         except Exception as e:
@@ -204,19 +204,14 @@ def request_token_and_wait_for_approval(
 
         try:
             # TODO: the url construction here is very manual; use urllib instead
-            print(
-                "Token request is queued; please approve it by following the instructions at:"
-            )
-            print(
+            lines = [
+                "Token request is queued with ID {}.".format(req.request_id),
+                "Approve the token request by going to this URL in your web browser and clicking submit:",
                 "https://{}/{}?code={}".format(
                     alias, REGISTRATION_CODE_PATH, req.request_id
-                )
-            )
-            print(
-                "Token request ID is {} (if you need to enter it manually)".format(
-                    req.request_id
-                )
-            )
+                ),
+            ]
+            print("\n".join(lines))
             return req.result(0)
         except Exception as e:
             logger.exception("Error while waiting for token approval.")
