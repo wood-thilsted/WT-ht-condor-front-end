@@ -102,10 +102,9 @@ def main():
     if not success:
         error("Failed to complete the token request workflow.")
 
-    print(
-        'Sending a "reconfigure" command to HTCondor (so that it picks up the new token).'
-    )
     reconfig()
+
+    print("Registration of source {} is complete!".format(args.source))
 
 
 def is_admin():
@@ -152,8 +151,6 @@ def request_token(pool, source):
     logger.debug("Correcting token file permissions...")
     shutil.chown(token_path, user=TOKEN_OWNER_USER, group=TOKEN_OWNER_GROUP)
     logger.debug("Corrected token file permissions...")
-
-    print("Registration of source {} with {} is complete!".format(source, alias))
 
     return True
 
@@ -237,7 +234,24 @@ def make_token_request(collector_ad, source):
 
 
 def reconfig():
-    subprocess.call(RECONFIG_COMMAND)
+    logger.debug("Running condor_reconfig to pick up the new token.")
+
+    cmd = subprocess.run(
+        RECONFIG_COMMAND, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    if cmd.returncode != 0:
+        print(cmd.stdout.decode())
+        print(cmd.stderr.decode(), file=sys.stderr)
+        warning(
+            "Was not able to send a reconfig command to HTCondor to make it pick up the new token. Try running ' condor_reconfig ' yourself."
+        )
+
+
+def warning(msg):
+    print(
+        "Warning: {}".format(msg), file=sys.stderr,
+    )
 
 
 def error(msg, exit_code=1):
