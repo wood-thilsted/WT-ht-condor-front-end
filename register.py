@@ -206,7 +206,7 @@ def request_token_and_wait_for_approval(
             # TODO: the url construction here is very manual; use urllib instead
             lines = [
                 "Token request is queued with ID {}.".format(req.request_id),
-                "Approve the token request by going to this URL in your web browser and clicking submit:",
+                'Go to this URL in your web browser (copy and paste it into the address bar) and approve the request by clicking "Approve":',
                 "https://{}/{}?code={}".format(
                     alias, REGISTRATION_CODE_PATH, req.request_id
                 ),
