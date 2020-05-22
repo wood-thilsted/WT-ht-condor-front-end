@@ -4,8 +4,8 @@
 
 {% block body %}
     <div class="container">
-        <div class="row">
-            <div class="col">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
                 <h1>Register a New Data Source</h1>
 
                 <p>
@@ -14,45 +14,46 @@
                     An administrator will be notified and they will contact you to
                     finalize your registration.
                 </p>
+
+                <hr>
             </div>
         </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6">
-                    <form method="post" action="{{ url_for('.signup_post') }}">
-                        <div class="form-group">
-                            <label for="contactInput">Name</label>
-                            <input class="form-control" id="contactInput" name="contact" autocomplete="name" placeholder="Jane Q. Doe" type="text">
-                        </div>
-                        <div class="form-group">
-                            <label for="emailInput">Contact email address</label>
-                            <input class="form-control" id="emailInput" name="email" placeholder="name@example.com" type="email">
-                            <small class="form-text text-muted">
-                                We will email you at this address to let you know we've processed your signup,
-                                and add it to the HT Phenotyping mailing list.
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="sourceInput">Preferred data source name</label>
-                            <input class="form-control" id="sourceInput" name="source" placeholder="University_PIName" type="text">
-                            <small class="form-text text-muted">
-                                The data source name should be of the form "University_PIName" as in "Wisconsin_Spalding".
-                                The source name must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), and underscores (_).
-                                It may not begin with a digit.
-                                You may not get exactly the name you request.
-                            </small>
-                        </div>
-                        <div class="form-group">
-                            <label for="sourcePathInput">Path to source data directory</label>
-                            <input class="form-control" id="sourcePathInput" name="sourcePath" placeholder="/mnt/external/drone_data" type="text">
-                            <small class="form-text text-muted">
-                                The location of the data to be synchronized on the source host machine.
-                                Leave blank if unknown; we will contact you to discuss further.
-                            </small>
-                        </div>
-                        <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
-                    </form>
-                </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form method="post" action="{{ url_for('.signup_post') }}">
+                    <div class="form-group">
+                        <label for="contactInput">Name</label>
+                        <input class="form-control" id="contactInput" name="contact" autocomplete="name" placeholder="Jane Q. Doe" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailInput">Contact email address</label>
+                        <input class="form-control" id="emailInput" name="email" placeholder="name@example.com" type="email">
+                        <small class="form-text text-muted">
+                            We will email you at this address to let you know we've processed your signup,
+                            and add it to the HT Phenotyping mailing list.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourceInput">Preferred data source name</label>
+                        <input class="form-control" id="sourceInput" name="source" placeholder="University_PIName" type="text">
+                        <small class="form-text text-muted">
+                            The data source name should be of the form "University_PIName" as in "Wisconsin_Spalding".
+                            The source name must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), and underscores (_).
+                            It may not begin with a digit.
+                            You may not get exactly the name you request.
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label for="sourcePathInput">Path to source data directory</label>
+                        <input class="form-control" id="sourcePathInput" name="sourcePath" placeholder="/mnt/external/drone_data" type="text">
+                        <small class="form-text text-muted">
+                            The location of the data to be synchronized on the source host machine.
+                            Leave blank if unknown; we will contact you to discuss further.
+                        </small>
+                    </div>
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+                </form>
             </div>
         </div>
     </div>
