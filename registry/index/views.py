@@ -27,6 +27,11 @@ def index():
     return make_response(render_template("index.html"))
 
 
+@index_bp.route("/about")
+def about():
+    return make_response(render_template("about.html"))
+
+
 @index_bp.route("/health")
 def health():
     return "Hello!"

@@ -5,10 +5,12 @@
 To run the registration server locally, run
 
 ```shell script
-$ FLASK_DEBUG=true python -m registry
+$ ./run_local.sh
 ```
 
 You will need a `config.py` file with settings in it, as described below.
+Note that the web app is (currently, unfortunately) a Python 2 application
+in production.
 
 ## Installation
 
@@ -20,6 +22,10 @@ Template Apache configuration:
 # TODO
 ```
 
+By default we "protect" everything under `/` with OIDC.
+Some pages should be "public", i.e., unprotected (right now, these are the 
+"about" and "index" pages).
+This is managed by Apache, not the webapp.
 
 ## Configuration
 

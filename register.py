@@ -19,7 +19,7 @@ logger.setLevel(logging.ERROR + 10)
 
 DEFAULT_PORT = "9618"
 DEFAULT_TARGET = "htpheno-cm.chtc.wisc.edu:{}".format(DEFAULT_PORT)
-REGISTRATION_CODE_PATH = "registration/code"
+REGISTRATION_CODE_PATH = "registration/token"
 RECONFIG_COMMAND = ["condor_reconfig"]
 TOKEN_BOUNDING_SET = ["READ", "ADVERTISE_STARTD"]
 SOURCE_PREFIX = "SOURCE_"

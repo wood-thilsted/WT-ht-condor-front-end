@@ -4,6 +4,51 @@
 
 {% block body %}
     <div class="container">
-        <h1>HT Phenotyping Registration</h1>
+        <div class="row">
+            <div class="col">
+                <div class="jumbotron">
+                    <h1 class="display-r">HT Phenotyping Service</h1>
+
+                    <p class="lead">
+                        The HTPhenotyping Transfer Service allows automated
+                        synchronization of phenotypic image data to a
+                        centralized location in a reliable and secure manner.
+                    </p>
+
+                    <p class="lead">
+                        <a href="{{ url_for('index.about') }}">Click here to learn more about the HT Phenotyping Service.</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="card">
+                    <h5 class="card-header">Sign-up for Service</h5>
+                    <div class="card-body">
+                        <p class="card-text"> To begin using the HTPhenotyping service, you must
+                            first sign up. You will need to login using your local university ID;
+                            this helps us identify valid requests. Account verification typically
+                            takes one business day. Once approved, you will
+                            be notified by email.
+                            <br>
+                            <a href="{{ url_for('signup.signup_get') }}" class="btn btn-primary">Signup!</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <h5 class="card-header">Install a Data Collection Source</h5>
+                    <div class="card-body">
+                        <p class="card-text"> Once you've registered with the service, you will
+                            be able to install a new data collection service. This service allows
+                            you to upload data from a fixed directory location to the central host.
+                            <br>
+                            <a href="{{ url_for("connect.install") }}" class="btn btn-primary">Install</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

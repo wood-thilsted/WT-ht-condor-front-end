@@ -3,8 +3,8 @@
 {% block title %}HT Phenotyping - Token Approval{% endblock %}
 
 {% block head %}
-    <link href="{{ url_for('code.static', filename='bootstrap-pincode-input.css') }}" rel="stylesheet"/>
-    <script type="text/javascript" src="{{ url_for('code.static', filename='bootstrap-pincode-input.js') }}"></script>
+    <link href="{{ url_for('token.static', filename='bootstrap-pincode-input.css') }}" rel="stylesheet"/>
+    <script type="text/javascript" src="{{ url_for('token.static', filename='bootstrap-pincode-input.js') }}"></script>
 {% endblock %}
 
 {% block script %}
@@ -61,7 +61,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <h4>Request ID</h4>
-                        <input name="code" type="text" id="registration_code"/>
+                        <input name="request_id" type="text" id="registration_code"/>
                         <br/>
                     </div>
                 </div>

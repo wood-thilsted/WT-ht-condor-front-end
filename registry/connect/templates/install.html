@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}HT Phenotyping - Register a Data Source{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Install a New Data Source</h1>
+                <h2>Before you begin...</h2>
+                <p>Before you proceed with the install, make sure to go through the following items:</p>
+                <ol>
+                    <li>Installation requires a Linux machine. The currently supported platform is Ubuntu 18 but
+                        we can work with individual sites if another distribution version is needed.
+                    </li>
+                    <li>You will need "root" access on the host; installation requires new software and services
+                        running on the machine.
+                    </li>
+                    <li>Ensure you have a reliable outgoing connection. We periodically sync daily; ensure the
+                        machine is online overnight so the synchronization happens. <strong>Incoming connections
+                            are not needed</strong>; most locations will not need to change firewall settings as long
+                        as outgoing connections to University of Wisconsin are permitted.
+                    </li>
+                    <li>Make sure you know which directory (folder) your data is being stored in. You will need
+                        the full path (e.g. "/home/your-username/images" or "/mnt/external/images") to your data
+                        directory. If you don't know what the full path is, please let us know before installing.
+                    </li>
+                    <li>Copying from and pasting to the Ubuntu Terminal uses different keyboard shortcuts than
+                        on Windows and MacOS. We suggest using the mouse and right-clicking when copying from or
+                        pasting to a Terminal window.
+                    </li>
+                </ol>
+
+                <h2>Installing the HTPhenotyping Transfer Service</h2>
+                <p>Data transfers from data sources to data processing servers are facilitated by the
+                    <a href="https://htcondor.org" target="_blank">HTCondor</a> software. We have developed an
+                    installation script that, given the information you provided during registration, automatically
+                    installs and configures HTCondor to connect to the HTPhenotyping transfer servers.
+                    <!--The connect
+                    script's code and configuration templates are
+                    <a href="https://github.com/HTPhenotyping/execute_node_config" target="_blank">available on Github</a>-->
+                    To run the installation script:</p>
+                <ol>
+                    <li>
+                        Make sure you have the <em>exact</em> <strong>"preferred data source name"</strong> and
+                        <strong>"data source directory"</strong> that you entered during the registration process.
+                    </li>
+                    <li>
+                        Open <strong>Terminal</strong>. After logging in and while at the Ubuntu desktop, you can
+                        open Terminal either with a keyboard shortcut, Ctrl+Alt+T, or by clicking on the Ubuntu icon at
+                        the top of the left-side menubar and searching for and clicking on Terminal.
+
+                        <img src="{{ url_for('connect.static', filename="open-terminal.png") }}" alt="Opening Terminal in Ubuntu" style="padding:20px">
+                    </li>
+                    <li>
+                        Download the install script. Inside Terminal, enter:
+                        <pre>
+wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh
+</pre>
+                        <img src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading the install script" style="padding:20px">
+                    </li>
+                    <li>Run the install script. Again inside Terminal, either enter:
+                        <pre>
+sudo bash install_htcondor.sh
+</pre>
+                        Or paste the command you were sent in your email, which will be similar to the above but with
+                        added registration information.
+
+                        You will be asked to enter a password, which is the current user's password. The password
+                        will not be shown on screen as you type it. Entering the password enables the install script
+                        to make root-level (i.e. administrator-level) changes to the system, such as installing software
+                        and enabling HTCondor to run at boot.
+                        <img src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command" style="padding:20px">
+                    </li>
+                    <li>Enter the requested information. The install script will ask for:
+                        <ol style="list-style-type: lower-alpha;">
+                            <li>"Central manager hostname:" &mdash; Enter (or leave blank to accept default):
+                                <span style="font-family: monospace;">htpheno-cm.chtc.wisc.edu</span></li>
+                            <li>"Preferred data source name:" &mdash; Enter exactly what you entered for this during
+                                registration (e.g. <span style="font-family: monospace">Wisconsin_Bucky</span>)
+                            </li>
+                            <li>"Data source directory:" &mdash; Enter exactly what you entered for this during
+                                registration (e.g. <span style="font-family: monospace">/mnt/images</span>)
+                            </li>
+                        </ol>
+                        <img src="{{ url_for('connect.static', filename="enter-data.png") }}" alt="Inputting data source information" style="padding:20px"><br>
+                        After entering this information, the install script will continue on to install and configure
+                        HTCondor. You will then be asked to finish registering your data source.
+                    </li>
+                    <li>Follow the instructions to finish registering your data source.
+                        <ol style="list-style-type: lower-alpha;">
+                            <li>Ctrl+click on the URL in the terminal output and click on "Open Link",
+                                or copy the URL to a browser window,
+                                or <a href="registration/code">enter the code manually on the Approve a Token Request page</a>.
+                                You may be required to log in again to your university account. Be sure to use the same account
+                                as when you first registered.
+                            </li>
+                            <li>Click "Submit" and check the terminal for successful registration.</li>
+                            <img src="{{ url_for('connect.static', filename="token-flow.png") }}" alt="Finishing registration" style="padding:20px">
+                        </ol>
+                    </li>
+                    <li>If everything was successful, your machine has been successfully added to the HTPhenotyping
+                        data transfer service. If you have any problems and need help troubleshooting, please do not
+                        hesitate to email us.
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+{% endblock %}

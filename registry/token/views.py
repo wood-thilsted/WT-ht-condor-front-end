@@ -1,4 +1,3 @@
-import collections
 import subprocess
 import os
 import json
@@ -11,12 +10,12 @@ except ImportError:  # py2
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
-code_bp = Blueprint(
-    "code",
+token_bp = Blueprint(
+    "token",
     __name__,
     template_folder="templates",
     static_folder="static",
-    static_url_path="/static/code",
+    static_url_path="/static/token",
 )
 
 
@@ -24,7 +23,7 @@ class CondorToolException(Exception):
     pass
 
 
-@code_bp.route("/code", methods=["GET"])
+@token_bp.route("/token", methods=["GET"])
 def code_get():
     response = make_response(render_template("code_submit.html"))
     return response
@@ -36,12 +35,12 @@ SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
 ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD"}
 
 
-@code_bp.route("/code", methods=["POST"])
+@token_bp.route("/token", methods=["POST"])
 def code_post():
-    request_id = request.form.get("code", None)
+    request_id = request.form.get("request_id", None)
 
     if request_id is None:
-        return error("The code parameter is missing", 400)
+        return error("The request_id parameter is missing", 400)
     if not request_id.isdigit():
         return error(
             'The request ID you entered was not a sequence of numbers (it was "{}"). Make sure it was copied correctly.'.format(

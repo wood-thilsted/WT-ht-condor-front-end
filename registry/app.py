@@ -3,8 +3,11 @@ import os
 from flask import Flask
 
 from .index import index_bp
-from .code import code_bp
 from .signup import signup_bp
+from .connect import install_bp
+from .token import token_bp
+
+BLUEPRINTS = [index_bp, signup_bp, install_bp, token_bp]
 
 HERE = os.path.dirname(__file__)
 
@@ -20,9 +23,8 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     with app.app_context():
-        app.register_blueprint(index_bp)
-        app.register_blueprint(code_bp)
-        app.register_blueprint(signup_bp)
+        for bp in BLUEPRINTS:
+            app.register_blueprint(bp)
 
     app.logger.debug("Created!")
     return app
