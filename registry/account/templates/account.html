@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}HT Phenotyping - Account Information{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Account Information</h1>
+
+                <p>
+                    Your identity is <strong>{{ identity }}</strong>
+                </p>
+                <p>
+                    Your registered sources are
+                <ul>
+                    {% for source in sources %}
+                        {{ source }}
+                    {% endfor %}
+                </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

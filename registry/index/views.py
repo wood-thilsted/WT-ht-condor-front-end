@@ -5,12 +5,10 @@ except ImportError:  # py2
 
 from flask import (
     Blueprint,
-    request,
     current_app,
     make_response,
     render_template,
     redirect,
-    url_for,
 )
 
 index_bp = Blueprint(

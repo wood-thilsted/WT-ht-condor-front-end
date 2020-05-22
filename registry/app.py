@@ -6,8 +6,9 @@ from .index import index_bp
 from .signup import signup_bp
 from .connect import install_bp
 from .token import token_bp
+from .account import account_bp
 
-BLUEPRINTS = [index_bp, signup_bp, install_bp, token_bp]
+BLUEPRINTS = [index_bp, signup_bp, install_bp, token_bp, account_bp]
 
 HERE = os.path.dirname(__file__)
 

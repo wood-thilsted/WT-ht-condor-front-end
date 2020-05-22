@@ -1,4 +1,4 @@
-from flask import Blueprint, request, current_app, make_response, render_template
+from flask import Blueprint, make_response, render_template
 
 install_bp = Blueprint(
     "connect",

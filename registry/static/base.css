@@ -1,3 +1,7 @@
 .navbar {
     margin-bottom: 2em;
 }
+
+li.nav-item > a.btn {
+    margin-left: 10px;
+}

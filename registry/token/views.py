@@ -3,12 +3,16 @@ import os
 import json
 import re
 
+
 try:  # py3
     from configparser import ConfigParser
 except ImportError:  # py2
     from ConfigParser import ConfigParser
 
 from flask import Blueprint, request, current_app, make_response, render_template
+
+from ..sources import get_user_id, get_sources
+from ..exceptions import CondorToolException, ConfigurationError
 
 token_bp = Blueprint(
     "token",
@@ -17,10 +21,6 @@ token_bp = Blueprint(
     static_folder="static",
     static_url_path="/static/token",
 )
-
-
-class CondorToolException(Exception):
-    pass
 
 
 @token_bp.route("/token", methods=["GET"])
@@ -50,21 +50,12 @@ def code_post():
         )
 
     try:
-        user_id_env_var = current_app.config["USER_ID_ENV_VAR"]
-    except KeyError:
-        current_app.logger.error(
-            "Config variable USER_ID_ENV_VAR not set; this should be set to the name of the environment variable that holds the user's identity (perhaps REMOTE_USER ?)"
-        )
+        user_id = get_user_id()
+    except ConfigurationError:
         return error(
             "Server configuration error. Please contact the administrators.", 500
         )
 
-    current_app.logger.debug(
-        "Will read user ID from request environment variable {}".format(user_id_env_var)
-    )
-
-    user_id = request.environ.get(user_id_env_var, None)
-    current_app.logger.debug("User ID is {}".format(user_id))
     if not user_id:
         return error("Unknown user", 401)
 
@@ -105,9 +96,8 @@ def code_post():
         )
 
     try:
-        allowed_sources = get_allowed_sources(user_id)
-    except Exception:
-        current_app.logger.exception("Failed to get allowed sources.")
+        allowed_sources = get_sources(user_id)
+    except ConfigurationError:
         return error(
             "Server configuration error. Please contact the administrators.", 500
         )
@@ -157,45 +147,6 @@ def error(info, status_code):
     return make_response(
         render_template("code_submit_failure.html", **context), status_code
     )
-
-
-def get_allowed_sources(user_id):
-    """
-    Map a given user ID to a list of sources they are authorized to register.
-    """
-    names_to_sources = {
-        entry["name"]: entry["sources"].split() for entry in parse_humans_file()
-    }
-    return names_to_sources.get(user_id, [])
-
-
-def parse_humans_file():
-    try:
-        humans_file = current_app.config["HUMANS_FILE"]
-    except KeyError:
-        current_app.logger.error(
-            "Config variable HUMANS_FILE not set; this should be set to the path of the file containing the information on humans."
-        )
-        raise
-
-    config = ConfigParser()
-    config.read(humans_file)
-
-    entries = config_to_entries(config)
-
-    return entries
-
-
-def config_to_entries(config):
-    entries = []
-    for section in config.sections():
-        entry = {}
-        for option in config.options(section):
-            entry[option] = config.get(section, option)
-
-        entries.append(entry)
-
-    return entries
 
 
 def get_pending_token_request(request_id):
