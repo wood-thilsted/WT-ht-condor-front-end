@@ -3,12 +3,6 @@ import os
 import json
 import re
 
-
-try:  # py3
-    from configparser import ConfigParser
-except ImportError:  # py2
-    from ConfigParser import ConfigParser
-
 from flask import Blueprint, request, current_app, make_response, render_template
 
 from ..sources import get_user_id, get_sources

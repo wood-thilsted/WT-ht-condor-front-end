@@ -1,4 +1,7 @@
-from configparser import ConfigParser
+try:  # py3
+    from configparser import ConfigParser
+except ImportError:  # py2
+    from ConfigParser import ConfigParser
 
 from flask import current_app, request
 
