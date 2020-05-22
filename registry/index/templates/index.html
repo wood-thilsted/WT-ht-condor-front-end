@@ -7,45 +7,58 @@
         <div class="row">
             <div class="col">
                 <div class="jumbotron">
-                    <h1 class="display-r">HT Phenotyping Service</h1>
+                    <h1 class="display-r">HT Phenotyping Project</h1>
 
                     <p class="lead">
-                        The HTPhenotyping Transfer Service allows automated
+                        The HTPhenotyping Transfer Service enables
+                        automated, reliable, and secure
                         synchronization of phenotypic image data to a
-                        centralized location in a reliable and secure manner.
+                        centralized location.
                     </p>
 
                     <p class="lead">
-                        <a href="{{ url_for('index.about') }}">Click here to learn more about the HT Phenotyping Service.</a>
+                        <a class="btn btn-primary" href="{{ url_for('index.about') }}">Learn More</a>
                     </p>
                 </div>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <div class="card">
-                    <h5 class="card-header">Sign-up for Service</h5>
+                    <h5 class="card-header">Step 1: Sign Up</h5>
                     <div class="card-body">
-                        <p class="card-text"> To begin using the HTPhenotyping service, you must
-                            first sign up. You will need to login using your local university ID;
-                            this helps us identify valid requests. Account verification typically
-                            takes one business day. Once approved, you will
-                            be notified by email.
-                            <br>
-                            <a href="{{ url_for('signup.signup_get') }}" class="btn btn-primary">Signup!</a>
+                        <p class="card-text">
+                            To begin using the HT Phenotyping service, you must first sign up.
+                            You will be asked to login using your local university ID.
+                            Account verification typically takes one business day.
+                            Once approved, you will be notified by email.
+                        </p>
+                        <div class="text-center">
+                            <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary">Sign Up</a>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <div class="card">
-                    <h5 class="card-header">Install a Data Collection Source</h5>
+                    <h5 class="card-header">Step 2: Register</h5>
                     <div class="card-body">
-                        <p class="card-text"> Once you've registered with the service, you will
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="card">
+                    <h5 class="card-header">Step 3: Install</h5>
+                    <div class="card-body">
+                        <p class="card-text">
+                            Once you've registered with the service, you will
                             be able to install a new data collection service. This service allows
                             you to upload data from a fixed directory location to the central host.
-                            <br>
+                        </p>
+                        <div class="text-center">
                             <a href="{{ url_for("connect.install") }}" class="btn btn-primary">Install</a>
+                        </div>
                     </div>
                 </div>
             </div>
