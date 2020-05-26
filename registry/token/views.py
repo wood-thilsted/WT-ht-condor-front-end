@@ -132,8 +132,8 @@ def code_post():
             400,
         )
 
-    response = make_response(render_template("code_submit_success.html"))
-    return response
+    context = {"source": requested_source, "collector": current_app.config["COLLECTOR"]}
+    return make_response(render_template("code_submit_success.html", **context))
 
 
 def error(info, status_code):

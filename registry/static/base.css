@@ -5,3 +5,7 @@
 li.nav-item > a.btn {
     margin-left: 10px;
 }
+
+pre {
+    background-color: #e5e5e5;
+}
