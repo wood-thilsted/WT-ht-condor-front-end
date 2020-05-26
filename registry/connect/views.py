@@ -23,7 +23,9 @@ def install():
 
     install_commands = {
         source: "bash install_htcondor.sh -c {} -n {} -d {}".format(
-            current_app.config["COLLECTOR"], source, current_app.config["DEFAULT_DATA_DIRECTORY"]
+            current_app.config["COLLECTOR"],
+            source,
+            current_app.config["DEFAULT_DATA_DIRECTORY"],
         )
         for source in sources
     }
