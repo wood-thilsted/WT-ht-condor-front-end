@@ -103,14 +103,17 @@
                     {% endfor %}
                 </div>
                 <p>
-                    You will be asked to enter a password, which is the current user's password. The password
-                    will not be shown on screen as you type it. Entering the password enables the install script
-                    to make root-level (i.e. administrator-level) changes to the system, such as installing software
-                    and enabling HTCondor to run at boot.
-                </p>
-                <p>
                     <img src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command" style="padding:20px">
                 </p>
+		<p>
+                    After some output, you will be asked to enter a password, which is the current user's password.
+                    The password will not be shown on screen as you type it. Entering the password enables the install
+                    script to make root-level (i.e. administrator-level) changes to the system, such as installing
+                    software and enabling HTCondor to run at boot.
+		</p>
+		<p>
+                    <img src="{{ url_for('connect.static', filename="sudo.png") }}" alt="Example sudo prompt" style="padding:20px">
+		</p>
 
                 <h3 class="counter">Approve Authorization Token</h3>
                 <p>
