@@ -16,10 +16,9 @@ account_bp = Blueprint(
 def account_get():
     try:
         user_id = get_user_id()
+        sources = get_sources(user_id)
     except ConfigurationError:
         return "Server configuration error", 500
-
-    sources = get_sources(user_id)
 
     context = {"identity": user_id, "sources": sources}
 

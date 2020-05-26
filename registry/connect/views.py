@@ -1,4 +1,7 @@
-from flask import Blueprint, make_response, render_template
+from flask import Blueprint, make_response, render_template, current_app
+
+from ..sources import get_user_id, get_sources
+from ..exceptions import ConfigurationError
 
 install_bp = Blueprint(
     "connect",
@@ -11,5 +14,20 @@ install_bp = Blueprint(
 
 @install_bp.route("/connect", methods=["GET"])
 def install():
-    response = make_response(render_template("install.html"))
+    try:
+        user_id = get_user_id()
+        sources = get_sources(user_id)
+    except ConfigurationError:
+        return "Server configuration error", 500
+
+    install_commands = {
+        source: "bash install_htcondor.sh -c {} -n {}".format(
+            current_app.config["COLLECTOR"], source
+        )
+        for source in sources
+    }
+
+    context = {"install_commands": install_commands}
+
+    response = make_response(render_template("install.html", **context))
     return response

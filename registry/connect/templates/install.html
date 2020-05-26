@@ -1,13 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}HT Phenotyping - Register a Data Source{% endblock %}
+{% block title %}HT Phenotyping - Connect a New Data Source{% endblock %}
 
 {% block body %}
     <div class="container">
         <div class="row">
             <div class="col">
-                <h1>Install a New Data Source</h1>
+                <h1>Connect a New Data Source</h1>
+
+                {% if not install_commands %}
+                    <div class="alert alert-danger" role="alert">
+                        You don't have any registered data sources,
+                        so you won't be able to install
+                        the HT Phenotyping Transfer Service.
+                    </div>
+                {% endif %}
+
                 <h2>Before you begin...</h2>
+
                 <p>Before you proceed with the install, make sure to go through the following items:</p>
                 <ol>
                     <li>Installation requires a Linux machine. The currently supported platform is Ubuntu 18 but
@@ -32,14 +42,17 @@
                 </ol>
 
                 <h2>Installing the HTPhenotyping Transfer Service</h2>
-                <p>Data transfers from data sources to data processing servers are facilitated by the
+
+                <p>
+                    Data transfers from data sources to data processing servers are facilitated by the
                     <a href="https://htcondor.org" target="_blank">HTCondor</a> software. We have developed an
                     installation script that, given the information you provided during registration, automatically
                     installs and configures HTCondor to connect to the HTPhenotyping transfer servers.
                     <!--The connect
                     script's code and configuration templates are
                     <a href="https://github.com/HTPhenotyping/execute_node_config" target="_blank">available on Github</a>-->
-                    To run the installation script:</p>
+                    To run the installation script:
+                </p>
                 <ol>
                     <li>
                         Make sure you have the <em>exact</em> <strong>"preferred data source name"</strong> and
@@ -54,18 +67,31 @@
                     </li>
                     <li>
                         Download the install script. Inside Terminal, enter:
-                        <pre>
+                        <pre><code>
 wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh
-</pre>
+                        </code></pre>
                         <img src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading the install script" style="padding:20px">
                     </li>
-                    <li>Run the install script. Again inside Terminal, either enter:
-                        <pre>
-sudo bash install_htcondor.sh
-</pre>
-                        Or paste the command you were sent in your email, which will be similar to the above but with
-                        added registration information.
-
+                    <li>
+                        Run the install script. Choose the data source you want to register and run the corresponding command in Terminal:
+                        <div class="accordion" id="installCommands">
+                            {% for source, command in install_commands.items() %}
+                                <div class="card">
+                                    <div class="card-header" id="heading_{{ loop.index }}">
+                                        <h2 class="mb-0">
+                                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse_{{ loop.index }}" aria-expanded="true" aria-controls="collapse_{{ loop.index }}">
+                                                {{ source }}
+                                            </button>
+                                        </h2>
+                                    </div>
+                                    <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
+                                        <div class="card-body">
+                                            <pre><code>{{ command }}</code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                         You will be asked to enter a password, which is the current user's password. The password
                         will not be shown on screen as you type it. Entering the password enables the install script
                         to make root-level (i.e. administrator-level) changes to the system, such as installing software
