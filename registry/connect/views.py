@@ -16,9 +16,10 @@ install_bp = Blueprint(
 def install():
     try:
         user_id = get_user_id()
-        sources = get_sources(user_id)
     except ConfigurationError:
         return "Server configuration error", 500
+
+    sources = get_sources(user_id)
 
     install_commands = {
         source: "bash install_htcondor.sh -c {} -n {}".format(

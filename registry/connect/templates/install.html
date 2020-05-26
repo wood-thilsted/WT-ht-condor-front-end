@@ -2,6 +2,10 @@
 
 {% block title %}HT Phenotyping - Connect a New Data Source{% endblock %}
 
+{% block head %}
+    <link href="{{ url_for('connect.static', filename='connect.css') }}" rel="stylesheet"/>
+{% endblock %}
+
 {% block body %}
     <div class="container">
         <div class="row">
@@ -16,7 +20,7 @@
                     </div>
                 {% endif %}
 
-                <h2>Before you begin...</h2>
+                <h2 class="counter">Before you begin...</h2>
 
                 <p>Before you proceed with the install, make sure to go through the following items:</p>
                 <ol>
@@ -41,96 +45,114 @@
                     </li>
                 </ol>
 
-                <h2>Installing the HTPhenotyping Transfer Service</h2>
+                <h2 class="counter">Installing the HT Phenotyping Transfer Service</h2>
 
                 <p>
-                    Data transfers from data sources to data processing servers are facilitated by the
-                    <a href="https://htcondor.org" target="_blank">HTCondor</a> software. We have developed an
-                    installation script that, given the information you provided during registration, automatically
-                    installs and configures HTCondor to connect to the HTPhenotyping transfer servers.
-                    <!--The connect
-                    script's code and configuration templates are
-                    <a href="https://github.com/HTPhenotyping/execute_node_config" target="_blank">available on Github</a>-->
-                    To run the installation script:
+                    Data transfers from data sources to data processing servers
+                    are facilitated by HT Phenotyping Transfer Service "client"
+                    software.
+                    Follow the instructions below to install the
+                    Transfer Service client.
                 </p>
-                <ol>
-                    <li>
-                        Make sure you have the <em>exact</em> <strong>"preferred data source name"</strong> and
-                        <strong>"data source directory"</strong> that you entered during the registration process.
-                    </li>
-                    <li>
-                        Open <strong>Terminal</strong>. After logging in and while at the Ubuntu desktop, you can
-                        open Terminal either with a keyboard shortcut, Ctrl+Alt+T, or by clicking on the Ubuntu icon at
-                        the top of the left-side menubar and searching for and clicking on Terminal.
 
-                        <img src="{{ url_for('connect.static', filename="open-terminal.png") }}" alt="Opening Terminal in Ubuntu" style="padding:20px">
-                    </li>
-                    <li>
-                        Download the install script. Inside Terminal, enter:
-                        <pre><code>
-wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh
-                        </code></pre>
-                        <img src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading the install script" style="padding:20px">
-                    </li>
-                    <li>
-                        Run the install script. Choose the data source you want to register and run the corresponding command in Terminal:
-                        <div class="accordion" id="installCommands">
-                            {% for source, command in install_commands.items() %}
-                                <div class="card">
-                                    <div class="card-header" id="heading_{{ loop.index }}">
-                                        <h2 class="mb-0">
-                                            <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse_{{ loop.index }}" aria-expanded="true" aria-controls="collapse_{{ loop.index }}">
-                                                {{ source }}
-                                            </button>
-                                        </h2>
-                                    </div>
-                                    <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
-                                        <div class="card-body">
-                                            <pre><code>{{ command }}</code></pre>
-                                        </div>
-                                    </div>
+                <h3 class="counter">Open Terminal</h3>
+                <p>
+                    The first step is to open the <strong>Terminal</strong> application.
+                    After logging in and while at the Ubuntu desktop, you can
+                    open Terminal either by pressing a keyboard shortcut,
+                    <kbd>Ctrl+Alt+T</kbd>,
+                    or by clicking on the Ubuntu icon at
+                    the top of the left-side menubar, searching for "Terminal",
+                    and then clicking on Terminal, as shown below.
+
+                    <img src="{{ url_for('connect.static', filename="open-terminal.png") }}" alt="Opening Terminal in Ubuntu" style="padding:20px">
+                </p>
+
+                <h3 class="counter">Download Installation Script</h3>
+                <p>
+                    The next step is to download the installation script.
+                    Inside Terminal, run this command
+                    (by copying/entering the text shown below into the window
+                    and then pressing <kbd>Enter</kbd>):
+                </p>
+
+                <pre><button type="button" class="btn btn-primary" id="copy_wget_button">Copy</button><code id="copy_wget_target">wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh</code></pre>
+                <p>
+                    You should see some output like this in Terminal:
+                </p>
+                <p>
+                    <img src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading the install script" style="padding:20px">
+                </p>
+
+                <h3 class="counter">Run Installation Script</h3>
+                <p>
+                    The next step is to run run the installation script.
+                    Choose the data source you want to register from the options
+                    below and run the corresponding command in Terminal:
+                </p>
+                <div class="accordion" id="installCommands">
+                    {% for source, command in install_commands.items() %}
+                        <div class="card">
+                            <div class="card-header" id="heading_{{ loop.index }}">
+                                <h2 class="mb-0">
+                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse_{{ loop.index }}" aria-expanded="true" aria-controls="collapse_{{ loop.index }}">
+                                        {{ source }}
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
+                                <div class="card-body">
+                                    <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">{{ command }}</code></pre>
                                 </div>
-                            {% endfor %}
+                            </div>
                         </div>
-                        You will be asked to enter a password, which is the current user's password. The password
-                        will not be shown on screen as you type it. Entering the password enables the install script
-                        to make root-level (i.e. administrator-level) changes to the system, such as installing software
-                        and enabling HTCondor to run at boot.
-                        <img src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command" style="padding:20px">
-                    </li>
-                    <li>Enter the requested information. The install script will ask for:
-                        <ol style="list-style-type: lower-alpha;">
-                            <li>"Central manager hostname:" &mdash; Enter (or leave blank to accept default):
-                                <span style="font-family: monospace;">htpheno-cm.chtc.wisc.edu</span></li>
-                            <li>"Preferred data source name:" &mdash; Enter exactly what you entered for this during
-                                registration (e.g. <span style="font-family: monospace">Wisconsin_Bucky</span>)
-                            </li>
-                            <li>"Data source directory:" &mdash; Enter exactly what you entered for this during
-                                registration (e.g. <span style="font-family: monospace">/mnt/images</span>)
-                            </li>
-                        </ol>
-                        <img src="{{ url_for('connect.static', filename="enter-data.png") }}" alt="Inputting data source information" style="padding:20px"><br>
-                        After entering this information, the install script will continue on to install and configure
-                        HTCondor. You will then be asked to finish registering your data source.
-                    </li>
-                    <li>Follow the instructions to finish registering your data source.
-                        <ol style="list-style-type: lower-alpha;">
-                            <li>Ctrl+click on the URL in the terminal output and click on "Open Link",
-                                or copy the URL to a browser window,
-                                or <a href="registration/code">enter the code manually on the Approve a Token Request page</a>.
-                                You may be required to log in again to your university account. Be sure to use the same account
-                                as when you first registered.
-                            </li>
-                            <li>Click "Submit" and check the terminal for successful registration.</li>
-                            <img src="{{ url_for('connect.static', filename="token-flow.png") }}" alt="Finishing registration" style="padding:20px">
-                        </ol>
-                    </li>
-                    <li>If everything was successful, your machine has been successfully added to the HTPhenotyping
-                        data transfer service. If you have any problems and need help troubleshooting, please do not
-                        hesitate to email us.
-                    </li>
-                </ol>
+                    {% endfor %}
+                </div>
+                <p>
+                    You will be asked to enter a password, which is the current user's password. The password
+                    will not be shown on screen as you type it. Entering the password enables the install script
+                    to make root-level (i.e. administrator-level) changes to the system, such as installing software
+                    and enabling HTCondor to run at boot.
+                </p>
+                <p>
+                    <img src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command" style="padding:20px">
+                </p>
+
+                <h3 class="counter">Approve Authorization Token</h3>
+                <p>
+                    Once the software installation is complete, your machine
+                    will automatically request an "authorization token" from the
+                    HT Phenotyping service. You must approve this request
+                    for installation to proceed.
+                </p>
+                <p>
+                    As shown below,
+                    <kbd>Ctrl+click</kbd> on the URL in the terminal output and click on "Open Link",
+                    or copy the URL to a browser window, or
+                    <a href="{{ url_for("token.code_get") }}" target="_blank">enter the code manually here</a>.
+                    You may be required to log in again.
+                    Be sure to use the same account as when you first registered.
+                    Click "Submit" and check the terminal for successful registration.
+                </p>
+                <img src="{{ url_for('connect.static', filename="token-flow.png") }}" alt="Finishing registration" style="padding:20px">
+                <p>
+                    If you see the final message from the screenshot above in your Terminal,
+                    your data source has been successfully added to the HT Phenotyping data transfer service.
+                    If you have any problems and need help troubleshooting,
+                    please do not hesitate to email us.
+                </p>
             </div>
         </div>
     </div>
+{% endblock %}
+
+
+{% block postscript %}
+    <script>
+        copy("#copy_wget_target", "#copy_wget_button");
+        {% for _ in install_commands %}
+
+            copy("#copy_install_cmd_target_{{ loop.index }}", "#copy_install_cmd_button_{{ loop.index }}");
+        {% endfor %}
+    </script>
 {% endblock %}
