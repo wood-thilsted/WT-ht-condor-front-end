@@ -5,7 +5,7 @@ from email.utils import getaddresses
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
-from ..sources import get_user_id
+from ..sources import get_user_id, is_valid_source_name
 from ..exceptions import ConfigurationError
 
 signup_bp = Blueprint(
@@ -37,6 +37,17 @@ def signup_post():
             400,
         )
 
+    source = request.form["source"]
+    if not is_valid_source_name(source):
+        return error(
+            'The source name you entered ("{}") is not valid. The source name must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), and underscores (_). It may not begin with a digit.'.format(
+                source
+            ),
+            400,
+        )
+
+    contact = request.form["contact"]
+
     try:
         admin_emails = current_app.config["ADMIN_EMAILS"]
     except KeyError:
@@ -55,6 +66,7 @@ def signup_post():
 
     try:
         hostname = socket.gethostname()
+        email = request.form["email"]
         msg = MIMEText(
             """
 A new user has signed up for the HTPhenotyping system.  
@@ -68,14 +80,11 @@ Contact information includes:
 If approved, please add the user data to the following repository:
     https://github.com/HTPhenotyping/sources
 """.format(
-                contact=request.form["contact"],
-                user_id=user_id,
-                email=request.form["email"],
-                source=request.form["source"],
+                contact=contact, user_id=user_id, email=email, source=source,
             )
         )
         msg["Subject"] = "New HTPheno sign-up from {contact} ({user})".format(
-            contact=request.form["contact"], user=user_id
+            contact=contact, user=user_id
         )
         msg["From"] = "HTPheno Webapp <donotreply@{}>".format(hostname)
         msg["To"] = admin_emails
@@ -93,7 +102,8 @@ If approved, please add the user data to the following repository:
         current_app.logger.exception("Failed to send sign up email")
         return error("Internal server error; sign up failed. Please try again.", 500)
 
-    return make_response(render_template("signup_submit_success.html"))
+    context = {"email": email}
+    return make_response(render_template("signup_submit_success.html", **context))
 
 
 def error(info, status_code):

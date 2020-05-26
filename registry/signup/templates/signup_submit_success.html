@@ -9,13 +9,20 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
+                    <div class="alert alert-success" role="alert">
+                        Success!
+                    </div>
                     <p>
-                        Your registration information has been submitted to the HT Phenotyping administrators.
-                        Expect a contact within one business day to finalize the registration process
-                        and to receive instructions on configuring a new host.
+                        Your signup information has been submitted to the
+                        HT Phenotyping administrators.
+                        You will receive an email at <code>{{ email }}</code>
+                        once the administrators have approved your signup
+                        (usually within one business day).
                     </p>
                     {% if info %}
-                        {{ info }}
+                        <p>
+                            {{ info }}
+                        </p>
                     {% endif %}
                 </div>
             </div>

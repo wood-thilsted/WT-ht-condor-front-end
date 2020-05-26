@@ -8,17 +8,32 @@
             <div class="col">
                 <h1>Account Information</h1>
 
-                <p>
-                    Your identity is <strong>{{ identity }}</strong>
-                </p>
-                <p>
-                    Your registered sources are
-                <ul>
-                    {% for source in sources %}
-                        <li>{{ source }}</li>
-                    {% endfor %}
-                </ul>
-                </p>
+                {% if signed_up %}
+                    <p>
+                        Your identity is <strong>{{ identity }}</strong>
+                        <br>
+                        Your contact email is <code>{{ contact }}</code>
+                    </p>
+                    {% if sources %}
+                        <p>
+                            Your registered data sources are
+                        </p>
+                        <ul>
+                            {% for source in sources %}
+                                <li>{{ source }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>
+                            You have no registered sources.
+                        </p>
+                    {% endif %}
+                {% else %}
+                    <p>
+                        You haven't <a href="{{ url_for("signup.signup_get") }}">signed up</a> yet,
+                        or your signup is waiting for approval.
+                    </p>
+                {% endif %}
             </div>
         </div>
     </div>

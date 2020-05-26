@@ -1,3 +1,5 @@
+import re
+
 try:  # py3
     from configparser import ConfigParser
 except ImportError:  # py2
@@ -26,6 +28,10 @@ def get_user_id():
     return user_id
 
 
+def is_signed_up(user_id):
+    return any(user_id == entry["name"] for entry in parse_humans_file())
+
+
 def get_sources(user_id):
     """
     Map a given user ID to a list of sources they are authorized to administrate.
@@ -34,6 +40,11 @@ def get_sources(user_id):
         entry["name"]: entry["sources"].split() for entry in parse_humans_file()
     }
     return names_to_sources.get(user_id, [])
+
+
+def get_contact_email(user_id):
+    names_to_contacts = {entry["name"]: entry["email"] for entry in parse_humans_file()}
+    return names_to_contacts.get(user_id, None)
 
 
 def parse_humans_file():
@@ -62,3 +73,10 @@ def config_to_entries(config):
         entries.append(entry)
 
     return entries
+
+
+SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
+
+
+def is_valid_source_name(source_name):
+    return bool(SOURCE_CHECK.match(source_name))

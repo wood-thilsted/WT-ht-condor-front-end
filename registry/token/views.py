@@ -1,11 +1,10 @@
 import subprocess
 import os
 import json
-import re
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
-from ..sources import get_user_id, get_sources
+from ..sources import get_user_id, get_sources, is_valid_source_name
 from ..exceptions import CondorToolException, ConfigurationError
 
 token_bp = Blueprint(
@@ -25,7 +24,6 @@ def code_get():
 
 SOURCE_PREFIX = "SOURCE_"
 SOURCE_POSTFIX = "htpheno-cm.chtc.wisc.edu"
-SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
 ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD"}
 
 
@@ -69,7 +67,7 @@ def code_post():
     requested_source = result.get("RequestedIdentity").split("@")[0][
         len(SOURCE_PREFIX) :
     ]
-    if not SOURCE_CHECK.match(requested_source):
+    if not is_valid_source_name(requested_source):
         current_app.logger.debug(
             "The requested source name was {}, which is invalid.".format(
                 requested_source

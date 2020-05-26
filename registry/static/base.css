@@ -8,4 +8,15 @@ li.nav-item > a.btn {
 
 pre {
     background-color: #e5e5e5;
+    padding-left: 1em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+/* remove the extra space at the bottom of pre blocks inside card bodies */
+div.card-body > pre {
+    margin-top: 0;
+    margin-bottom: 0;
 }

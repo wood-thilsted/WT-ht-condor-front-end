@@ -1,17 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}HT Phenotyping Signup Failed{% endblock %}
+{% block title %}HT Phenotyping - Signup Failed{% endblock %}
 
 {% block body %}
     <div class="container">
-        <h1>HT Phenotyping Signup Failed</h1>
+        <h1>Signup Failed</h1>
 
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <p>HT Phenotyping Signup Failed</p>
+                    <div class="alert alert-danger" role="alert">
+                        Something went wrong during the signup process.
+                    </div>
                     {% if info %}
-                        {{ info }}
+                        <p>
+                            {{ info }}
+                        </p>
                     {% endif %}
                 </div>
             </div>

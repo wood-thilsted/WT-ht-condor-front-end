@@ -1,6 +1,6 @@
 from flask import Blueprint, make_response, render_template, current_app, request
 
-from ..sources import get_user_id, get_sources
+from ..sources import get_user_id, get_sources, get_contact_email, is_signed_up
 from ..exceptions import ConfigurationError
 
 account_bp = Blueprint(
@@ -16,11 +16,20 @@ account_bp = Blueprint(
 def account_get():
     try:
         user_id = get_user_id()
-        sources = get_sources(user_id)
     except ConfigurationError:
         return "Server configuration error", 500
 
-    context = {"identity": user_id, "sources": sources}
+    if not is_signed_up(user_id):
+        context = {"identity": user_id, "signed_up": False}
+        return make_response(render_template("account.html", **context))
 
-    response = make_response(render_template("account.html", **context))
-    return response
+    contact = get_contact_email(user_id)
+    sources = get_sources(user_id)
+
+    context = {
+        "identity": user_id,
+        "signed_up": True,
+        "contact": contact,
+        "sources": sources,
+    }
+    return make_response(render_template("account.html", **context))
