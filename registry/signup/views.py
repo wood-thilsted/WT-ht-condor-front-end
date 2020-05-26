@@ -5,6 +5,9 @@ from email.utils import getaddresses
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
+from ..sources import get_user_id
+from ..exceptions import ConfigurationError
+
 signup_bp = Blueprint(
     "signup",
     __name__,
@@ -20,11 +23,19 @@ def signup_get():
     return response
 
 
+EXPECTED_FORM_KEYS = {"contact", "email", "source"}
+
+
 @signup_bp.route("/signup", methods=["POST"])
 def signup_post():
-    for varname in ["contact", "email", "source", "sourcePath"]:
-        if varname not in request.form:
-            return error("The '{}' parameter is missing".format(varname), 400)
+    got_keys = set(request.form.keys())
+    if got_keys != EXPECTED_FORM_KEYS:
+        return error(
+            "A form parameter was missing. Got {}, expected {}.".format(
+                got_keys, EXPECTED_FORM_KEYS
+            ),
+            400,
+        )
 
     try:
         admin_emails = current_app.config["ADMIN_EMAILS"]
@@ -35,16 +46,11 @@ def signup_post():
         return error("Server configuration error", 500)
 
     try:
-        user_id_env_var = current_app.config["USER_ID_ENV_VAR"]
-    except KeyError:
-        current_app.logger.error(
-            "Config variable USER_ID_ENV_VAR not set; this should be set to the name of the environment variable that holds the user's identity (perhaps REMOTE_USER ?)"
-        )
+        user_id = get_user_id()
+    except ConfigurationError:
         return error("Server configuration error", 500)
 
-    user_id = request.environ.get(user_id_env_var, None)
-    current_app.logger.debug("User ID is {}".format(user_id))
-    if not user_id:
+    if user_id is None:
         return error("Unknown user", 401)
 
     try:
@@ -54,20 +60,18 @@ def signup_post():
 A new user has signed up for the HTPhenotyping system.  
 
 Contact information includes:
-- Name: {contact}
-- User name: {user}
+- Identity: {user_id}
+- Contact Name: {contact}
 - Preferred email: {email}
 - Source name: {source}
-- Source path: {sourcePath}
 
 If approved, please add the user data to the following repository:
     https://github.com/HTPhenotyping/sources
 """.format(
                 contact=request.form["contact"],
-                user=user_id,
+                user_id=user_id,
                 email=request.form["email"],
                 source=request.form["source"],
-                sourcePath=request.form["sourcePath"],
             )
         )
         msg["Subject"] = "New HTPheno sign-up from {contact} ({user})".format(
@@ -76,8 +80,8 @@ If approved, please add the user data to the following repository:
         msg["From"] = "HTPheno Webapp <donotreply@{}>".format(hostname)
         msg["To"] = admin_emails
     except:
-        current_app.logger.exception("Failed to construct email message")
-        return error("Internal error when generating email to administrators", 500)
+        current_app.logger.exception("Failed to construct sign up email")
+        return error("Internal server error; sign up failed. Please try again.", 500)
 
     current_app.logger.info("Signup email contents: %s", msg.as_string())
     try:
@@ -86,8 +90,8 @@ If approved, please add the user data to the following repository:
         server.sendmail("donotreply@{}".format(hostname), emails, msg.as_string())
         server.quit()
     except:
-        current_app.logger.exception("Failed to send sign-up email")
-        return error("Failed to send sign-up email to server admins", 500)
+        current_app.logger.exception("Failed to send sign up email")
+        return error("Internal server error; sign up failed. Please try again.", 500)
 
     return make_response(render_template("signup_submit_success.html"))
 
