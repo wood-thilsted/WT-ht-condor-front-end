@@ -42,7 +42,8 @@ USER_ID_ENV_VAR = "REMOTE_USER"
 These configuration options **must** be set.
 They do not have defaults.
 
-* `SERVER_NAME` - The name of the host server.
+* `COLLECTOR` - The HT Phenotyping collector hostname.
+* `SERVER_NAME` - The hostname of the host server.
 * `OIDC_REDIRECT_URI` - The URI for the OIDC redirect.
 * `USER_ID_ENV_VAR` - The request environment variable that holds the user's identity.
 * `HUMANS_FILE` - The path to the file that contains information on humans.
