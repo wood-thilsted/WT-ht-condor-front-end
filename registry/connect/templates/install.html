@@ -27,17 +27,11 @@
                     <li>Installation requires a Linux machine. The currently supported platform is Ubuntu 18 but
                         we can work with individual sites if another distribution version is needed.
                     </li>
-                    <li>You will need "root" access on the host; installation requires new software and services
-                        running on the machine.
+                    <li>Your user account on the machine must have admin privileges as software will be installed
+                        and system configuration changes will be made.
                     </li>
                     <li>Ensure you have a reliable outgoing connection. We periodically sync daily; ensure the
-                        machine is online overnight so the synchronization happens. <strong>Incoming connections
-                            are not needed</strong>; most locations will not need to change firewall settings as long
-                        as outgoing connections to University of Wisconsin are permitted.
-                    </li>
-                    <li>Make sure you know which directory (folder) your data is being stored in. You will need
-                        the full path (e.g. "/home/your-username/images" or "/mnt/external/images") to your data
-                        directory. If you don't know what the full path is, please let us know before installing.
+                        machine is online overnight so the synchronization happens.
                     </li>
                     <li>Copying from and pasting to the Ubuntu Terminal uses different keyboard shortcuts than
                         on Windows and MacOS. We suggest using the mouse and right-clicking when copying from or
@@ -109,13 +103,16 @@
                     {% endfor %}
                 </div>
                 <p>
-                    You will be asked to enter a password, which is the current user's password. The password
-                    will not be shown on screen as you type it. Entering the password enables the install script
-                    to make root-level (i.e. administrator-level) changes to the system, such as installing software
-                    and enabling HTCondor to run at boot.
+                    <img src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command" style="padding:20px">
                 </p>
                 <p>
-                    <img src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command" style="padding:20px">
+                    After some output, you will be asked to enter a password, which is the current user's password.
+                    The password will not be shown on screen as you type it. Entering the password enables the install
+                    script to make root-level (i.e. administrator-level) changes to the system, such as installing
+                    software and enabling HTCondor to run at boot.
+                </p>
+                <p>
+                    <img src="{{ url_for('connect.static', filename="sudo.png") }}" alt="Example sudo prompt" style="padding:20px">
                 </p>
 
                 <h3 class="counter">Approve Authorization Token</h3>
