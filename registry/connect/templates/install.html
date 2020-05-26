@@ -86,7 +86,7 @@
 
                 <h3 class="counter">Run Installation Script</h3>
                 <p>
-                    The next step is to run run the installation script.
+                    The next step is to run the installation script.
                     Choose the data source you want to register from the options
                     below and run the corresponding command in Terminal:
                 </p>
@@ -130,7 +130,8 @@
                 </p>
                 <p>
                     As shown below,
-                    <kbd>Ctrl+click</kbd> on the URL in the terminal output and click on "Open Link",
+                    <kbd>Ctrl+click</kbd>
+                    on the URL in the Terminal output and click on "Open Link",
                     or copy the URL to a browser window, or
                     <a href="{{ url_for("token.code_get") }}" target="_blank">enter the code manually here</a>.
                     You may be required to log in again.
@@ -149,12 +150,10 @@
     </div>
 {% endblock %}
 
-
 {% block postscript %}
     <script>
         copy("#copy_wget_target", "#copy_wget_button");
         {% for _ in install_commands %}
-
             copy("#copy_install_cmd_target_{{ loop.index }}", "#copy_install_cmd_button_{{ loop.index }}");
         {% endfor %}
     </script>
