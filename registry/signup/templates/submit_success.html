@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}HT Phenotyping Signup Submitted{% endblock %}
+{% block title %}HT Phenotyping - Signup Submitted{% endblock %}
 
 {% block body %}
     <div class="container">
-        <h1>HT Phenotyping Signup Submitted</h1>
+        <h1>{{ which|title }} Submitted</h1>
 
         <div class="container-fluid">
             <div class="row">
@@ -13,15 +13,15 @@
                         Success!
                     </div>
                     <p>
-                        Your signup information has been submitted to the
+                        Your {{ which }} information has been submitted to the
                         HT Phenotyping administrators.
                         You will receive an email at <code>{{ email }}</code>
-                        once the administrators have approved your signup
+                        once the administrators have approved your {{ which }}
                         (usually within one business day).
                     </p>
                     {% if info %}
                         <p>
-                            {{ info }}
+                            {{ info|safe }}
                         </p>
                     {% endif %}
                 </div>

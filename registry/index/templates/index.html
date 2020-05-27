@@ -2,11 +2,15 @@
 
 {% block title %}HT Phenotyping{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('index.static', filename='index.css') }}">
+{% endblock %}
+
 {% block body %}
     <div class="container">
         <div class="row">
             <div class="col">
-                <div class="jumbotron">
+                <div class="jumbotron shadow">
                     <h1 class="display-r">HT Phenotyping Project</h1>
 
                     <p class="lead">
@@ -24,44 +28,60 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-4">
-                <div class="card">
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow border-primary">
                     <h5 class="card-header">Step 1: Sign Up</h5>
-                    <div class="card-body">
+                    <div class="card-body flex-fill">
                         <p class="card-text">
-                            To begin using the HT Phenotyping service, you must first sign up.
-                            You will be asked to login using your local university ID.
-                            Account verification typically takes one business day.
-                            Once approved, you will be notified by email.
+                            To use the HT Phenotyping service, you must first sign up.
+                            You will be asked to log in using your local university ID (through CILogon).
                         </p>
-                        <div class="text-center">
-                            <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary">Sign Up</a>
-                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary btn-lg">Sign Up!</a>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <div class="card">
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow border-primary">
                     <h5 class="card-header">Step 2: Register</h5>
-                    <div class="card-body">
+                    <div class="card-body flex-fill flex-column">
+                        <p class="card-text">
+                            Once you have signed up, you can register a new data
+                            source.
+                            You can do this even if your signup has not
+                            been approved yet.
+                        </p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for("signup.register_get") }}" class="btn btn-primary btn-lg">Register!</a>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <div class="card">
-                    <h5 class="card-header">Step 3: Install</h5>
-                    <div class="card-body">
+            <div class="col-lg-4 d-flex">
+                <div class="card shadow border-primary">
+                    <h5 class="card-header">Step 3: Connect</h5>
+                    <div class="card-body flex-fill">
                         <p class="card-text">
-                            Once you've registered with the service, you will
-                            be able to install a new data collection service. This service allows
-                            you to upload data from a fixed directory location to the central host.
+                            Once your registration has been approved,
+                            you can connect your data source to the
+                            HT Phenotyping transfer service
+                            and begin uploading data.
                         </p>
-                        <div class="text-center">
-                            <a href="{{ url_for("connect.install") }}" class="btn btn-primary">Install</a>
-                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for("connect.install") }}" class="btn btn-primary btn-lg">Connect!</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block postscript %}
+    <script>
+        $("div.card").hover(function (event) {
+            $(this).toggleClass("shadow-lg");
+        });
+    </script>
 {% endblock %}

@@ -16,37 +16,42 @@
                     <div class="alert alert-danger" role="alert">
                         You don't have any registered data sources,
                         so you won't be able to install
-                        the HT Phenotyping Transfer Service.
+                        the HT Phenotyping transfer service.
                     </div>
                 {% endif %}
 
-                <h2 class="counter">Before you begin...</h2>
+                <h2 class="counter">Preparation</h2>
 
-                <p>Before you proceed with the install, make sure to go through the following items:</p>
+                <p>
+                    Before you proceed, make sure to go through the following items:
+                </p>
                 <ol>
-                    <li>Installation requires a Linux machine. The currently supported platform is Ubuntu 18 but
+                    <li>
+                        Installation requires a Linux machine. The currently supported platform is Ubuntu 18 but
                         we can work with individual sites if another distribution version is needed.
                     </li>
-                    <li>Your user account on the machine must have admin privileges as software will be installed
+                    <li>
+                        Your user account on the machine must have administrative privileges as software will be installed
                         and system configuration changes will be made.
                     </li>
-                    <li>Ensure you have a reliable outgoing connection. We periodically sync daily; ensure the
+                    <li>
+                        Ensure you have a reliable outgoing connection. We synchronize data periodically; ensure the
                         machine is online overnight so the synchronization happens.
                     </li>
-                    <li>Copying from and pasting to the Ubuntu Terminal uses different keyboard shortcuts than
+                    <li>
+                        Copying from and pasting to the Ubuntu Terminal uses different keyboard shortcuts than
                         on Windows and MacOS. We suggest using the mouse and right-clicking when copying from or
                         pasting to a Terminal window.
                     </li>
                 </ol>
 
-                <h2 class="counter">Installing the HT Phenotyping Transfer Service</h2>
+                <h2 class="counter">Installing the HT Phenotyping Transfer Service Client</h2>
 
                 <p>
-                    Data transfers from data sources to data processing servers
-                    are facilitated by HT Phenotyping Transfer Service "client"
-                    software.
+                    Data is transferred from your source by the
+                    HT Phenotyping transfer service "client" software.
                     Follow the instructions below to install the
-                    Transfer Service client.
+                    transfer service client.
                 </p>
 
                 <h3 class="counter">Open Terminal</h3>
@@ -58,8 +63,9 @@
                     or by clicking on the Ubuntu icon at
                     the top of the left-side menubar, searching for "Terminal",
                     and then clicking on Terminal, as shown below.
-
-                    <img src="{{ url_for('connect.static', filename="open-terminal.png") }}" alt="Opening Terminal in Ubuntu" style="padding:20px">
+                </p>
+                <p class="text-center">
+                    <img class="example" src="{{ url_for('connect.static', filename="open-terminal.png") }}" alt="Opening Terminal in Ubuntu">
                 </p>
 
                 <h3 class="counter">Download and Run Installation Script</h3>
@@ -68,29 +74,35 @@
                     Choose the data source you want to register from the options
                     below and run the corresponding command in Terminal:
                 </p>
-                <div class="accordion" id="installCommands">
-                    {% for source, command in install_commands.items() %}
-                        <div class="card">
-                            <div class="card-header" id="heading_{{ loop.index }}">
-                                <h2 class="mb-0">
-                                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse_{{ loop.index }}" aria-expanded="true" aria-controls="collapse_{{ loop.index }}">
-                                        {{ source }}
-                                    </button>
-                                </h2>
-                            </div>
-                            <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
-                                <div class="card-body">
-                                    <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh && {{ command }}</code></pre>
+                {% if install_commands %}
+                    <div class="accordion" id="installCommands">
+                        {% for source, command in install_commands.items() %}
+                            <div class="card">
+                                <div class="card-header" id="heading_{{ loop.index }}">
+                                    <h2 class="mb-0">
+                                        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse_{{ loop.index }}" aria-expanded="true" aria-controls="collapse_{{ loop.index }}">
+                                            {{ source }}
+                                        </button>
+                                    </h2>
+                                </div>
+                                <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
+                                    <div class="card-body">
+                                        <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh && {{ command }}</code></pre>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-danger" role="alert">
+                        You don't have any registered data sources!
+                    </div>
+                {% endif %}
                 <p>
                     See the screenshot below for example output from running this command.
                 </p>
-                <p>
-                    <img src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading and running the install command" style="padding:20px">
+                <p class="text-center">
+                    <img class="example" src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading and running the install command" style="padding:20px">
                 </p>
                 <p>
                     After some output, you will be asked to enter a password, which is the current user's password.
@@ -98,8 +110,8 @@
                     script to make root-level (i.e. administrator-level) changes to the system, such as installing
                     software and enabling HTCondor to run at boot. See the screenshot below for an example of the password prompt.
                 </p>
-                <p>
-                    <img src="{{ url_for('connect.static', filename="sudo.png") }}" alt="Example sudo prompt" style="padding:20px">
+                <p class="text-center">
+                    <img class="example" src="{{ url_for('connect.static', filename="sudo.png") }}" alt="Example sudo prompt">
                 </p>
 
                 <h3 class="counter">Approve Authorization Token</h3>
@@ -111,14 +123,17 @@
                 </p>
                 <p>
                     As shown below,
-                    <kbd>Ctrl+click</kbd> on the URL in the terminal output and click on "Open Link",
+                    <kbd>Ctrl+click</kbd>
+                    on the URL in the Terminal output and click on "Open Link",
                     or copy the URL to a browser window, or
                     <a href="{{ url_for("token.code_get") }}" target="_blank">enter the code manually here</a>.
                     You may be required to log in again.
                     Be sure to use the same account as when you first registered.
                     Click "Submit" and check the terminal for successful registration.
                 </p>
-                <img src="{{ url_for('connect.static', filename="token-flow.png") }}" alt="Finishing registration" style="padding:20px">
+                <p class="text-center">
+                    <img class="example" src="{{ url_for('connect.static', filename="token-flow.png") }}" alt="Finishing registration">
+                </p>
                 <p>
                     If you see the final message from the screenshot above in your Terminal,
                     your data source has been successfully added to the HT Phenotyping data transfer service.
@@ -130,12 +145,10 @@
     </div>
 {% endblock %}
 
-
 {% block postscript %}
     <script>
         copy("#copy_wget_target", "#copy_wget_button");
         {% for _ in install_commands %}
-
             copy("#copy_install_cmd_target_{{ loop.index }}", "#copy_install_cmd_button_{{ loop.index }}");
         {% endfor %}
     </script>

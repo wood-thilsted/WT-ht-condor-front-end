@@ -33,6 +33,7 @@
 .pincode-input-text, .form-control.pincode-input-text {
     text-align: center;
     flex-grow: 1;
+    width: 2em;
 }
 
 .pincode-input-error {

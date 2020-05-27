@@ -23,9 +23,43 @@ Template Apache configuration:
 ```
 
 By default we "protect" everything under `/` with OIDC.
-Some pages should be "public", i.e., unprotected (right now, these are the 
-"about" and "index" pages).
+Some pages should be "public", i.e., unprotected 
+(right now, these are the 
+"index" and "about" pages, and anything under `/static`, 
+so that static assets can always be served).
 This is managed by Apache, not the webapp.
+Example configuration below:
+
+```
+  <Location "/">
+    <RequireAny>
+      Require valid-user
+    </RequireAny>
+    AuthType openid-connect
+  </Location>
+
+  <LocationMatch "^/$">
+    <RequireAny>
+      Require all granted
+    </RequireAny>
+    AuthType none
+  </LocationMatch>
+
+  <Location "/about">
+    <RequireAny>
+      Require all granted
+    </RequireAny>
+    AuthType none
+  </Location>
+
+  <Location "/static">
+    <RequireAny>
+      Require all granted
+    </RequireAny>
+    AuthType none
+  </Location>
+```
+
 
 ## Configuration
 

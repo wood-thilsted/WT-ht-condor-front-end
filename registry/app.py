@@ -8,7 +8,9 @@ from .connect import install_bp
 from .token import token_bp
 from .account import account_bp
 
+
 BLUEPRINTS = [index_bp, signup_bp, install_bp, token_bp, account_bp]
+CONTEXT_PROCESSORS = []
 
 HERE = os.path.dirname(__file__)
 
@@ -26,6 +28,9 @@ def create_app(test_config=None):
     with app.app_context():
         for bp in BLUEPRINTS:
             app.register_blueprint(bp)
+
+        for cp in CONTEXT_PROCESSORS:
+            app.context_processor(cp)
 
     app.logger.debug("Created!")
     return app

@@ -47,6 +47,13 @@ def get_contact_email(user_id):
     return names_to_contacts.get(user_id, None)
 
 
+def get_name(user_id):
+    names_to_contacts = {
+        entry["name"]: entry["contactname"] for entry in parse_humans_file()
+    }
+    return names_to_contacts.get(user_id, None)
+
+
 def parse_humans_file():
     try:
         humans_file = current_app.config["HUMANS_FILE"]

@@ -4,17 +4,17 @@
 
 {% block body %}
     <div class="container">
-        <h1>Signup Failed</h1>
+        <h1>{{ which|title }} Failed</h1>
 
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
                     <div class="alert alert-danger" role="alert">
-                        Something went wrong during the signup process.
+                        Something went wrong during the {{ which }} process.
                     </div>
                     {% if info %}
                         <p>
-                            {{ info }}
+                            {{ info|safe }}
                         </p>
                     {% endif %}
                 </div>
