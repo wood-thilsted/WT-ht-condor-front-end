@@ -68,25 +68,9 @@
                     <img class="example" src="{{ url_for('connect.static', filename="open-terminal.png") }}" alt="Opening Terminal in Ubuntu">
                 </p>
 
-                <h3 class="counter">Download Installation Script</h3>
+                <h3 class="counter">Download and Run Installation Script</h3>
                 <p>
-                    The next step is to download the installation script.
-                    Inside Terminal, run this command
-                    (by copying/entering the text shown below into the window
-                    and then pressing <kbd>Enter</kbd>):
-                </p>
-
-                <pre><button type="button" class="btn btn-primary" id="copy_wget_button">Copy</button><code id="copy_wget_target">wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh</code></pre>
-                <p>
-                    You should see some output like this in Terminal:
-                </p>
-                <p class="text-center">
-                    <img class="example" src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading the install script">
-                </p>
-
-                <h3 class="counter">Run Installation Script</h3>
-                <p>
-                    The next step is to run the installation script.
+                    The next step is to download and run the installation script.
                     Choose the data source you want to register from the options
                     below and run the corresponding command in Terminal:
                 </p>
@@ -103,7 +87,7 @@
                                 </div>
                                 <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
                                     <div class="card-body">
-                                        <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">{{ command }}</code></pre>
+                                        <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh && {{ command }}</code></pre>
                                     </div>
                                 </div>
                             </div>
@@ -114,14 +98,17 @@
                         You don't have any registered data sources!
                     </div>
                 {% endif %}
+                <p>
+                    See the screenshot below for example output from running this command.
+                </p>
                 <p class="text-center">
-                    <img class="example" src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command">
+                    <img class="example" src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading and running the install command">
                 </p>
                 <p>
                     After some output, you will be asked to enter a password, which is the current user's password.
                     The password will not be shown on screen as you type it. Entering the password enables the install
                     script to make root-level (i.e. administrator-level) changes to the system, such as installing
-                    software and enabling HTCondor to run at boot.
+                    software and enabling HTCondor to run at boot. See the screenshot below for an example of the password prompt.
                 </p>
                 <p class="text-center">
                     <img class="example" src="{{ url_for('connect.static', filename="sudo.png") }}" alt="Example sudo prompt">
