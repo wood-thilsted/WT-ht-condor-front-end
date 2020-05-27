@@ -57,11 +57,7 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    {% if user_name %}
-                        <li class="nav-item"><a class="btn btn-info nav-item" href="{{ url_for('account.account_get') }}">My Account</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="btn btn-primary nav-item" href="{{ url_for('signup.signup_get') }}">Sign Up</a></li>
-                    {% endif %}
+                    <li class="nav-item"><a class="btn btn-info nav-item" href="{{ url_for('account.account_get') }}">My Account</a></li>
                     <li class="nav-item"><a class="btn btn-danger nav-item" href="{{ url_for('index.logout') }}">Log Out</a></li>
                 </ul>
             </div>
