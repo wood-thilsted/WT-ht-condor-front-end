@@ -3,8 +3,19 @@
 }
 
 li.nav-item > a.btn {
-    margin-left: 10px;
+    margin-left: .5rem;
+    display: inline-block;
 }
+
+/* When the navbar turns into a hamburger menu,
+   we need to switch to vertical spacing instead of horizontal.
+   I didn't find an easy trick to go back to the prior CSS (above) if the window
+   is re-expanded with the menu open (it works fine if the menu is closed). */
+button.navbar-toggler[aria-expanded=true] ~ #navbarSupportedContent > ul > li.nav-item > a.btn {
+    margin-left: unset;
+    margin-top: .5rem;
+}
+
 
 body {
     margin-bottom: 5em;
@@ -17,4 +28,12 @@ pre {
     padding-bottom: 1em;
     margin-top: .5em;
     margin-bottom: .5em;
+}
+
+div.card {
+    margin-bottom: 1em;
+}
+
+img {
+    max-width: 100%;
 }

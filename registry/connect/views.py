@@ -32,5 +32,5 @@ def install():
 
     context = {"install_commands": install_commands}
 
-    response = make_response(render_template("install.html", **context))
+    response = make_response(render_template("connect.html", **context))
     return response

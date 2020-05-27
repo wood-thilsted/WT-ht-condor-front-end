@@ -6,7 +6,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <div class="jumbotron">
+                <div class="jumbotron shadow">
                     <h1 class="display-r">HT Phenotyping Project</h1>
 
                     <p class="lead">
@@ -24,44 +24,51 @@
         </div>
 
         <div class="row">
-            <div class="col-sm-4">
-                <div class="card">
+            <div class="col-lg-4">
+                <div class="card shadow border-primary">
                     <h5 class="card-header">Step 1: Sign Up</h5>
                     <div class="card-body">
                         <p class="card-text">
-                            To begin using the HT Phenotyping service, you must first sign up.
-                            You will be asked to login using your local university ID.
-                            Account verification typically takes one business day.
-                            Once approved, you will be notified by email.
+                            To use the HT Phenotyping service, you must first sign up.
+                            You will be asked to log in (through CILogon) using your local university ID.
                         </p>
                         <div class="text-center">
-                            <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary">Sign Up</a>
+                            <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary">Sign Up!</a>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <div class="card">
+            <div class="col-lg-4">
+                <div class="card shadow border-primary">
                     <h5 class="card-header">Step 2: Register</h5>
                     <div class="card-body">
                     </div>
                 </div>
             </div>
-            <div class="col-sm-4">
-                <div class="card">
-                    <h5 class="card-header">Step 3: Install</h5>
+            <div class="col-lg-4">
+                <div class="card shadow border-primary">
+                    <h5 class="card-header">Step 3: Connect</h5>
                     <div class="card-body">
                         <p class="card-text">
-                            Once you've registered with the service, you will
-                            be able to install a new data collection service. This service allows
-                            you to upload data from a fixed directory location to the central host.
+                            Once you've registered your data source,
+                            you can connect it to the
+                            HT Phenotyping transfer service
+                            and begin uploading data.
                         </p>
                         <div class="text-center">
-                            <a href="{{ url_for("connect.install") }}" class="btn btn-primary">Install</a>
+                            <a href="{{ url_for("connect.install") }}" class="btn btn-primary">Connect!</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block postscript %}
+    <script>
+        $("div.card").hover(function (event) {
+            $(this).toggleClass("shadow-lg");
+        });
+    </script>
 {% endblock %}
