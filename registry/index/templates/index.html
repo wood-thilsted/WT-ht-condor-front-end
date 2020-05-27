@@ -2,6 +2,10 @@
 
 {% block title %}HT Phenotyping{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('index.static', filename='index.css') }}">
+{% endblock %}
+
 {% block body %}
     <div class="container">
         <div class="row">
@@ -24,40 +28,49 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-4 d-flex">
                 <div class="card shadow border-primary">
                     <h5 class="card-header">Step 1: Sign Up</h5>
-                    <div class="card-body">
+                    <div class="card-body flex-fill">
                         <p class="card-text">
                             To use the HT Phenotyping service, you must first sign up.
-                            You will be asked to log in (through CILogon) using your local university ID.
+                            You will be asked to log in using your local university ID (through CILogon).
                         </p>
-                        <div class="text-center">
-                            <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary">Sign Up!</a>
-                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary btn-lg">Sign Up!</a>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-4 d-flex">
                 <div class="card shadow border-primary">
                     <h5 class="card-header">Step 2: Register</h5>
-                    <div class="card-body">
+                    <div class="card-body flex-fill flex-column">
+                        <p class="card-text">
+                            Once you have signed up, you can register a new data
+                            source.
+                            You can do this even if your signup has not
+                            been approved yet.
+                        </p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for("signup.register_get") }}" class="btn btn-primary btn-lg">Register!</a>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-4 d-flex">
                 <div class="card shadow border-primary">
                     <h5 class="card-header">Step 3: Connect</h5>
-                    <div class="card-body">
+                    <div class="card-body flex-fill">
                         <p class="card-text">
-                            Once you've registered your data source,
-                            you can connect it to the
+                            Once your registration has been approved,
+                            you can connect your data source to the
                             HT Phenotyping transfer service
                             and begin uploading data.
                         </p>
-                        <div class="text-center">
-                            <a href="{{ url_for("connect.install") }}" class="btn btn-primary">Connect!</a>
-                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="{{ url_for("connect.install") }}" class="btn btn-primary btn-lg">Connect!</a>
                     </div>
                 </div>
             </div>

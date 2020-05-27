@@ -1,11 +1,19 @@
-import smtplib
-import socket
-from email.mime.text import MIMEText
-from email.utils import getaddresses
+from flask import (
+    Blueprint,
+    request,
+    current_app,
+    make_response,
+    render_template,
+    url_for,
+)
 
-from flask import Blueprint, request, current_app, make_response, render_template
-
-from ..sources import get_user_id, is_valid_source_name
+from ..mail import send_mail_to_admins
+from ..sources import (
+    get_user_id,
+    is_valid_source_name,
+    get_name,
+    get_contact_email,
+)
 from ..exceptions import ConfigurationError
 
 signup_bp = Blueprint(
@@ -19,21 +27,105 @@ signup_bp = Blueprint(
 
 @signup_bp.route("/signup", methods=["GET"])
 def signup_get():
-    response = make_response(render_template("signup_submit.html"))
+    response = make_response(render_template("signup.html"))
     return response
 
 
-EXPECTED_FORM_KEYS = {"contact", "email", "source"}
+EXPECTED_SIGNUP_KEYS = {"contact", "email"}
 
 
 @signup_bp.route("/signup", methods=["POST"])
 def signup_post():
     got_keys = set(request.form.keys())
-    if got_keys != EXPECTED_FORM_KEYS:
+    if got_keys != EXPECTED_SIGNUP_KEYS:
         return error(
             "A form parameter was missing. Got {}, expected {}.".format(
-                got_keys, EXPECTED_FORM_KEYS
+                got_keys, EXPECTED_SIGNUP_KEYS
             ),
+            "signup",
+            400,
+        )
+
+    contact = request.form["contact"]
+    email = request.form["email"]
+
+    try:
+        user_id = get_user_id()
+    except ConfigurationError:
+        return error("Server configuration error", "signup", 500)
+
+    if user_id is None:
+        return error("Unknown user", "signup", 401)
+
+    subject = "New HT Phenotyping signup request from {contact} ({user})".format(
+        contact=contact, user=user_id
+    )
+    text = """\
+        A new user has signed up for the HT Phenotyping service.
+        
+        Details:
+        - Name: {user_id}
+        - Contact Name: {contact}
+        - Contact Email: {email}
+        
+        If approved, please add the user's data to the sources repository:
+        https://github.com/HTPhenotyping/sources
+        """.format(
+        contact=contact, user_id=user_id, email=email,
+    )
+
+    try:
+        send_mail_to_admins(
+            text, subject,
+        )
+    except:
+        current_app.logger.exception("Failed to send sign up email")
+        return error(
+            "Internal server error; sign up failed. Please try again.", "signup", 500
+        )
+
+    context = {
+        "email": email,
+        "info": 'Now that you\'ve signed up, you can <strong><a href="{}">register data sources</a></strong>.'.format(
+            url_for("signup.register_get")
+        ),
+        "which": "signup",
+    }
+    return make_response(render_template("submit_success.html", **context))
+
+
+@signup_bp.route("/register", methods=["GET"])
+def register_get():
+    try:
+        user_id = get_user_id()
+    except ConfigurationError:
+        return error(
+            "Server configuration error. Please contact the administrators.",
+            "registration",
+            500,
+        )
+
+    if user_id is not None:
+        context = {"contact": get_contact_email(user_id), "name": get_name(user_id)}
+    else:
+        context = {}
+
+    response = make_response(render_template("register.html", **context))
+    return response
+
+
+EXPECTED_REGISTER_KEYS = {"email", "source"}
+
+
+@signup_bp.route("/register", methods=["POST"])
+def register_post():
+    got_keys = set(request.form.keys())
+    if got_keys != EXPECTED_REGISTER_KEYS:
+        return error(
+            "A form parameter was missing. Got {}, expected {}.".format(
+                got_keys, EXPECTED_REGISTER_KEYS
+            ),
+            "registration",
             400,
         )
 
@@ -43,71 +135,52 @@ def signup_post():
             'The source name you entered ("{}") is not valid. The source name must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), and underscores (_). It may not begin with a digit.'.format(
                 source
             ),
+            "registration",
             400,
         )
 
-    contact = request.form["contact"]
-
-    try:
-        admin_emails = current_app.config["ADMIN_EMAILS"]
-    except KeyError:
-        current_app.logger.error(
-            "Invalid internal configuration: ADMIN_EMAILS is not set"
-        )
-        return error("Server configuration error", 500)
+    email = request.form["email"]
 
     try:
         user_id = get_user_id()
     except ConfigurationError:
-        return error("Server configuration error", 500)
+        return error("Server configuration error", "registration", 500)
 
     if user_id is None:
-        return error("Unknown user", 401)
+        return error("Unknown user", "registration", 401)
+
+    subject = "New HT Phenotyping source registration request from {user}".format(
+        contact_email=email, user=user_id
+    )
+    text = """\
+        A new data source has been registered for the HT Phenotyping service.
+        
+        Details:
+        - Contact Email: {email}
+        - Source Name: {source}
+        
+        If approved, please add the sources's data to the sources repository:
+        https://github.com/HTPhenotyping/sources
+        """.format(
+        email=email, user_id=user_id, source=source,
+    )
 
     try:
-        hostname = socket.gethostname()
-        email = request.form["email"]
-        msg = MIMEText(
-            """
-A new user has signed up for the HTPhenotyping system.  
-
-Contact information includes:
-- Identity: {user_id}
-- Contact Name: {contact}
-- Preferred email: {email}
-- Source name: {source}
-
-If approved, please add the user data to the following repository:
-    https://github.com/HTPhenotyping/sources
-""".format(
-                contact=contact, user_id=user_id, email=email, source=source,
-            )
+        send_mail_to_admins(
+            text, subject,
         )
-        msg["Subject"] = "New HTPheno sign-up from {contact} ({user})".format(
-            contact=contact, user=user_id
-        )
-        msg["From"] = "HTPheno Webapp <donotreply@{}>".format(hostname)
-        msg["To"] = admin_emails
-    except:
-        current_app.logger.exception("Failed to construct sign up email")
-        return error("Internal server error; sign up failed. Please try again.", 500)
-
-    current_app.logger.info("Signup email contents: %s", msg.as_string())
-    try:
-        server = smtplib.SMTP("localhost")
-        emails = [i[1] for i in getaddresses([msg["To"]])]
-        server.sendmail("donotreply@{}".format(hostname), emails, msg.as_string())
-        server.quit()
     except:
         current_app.logger.exception("Failed to send sign up email")
-        return error("Internal server error; sign up failed. Please try again.", 500)
+        return error(
+            "Internal server error; sign up failed. Please try again.",
+            "registration",
+            500,
+        )
 
-    context = {"email": email}
-    return make_response(render_template("signup_submit_success.html", **context))
+    context = {"email": email, "which": "registration"}
+    return make_response(render_template("submit_success.html", **context))
 
 
-def error(info, status_code):
-    context = {"info": info}
-    return make_response(
-        render_template("signup_submit_failure.html", **context), status_code
-    )
+def error(info, which, status_code):
+    context = {"info": info, "which": which}
+    return make_response(render_template("submit_failure.html", **context), status_code)
