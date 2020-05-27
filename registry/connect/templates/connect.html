@@ -147,7 +147,6 @@
 
 {% block postscript %}
     <script>
-        copy("#copy_wget_target", "#copy_wget_button");
         {% for _ in install_commands %}
             copy("#copy_install_cmd_target_{{ loop.index }}", "#copy_install_cmd_button_{{ loop.index }}");
         {% endfor %}
