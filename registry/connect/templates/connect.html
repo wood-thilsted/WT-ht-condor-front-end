@@ -114,6 +114,15 @@
                         You don't have any registered data sources!
                     </div>
                 {% endif %}
+                <div class="alert alert-info" role="alert">
+                    If you don't see a data source you expected to see,
+                    it most likely means that you are not listed as an
+                    owner of that data source. Make sure you have
+                    <a href="{{ url_for("signup.register_get") }}">registered</a>
+                    the data source. If you need to be listed as an owner
+                    of a data source you did not originally register, please
+                    {{ "contact us" | contact_us }}.
+                </div>
                 <p class="text-center">
                     <img class="example" src="{{ url_for('connect.static', filename="type-install.png") }}" alt="Typing install command">
                 </p>
