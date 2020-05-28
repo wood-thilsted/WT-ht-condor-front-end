@@ -99,19 +99,14 @@
                     </div>
                 {% endif %}
                 <p>
-                    See the screenshot below for example output from running this command.
-                </p>
-                <p class="text-center">
-                    <img class="example" src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading and running the install command">
-                </p>
-                <p>
                     After some output, you will be asked to enter a password, which is the current user's password.
                     The password will not be shown on screen as you type it. Entering the password enables the install
                     script to make root-level (i.e. administrator-level) changes to the system, such as installing
-                    software and enabling HTCondor to run at boot. See the screenshot below for an example of the password prompt.
+                    software and enabling HTCondor to run at boot. See the screenshot below for an example of output
+                    from running the above command and being asked for a password.
                 </p>
                 <p class="text-center">
-                    <img class="example" src="{{ url_for('connect.static', filename="sudo.png") }}" alt="Example sudo prompt">
+                    <img class="example" src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading and running the install command">
                 </p>
 
                 <h3 class="counter">Approve Authorization Token</h3>
