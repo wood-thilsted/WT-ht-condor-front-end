@@ -139,7 +139,7 @@ def request_token(pool, source):
     print("Token request approved!")
 
     token_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
-    token_name = "50-{}-registration".format(alias)
+    token_name = "50-{}-{}-registration".format(alias, source)
     token_path = os.path.join(token_dir, token_name)
 
     logger.debug("Writing token to disk (in {})".format(token_dir))
