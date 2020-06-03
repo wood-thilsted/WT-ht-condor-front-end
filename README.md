@@ -82,6 +82,7 @@ They do not have defaults.
 * `USER_ID_ENV_VAR` - The request environment variable that holds the user's identity.
 * `HUMANS_FILE` - The path to the file that contains information on humans.
 * `ADMIN_EMAILS` - The email addresses that will receive mail when users sign up, like `ADMIN_EMAILS = "Foo Bar <foobar@university.edu>, Wiz Bang <wizbang@organization.org>"`.
+* `SUPPORT_EMAIL` - The email address to display for users to send support questions to.
 
 ### Optional
 
