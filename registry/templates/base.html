@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="en" class="h-100">
 
 <head>
     <meta charset="UTF-8">
@@ -30,7 +30,7 @@
     {% block style %}{% endblock %}
 </head>
 
-<body>
+<body class="d-flex flex-column h-100">
 {% block navbar %}
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container">
@@ -46,6 +46,7 @@
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('index.index') }}">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ url_for('index.about') }}">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index.contact') }}">Contact</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="sourceDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Data Sources
@@ -64,7 +65,16 @@
         </div>
     </nav>
 {% endblock %}
-{% block body %}{% endblock %}
+<main role="main" class="flex-shrink-0">
+    {% block body %}{% endblock %}
+</main>
+{% block footer %}
+    <footer class="footer mt-auto py-3">
+        <div class="container">
+            <span class="text-muted">Please {{ "contact us" | contact_us }} if you experience any issues or have any questions.</span>
+        </div>
+    </footer>
+{% endblock %}
 {% block postscript %}{% endblock %}
 </body>
 

@@ -8,9 +8,11 @@ from .connect import install_bp
 from .token import token_bp
 from .account import account_bp
 
+from .template_filters import contact_us
 
 BLUEPRINTS = [index_bp, signup_bp, install_bp, token_bp, account_bp]
 CONTEXT_PROCESSORS = []
+TEMPLATE_FILTERS = [contact_us]
 
 HERE = os.path.dirname(__file__)
 
@@ -31,6 +33,9 @@ def create_app(test_config=None):
 
         for cp in CONTEXT_PROCESSORS:
             app.context_processor(cp)
+
+        for tf in TEMPLATE_FILTERS:
+            app.add_template_filter(tf)
 
     app.logger.debug("Created!")
     return app

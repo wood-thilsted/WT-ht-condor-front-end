@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}HT Phenotyping - Contact{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h1>Contact</h1>
+
+                For support, please {{ "contact us" | contact_us }} at
+                <code id="copy_email_target">{{ contact_email }}</code>
+                <button type="button" class="btn btn-primary btn-sm" id="copy_email_button">Copy</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block postscript %}
+    <script>
+        copy("#copy_email_target", "#copy_email_button");
+    </script>
+{% endblock %}
