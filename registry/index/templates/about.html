@@ -2,6 +2,10 @@
 
 {% block title %}HT Phenotyping - About{% endblock %}
 
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('index.static', filename='about.css') }}">
+{% endblock %}
+
 {% block body %}
     <div class="container">
         <div class="row">
@@ -10,9 +14,56 @@
 
                 <h2>The HT Phenotyping Transfer Service</h2>
 
-                Data transfers from data sources to storage and processing
-                servers are facilitated by
-                <a href="https://research.cs.wisc.edu/htcondor/">HTCondor</a>.
+                <p>
+                    Data transfers from data sources to storage and processing
+                    servers are facilitated by
+                    <a href="https://research.cs.wisc.edu/htcondor/">HTCondor</a>.
+                    The HT Phenotyping project uses HTCondor to transfer data
+                    in an automated, reliable, and secure manner.
+                </p>
+
+                <h3 id="transfer-service-requirements">Requirements for using the Transfer Service</h3>
+
+                <p>
+                    To use the transfer service, you must have a
+                    properly set-up computer to run the "client":
+                </p>
+
+                <ol>
+                    <li>
+                        You must have a computer running the
+                        <a href="https://releases.ubuntu.com/18.04.4/">Ubuntu 18</a>
+                        operating system.
+                    </li>
+                    <li>
+                        You must have administrative privileges on the computer.
+                        For Ubuntu, this means you can run the
+                        <code>sudo</code> command.
+                    </li>
+                    <li>
+                        The computer should be powered on overnight
+                        (synchronization is scheduled to occur nightly,
+                        usually around midnight).
+                    </li>
+                    <li>
+                        The computer should have a
+                        reliable, high-speed internet connection.
+                    </li>
+                    <li>
+                        The storage drive holding the data to be synchronized
+                        should be connected to the computer at all times, and
+                        should always be located at the same place in
+                        the filesystem.
+                    </li>
+                </ol>
+
+                <div class="alert alert-warning">
+                    The transfer service is resilient to short
+                    power or internet outages, but you should take steps to
+                    improve availability where possible
+                    (for example, by powering the computer
+                    from an uninterruptible power supply).
+                </div>
             </div>
         </div>
     </div>
