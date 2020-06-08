@@ -13,7 +13,22 @@ install_bp = Blueprint(
 
 
 @install_bp.route("/connect", methods=["GET"])
-def install():
+def connect():
+    try:
+        user_id = get_user_id()
+    except ConfigurationError:
+        return "Server configuration error", 500
+
+    sources = get_sources(user_id)
+
+    context = {"sources": sources}
+
+    response = make_response(render_template("connect.html", **context))
+    return response
+
+
+@install_bp.route("/connect/ubuntu-18", methods=["GET"])
+def ubuntu_18():
     try:
         user_id = get_user_id()
     except ConfigurationError:
@@ -30,7 +45,7 @@ def install():
         for source in sources
     }
 
-    context = {"install_commands": install_commands}
+    context = {"sources": sources, "install_commands": install_commands}
 
-    response = make_response(render_template("connect.html", **context))
+    response = make_response(render_template("ubuntu-18.html", **context))
     return response
