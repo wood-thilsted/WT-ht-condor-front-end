@@ -53,12 +53,12 @@
                         </a>
                         <div class="dropdown-menu" aria-labelledby="sourceDropdown">
                             <a class="dropdown-item" href="{{ url_for('signup.register_get') }}">Register a New Data Source</a>
-                            <a class="dropdown-item" href="{{ url_for('connect.install') }}">Connect a New Data Source</a>
+                            <a class="dropdown-item" href="{{ url_for('connect.connect') }}">Connect a New Data Source</a>
                         </div>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="btn btn-info nav-item" href="{{ url_for('account.account_get') }}">My Account</a></li>
+                    <li class="nav-item"><a class="btn btn-info nav-item" href="{{ url_for('account.account_get') }}">Account</a></li>
                     <li class="nav-item"><a class="btn btn-danger nav-item" href="{{ url_for('index.logout') }}">Log Out</a></li>
                 </ul>
             </div>
