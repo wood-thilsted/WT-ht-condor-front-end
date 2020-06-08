@@ -12,13 +12,7 @@
             <div class="col">
                 <h1>Connect a New Ubuntu 18 Data Source</h1>
 
-                {% if not sources %}
-                    <div class="alert alert-danger" role="alert">
-                        You don't have any registered data sources,
-                        so you won't be able to install
-                        the HT Phenotyping transfer service.
-                    </div>
-                {% endif %}
+                {% include "no-sources-warning.html" %}
 
                 <h2 class="counter">Preparation</h2>
 
