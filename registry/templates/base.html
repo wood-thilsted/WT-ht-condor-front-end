@@ -75,6 +75,11 @@
         </div>
     </footer>
 {% endblock %}
+<script>
+    $("div.hover-shadow-lg").hover(function (event) {
+        $(this).toggleClass("shadow-lg");
+    });
+</script>
 {% block postscript %}{% endblock %}
 </body>
 

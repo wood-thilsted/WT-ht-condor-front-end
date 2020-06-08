@@ -29,7 +29,7 @@
 
         <div class="row">
             <div class="col-lg-4 d-flex">
-                <div class="card shadow border-primary">
+                <div class="card shadow hover-shadow-lg border-primary">
                     <h5 class="card-header text-center">Step 1: Sign Up</h5>
                     <div class="card-body flex-fill">
                         <p class="card-text">
@@ -43,7 +43,7 @@
                 </div>
             </div>
             <div class="col-lg-4 d-flex">
-                <div class="card shadow border-primary">
+                <div class="card shadow hover-shadow-lg border-primary">
                     <h5 class="card-header text-center">Step 2: Register</h5>
                     <div class="card-body flex-fill flex-column">
                         <p class="card-text">
@@ -59,7 +59,7 @@
                 </div>
             </div>
             <div class="col-lg-4 d-flex">
-                <div class="card shadow border-primary">
+                <div class="card shadow hover-shadow-lg border-primary">
                     <h5 class="card-header text-center">Step 3: Connect</h5>
                     <div class="card-body flex-fill">
                         <p class="card-text">
@@ -76,12 +76,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block postscript %}
-    <script>
-        $("div.card").hover(function (event) {
-            $(this).toggleClass("shadow-lg");
-        });
-    </script>
 {% endblock %}
