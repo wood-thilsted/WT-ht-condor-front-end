@@ -47,3 +47,11 @@
         </div>
     </div>
 {% endblock %}
+
+{% block postscript %}
+    <script>
+        $("div.card").hover(function (event) {
+            $(this).toggleClass("shadow-lg");
+        });
+    </script>
+{% endblock %}
