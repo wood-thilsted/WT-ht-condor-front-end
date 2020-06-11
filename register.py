@@ -232,6 +232,10 @@ def make_token_request(collector_ad, source):
 
 
 def reconfig():
+    # only do the reconfig if the master is alive
+    if not condor_master_is_alive():
+        return
+
     logger.debug("Running condor_reconfig to pick up the new token.")
 
     cmd = subprocess.run(
@@ -244,6 +248,32 @@ def reconfig():
         warning(
             "Was not able to send a reconfig command to HTCondor to make it pick up the new token. Try running ' condor_reconfig ' yourself."
         )
+
+
+def condor_master_is_alive():
+    """
+    Returns True if and only if the condor_master is alive.
+    May give false negatives (i.e., the master is alive, but we return False),
+    since we are very cautious.
+    """
+    cmd = subprocess.run(
+        ["condor_who", "-quick"], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    # if condor_who fails, condor is not running (may not even be installed...)
+    if cmd.returncode != 0:
+        return False
+
+    try:
+        who_ad = classad.parseOne(cmd.stdout.decode())
+    except Exception:
+        # this usually means condor_who printed something that wasn't the who ad, which means condor is off
+        logger.debug(
+            "Failed to determine whether the condor_master is alive; assuming it is not"
+        )
+        return False
+
+    return who_ad["MASTER"] == "Alive"
 
 
 def warning(msg):
