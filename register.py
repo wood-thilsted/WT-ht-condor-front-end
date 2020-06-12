@@ -262,18 +262,29 @@ def condor_master_is_alive():
 
     # if condor_who fails, condor is not running (may not even be installed...)
     if cmd.returncode != 0:
+        logger.error(
+            "Failed to determine whether the condor_master is alive because condor_who failed; assuming it is not alive"
+        )
         return False
 
     try:
         who_ad = classad.parseOne(cmd.stdout.decode())
     except Exception:
         # this usually means condor_who printed something that wasn't the who ad, which means condor is off
-        logger.debug(
-            "Failed to determine whether the condor_master is alive; assuming it is not"
+        logger.exception(
+            "Failed to determine whether the condor_master is alive because condor_who output was not an ad; assuming it is not alive"
         )
         return False
 
-    return who_ad["MASTER"] == "Alive"
+    logger.debug("Contents of condor_who ad:\n{}".format(who_ad))
+
+    try:
+        return who_ad["MASTER"] == "Alive"
+    except Exception:
+        logger.exception(
+            "Failed to determine whether the condor_master is alive from the condor_who ad; assuming it is not alive"
+        )
+        return False
 
 
 def warning(msg):
