@@ -37,7 +37,7 @@ def get_sources(user_id):
     Map a given user ID to a list of sources they are authorized to administrate.
     """
     names_to_sources = {
-        entry["name"]: entry["sources"].split() for entry in parse_humans_file()
+        entry["name"]: entry.get("sources", "").split() for entry in parse_humans_file()
     }
     return names_to_sources.get(user_id, [])
 
