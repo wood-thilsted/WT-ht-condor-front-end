@@ -10,7 +10,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <h1>Connect a New Ubuntu 18 Data Source</h1>
+                <h1>Connect a New macOS Data Source</h1>
 
                 {% include "no-sources-warning.html" %}
 
@@ -21,19 +21,12 @@
                 </p>
                 <ol>
                     <li>
-                        Installation requires a computer running
-                        <a href="https://releases.ubuntu.com/18.04.4/">Ubuntu 18.04</a>
-                        and that you have
-                        administrative privileges on,
-                        is powered on overnight,
-                        and has a reliable internet connection,
-                        as described
-                        <a href="{{ url_for("index.about") }}#transfer-service-requirements">here</a>.
-                    </li>
-                    <li>
-                        Copying from and pasting to the Ubuntu Terminal uses different keyboard shortcuts than
-                        on Windows and MacOS. We suggest using the mouse and right-clicking when copying from or
-                        pasting to a Terminal window.
+                        The machine must have
+                        <a href="https://docs.docker.com/docker-for-mac/install/">Docker Desktop installed</a>,
+                        should be powered on overnight,
+                        and should have a reliable internet connection,
+                        as described in the
+                        <a href="{{ url_for("index.about") }}#transfer-service-requirements">transfer service requirements</a>.
                     </li>
                 </ol>
 
@@ -49,15 +42,12 @@
                 <h3 class="counter">Open Terminal</h3>
                 <p>
                     The first step is to open the <strong>Terminal</strong> application.
-                    After logging in and while at the Ubuntu desktop, you can
-                    open Terminal either by pressing a keyboard shortcut,
-                    <kbd>Ctrl+Alt+T</kbd>,
-                    or by clicking on the Ubuntu icon at
-                    the top of the left-side menubar, searching for "Terminal",
-                    and then clicking on Terminal, as shown below.
+                    On macOS, Terminal can be found by going to the
+                    Applications folder, and then the Utilities
+                    folder, as seen in the screenshot below.
                 </p>
                 <p class="text-center">
-                    <img class="example" src="{{ url_for('connect.static', filename="open-terminal.png") }}" alt="Opening Terminal in Ubuntu">
+                    <img class="example" src="{{ url_for('connect.static', filename="macos-open-terminal.png") }}" alt="Opening Terminal in macOS">
                 </p>
 
                 <h3 class="counter">Download and Run Installation Script</h3>
@@ -67,20 +57,8 @@
                     below and run the corresponding command in Terminal:
                 </p>
                 {% include "install-commands.html" %}
-                <p>
-                    You will need to enter which local username should be used for running data transfer jobs. Most
-                    often, this is the same user that is running the install script. If this is the case, you can
-                    hit enter without entering anything to accept the default value, which is the current user.
-                </p>
-                <p>
-                    After some output, you will be asked to enter a password, which is the current user's password.
-                    The password will not be shown on screen as you type it. Entering the password enables the install
-                    script to make root-level (i.e. administrator-level) changes to the system, such as installing
-                    software and enabling HTCondor to run at boot. See the screenshot below for an example of output
-                    from running the above command and being asked for a password.
-                </p>
                 <p class="text-center">
-                    <img class="example" src="{{ url_for('connect.static', filename="wget-install.png") }}" alt="Downloading and running the install command">
+                    <img class="example" src="{{ url_for('connect.static', filename="macos-wget-install.png") }}" alt="Downloading and running the install command">
                 </p>
 
                 <h3 class="counter">Approve Authorization Token</h3>
@@ -92,8 +70,8 @@
                 </p>
                 <p>
                     As shown below,
-                    <kbd>Ctrl+click</kbd>
-                    on the URL in the Terminal output and click on "Open Link",
+                    <kbd>control+click</kbd>
+                    on the URL in the Terminal output and click on "Open URL",
                     or copy the URL to a browser window, or
                     <a href="{{ url_for("token.code_get") }}" target="_blank">enter the code manually here</a>.
                     You may be required to log in again.
@@ -101,7 +79,7 @@
                     Click "Submit" and check the terminal for successful registration.
                 </p>
                 <p class="text-center">
-                    <img class="example" src="{{ url_for('connect.static', filename="token-flow.png") }}" alt="Finishing registration">
+                    <img class="example" src="{{ url_for('connect.static', filename="macos-token-flow.png") }}" alt="Finishing registration">
                 </p>
                 <p>
                     If you see the final message from the screenshot above in your Terminal,

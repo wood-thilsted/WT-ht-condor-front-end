@@ -1,0 +1,33 @@
+{% if install_commands %}
+    <div class="accordion" id="installCommands">
+        {% for source, command in install_commands.items() %}
+            <div class="card">
+                <div class="card-header" id="heading_{{ loop.index }}">
+                    <h2 class="mb-0">
+                        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse_{{ loop.index }}" aria-expanded="true" aria-controls="collapse_{{ loop.index }}">
+                            {{ source }}
+                        </button>
+                    </h2>
+                </div>
+                <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
+                    <div class="card-body">
+                        <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh && {{ command }}</code></pre>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-danger" role="alert">
+        You don't have any registered data sources!
+    </div>
+{% endif %}
+<div class="alert alert-info" role="alert">
+    If you don't see a data source you expected to see,
+    it most likely means that you are not listed as an
+    owner of that data source. Make sure you have
+    <a href="{{ url_for("signup.register_get") }}">registered</a>
+    the data source. If you need to be listed as an owner
+    of a data source you did not originally register, please
+    {{ "contact us" | contact_us }}.
+</div>
