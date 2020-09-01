@@ -1,25 +1,104 @@
 # registration
 
+This is the web application for HT Phenotyping
+(`registration` is a misnomer from its original purpose).
+
+## Structure
+
+The web app is a [Flask](https://flask.palletsprojects.com/) app.
+The core app is created in an 
+["application factory"](https://flask.palletsprojects.com/en/1.1.x/patterns/appfactories/)
+in `registry/app.py`,
+and it hooks together 
+[blueprints](https://flask.palletsprojects.com/en/1.1.x/tutorial/views/)
+found in some of the subdirectories of `registry/`.
+
+Blueprints:
+- `index` - landing page, "about" page, etc.
+- `account` - handles user accounts. We don't quite have registration because we use CILogon, but this is where you can go to see (for example) your contact email.
+- `signup` - handles forms for users to register themselves and their data sources.
+- `connect` - provides instructions for users to install and connect their data sources.
+- `token` - handles the server side of the token workflow when connecting a new data source.
+
+Each blueprint has its own `static` and `templates` directories, and there
+are also "global" `static` and `templates` directories that sit next to
+`app.py`. These directories are for:
+- `static` - for static assets like `.css` files, images, etc.
+- `templates` - for [Jinja HTML templates](https://flask.palletsprojects.com/en/1.1.x/templating/).
+
+### `register.py`
+
+This repository also includes `register.py`, the client-side script for
+getting a token for a new data source.
+It's stored here because it talks to the `token` blueprint, and therefore
+needs to stay in sync with it.
+
 ## Development
 
-To run the registration server locally, run
+To run the registration server locally, `pip install -r requirements.txt`, then run
 
-```shell script
+```console
 $ ./run_local.sh
 ```
 
 You will need a `config.py` file with settings in it, as described below.
-Note that the web app is (currently, unfortunately) a Python 2 application
-in production.
+
+> Note that the web app is (currently, unfortunately) a Python 2 application in production.
 
 ## Installation
 
 Clone the repository to wherever you would like to serve the application from
 (e.g., `/var/www/registration`).
 
-Template Apache configuration:
+Example/template Apache configuration:
 ```
-# TODO
+<VirtualHost *:443>
+  ServerName htpheno-cm.chtc.wisc.edu
+  ServerAdmin htcondor-inf@cs.wisc.edu
+
+  # This is the OIDC callback path
+  <Location "/callback">
+    <RequireAny>
+      Require valid-user
+    </RequireAny>
+    AuthType openid-connect
+  </Location>
+
+  ## Logging
+  ErrorLog "/var/log/httpd/local_default_ssl_error_ssl.log"
+  LogLevel info
+  ServerSignature Off
+  CustomLog "/var/log/httpd/local_default_ssl_access_ssl.log" combined 
+
+  ## SSL directives
+  SSLEngine on
+  SSLCertificateFile      "/var/www/hostcert.pem"
+  SSLCertificateKeyFile   "/var/www/hostkey.pem"
+  SSLCertificateChainFile "/var/www/hostcert.pem"
+
+  ## WSGI configuration
+  WSGIDaemonProcess Registration display-name=Registration group=condor processes=2 threads=25 user=condor
+  WSGIProcessGroup Registration
+  WSGIScriptAlias / "/var/www/registration/wsgi.py"
+
+  ## OIDC configuration
+  OIDCProviderMetadataURL https://cilogon.org/.well-known/openid-configuration
+  OIDCClientID cilogon:/client_id/<secret>
+  OIDCClientSecret <secret>
+
+  OIDCRedirectURI https://htpheno-cm.chtc.wisc.edu/callback
+
+  # Used to encrypt the session cookie and the local cache.
+  OIDCCryptoPassphrase <secret>
+
+  # Control the information in the returned token.
+  OIDCScope  "openid email org.cilogon.userinfo"
+
+  # The value of this scope is used as the username in the environment
+  # variables provided to WSGI.
+  OIDCRemoteUserClaim  eppn
+
+</VirtualHost>
 ```
 
 By default we "protect" everything under `/` with OIDC.
