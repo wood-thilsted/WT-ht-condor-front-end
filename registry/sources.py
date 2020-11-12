@@ -12,6 +12,10 @@ from .exceptions import ConfigurationError
 
 def get_user_id():
     try:
+        return current_app.config["USER_ID_FAKE"]
+    except:
+        pass
+    try:
         user_id_env_var = current_app.config["USER_ID_ENV_VAR"]
     except KeyError:
         msg = "Config variable USER_ID_ENV_VAR not set; this should be set to the name of the environment variable that holds the user's identity (perhaps REMOTE_USER ?)"
