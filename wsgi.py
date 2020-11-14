@@ -4,6 +4,9 @@ import sys
 
 HERE = os.path.dirname(__file__)
 sys.path.append(HERE)
+logdir = os.path.join(HERE, "logs")
+if not os.path.exists(logdir):
+    logdir = "/var/log/condor"
 
 dictConfig(
     {
@@ -18,7 +21,7 @@ dictConfig(
                 "class": "logging.handlers.RotatingFileHandler",
                 "level": "DEBUG",
                 "formatter": "default",
-                "filename": os.path.join(HERE, "logs/registration.log"),
+                "filename": os.path.join(logdir, "registration.log"),
                 "maxBytes": 10485760,
                 "backupCount": 5,
             },
