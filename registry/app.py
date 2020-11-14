@@ -14,7 +14,10 @@ BLUEPRINTS = [index_bp, signup_bp, install_bp, token_bp, account_bp]
 CONTEXT_PROCESSORS = []
 TEMPLATE_FILTERS = [contact_us]
 
-HERE = os.path.dirname(__file__)
+if os.path.exists("config.py"):
+  HERE = os.getcwd() + "/"
+else:
+  HERE = os.path.dirname(__file__)
 
 
 def create_app(test_config=None):
