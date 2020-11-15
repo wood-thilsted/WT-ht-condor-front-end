@@ -37,17 +37,15 @@ def docker():
     sources = get_sources(user_info)
 
     install_commands = {
-        source: "bash install_htcondor.sh -c {} -n {} -d {}".format(
-            current_app.config["COLLECTOR"],
-            source,
-            current_app.config["DEFAULT_DATA_DIRECTORY"],
+        source: "docker run -v $PWD/tokens:/etc/condor/tokens.d opensciencegrid/open-science-pool-registry:fresh register.py --host {}".format(
+            source
         )
         for source in sources
     }
 
     context = {"sources": sources, "install_commands": install_commands}
 
-    response = make_response(render_template("ubuntu-18.html", **context))
+    response = make_response(render_template("docker.html", **context))
     return response
 
 
@@ -71,5 +69,5 @@ def kubernetes():
 
     context = {"sources": sources, "install_commands": install_commands}
 
-    response = make_response(render_template("macos-docker.html", **context))
+    response = make_response(render_template("kubernetes.html", **context))
     return response

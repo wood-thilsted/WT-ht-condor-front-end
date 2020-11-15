@@ -11,7 +11,7 @@
                 </div>
                 <div id="collapse_{{ loop.index }}" class="collapse {{ "show" if loop.index == 1 else "" }}" aria-labelledby="heading_{{ loop.index }}" data-parent="#installCommands">
                     <div class="card-body">
-                        <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">wget https://raw.githubusercontent.com/HTPhenotyping/execute_node_config/master/install_htcondor.sh && {{ command }}</code></pre>
+                        <pre><button type="button" class="btn btn-primary" id="copy_install_cmd_button_{{ loop.index }}">Copy</button><code id="copy_install_cmd_target_{{ loop.index }}">{{ command }}</code></pre>
                     </div>
                 </div>
             </div>
