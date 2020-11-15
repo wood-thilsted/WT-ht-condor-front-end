@@ -3,14 +3,13 @@ import os
 from flask import Flask
 
 from .index import index_bp
-from .signup import signup_bp
 from .connect import install_bp
 from .token import token_bp
 from .account import account_bp
 
 from .template_filters import contact_us
 
-BLUEPRINTS = [index_bp, signup_bp, install_bp, token_bp, account_bp]
+BLUEPRINTS = [index_bp, install_bp, token_bp, account_bp]
 CONTEXT_PROCESSORS = []
 TEMPLATE_FILTERS = [contact_us]
 

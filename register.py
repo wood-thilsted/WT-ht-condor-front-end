@@ -18,15 +18,15 @@ logger = logging.getLogger("register")
 logger.setLevel(logging.ERROR + 10)
 
 DEFAULT_PORT = "9618"
-DEFAULT_TARGET = "htpheno-cm.chtc.wisc.edu:{}".format(DEFAULT_PORT)
+DEFAULT_TARGET = "flock.opensciencegrid.org:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "token"
 RECONFIG_COMMAND = ["condor_reconfig"]
 TOKEN_BOUNDING_SET = ["READ", "ADVERTISE_STARTD"]
-SOURCE_PREFIX = "SOURCE_"
-SOURCE_POSTFIX = "htpheno-cm.chtc.wisc.edu"
+SOURCE_PREFIX = "RESOURCE-"
+SOURCE_POSTFIX = "flock.opensciencegrid.org"
 NUM_RETRIES = 10
 TOKEN_OWNER_USER = TOKEN_OWNER_GROUP = "condor"
-SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
+SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
 
 
 def parse_args():
@@ -80,13 +80,14 @@ def main():
 
     if not SOURCE_CHECK.match(args.source):
         error(
-            "The source name must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), and underscores (_). It may not begin with a digit."
+            "The requested hostname must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), periods (.), and dashes (-). It may not begin with a digit."
         )
 
-    if not is_admin():
-        error(
-            "This command must be run as root (on Linux/Mac) or as an administrator (on Windows)"
-        )
+    # TODO: Not clear this is necessary for Docker.
+    #if not is_admin():
+    #    error(
+    #        "This command must be run as root (on Linux/Mac) or as an administrator (on Windows)"
+    #    )
 
     logger.debug('Setting SEC_CLIENT_AUTHENTICATION_METHODS to "SSL"')
     htcondor.param["SEC_CLIENT_AUTHENTICATION_METHODS"] = "SSL"
