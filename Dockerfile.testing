@@ -8,7 +8,8 @@ LABEL maintainer OSG Software <support@opensciencegrid.org>
 RUN \
     yum update -y && \
     yum install -y --enablerepo=devops-itb osg-ca-generator && \
-    yum install -y python3-pip httpd mod_auth_openidc mod_ssl python3-mod_wsgi condor  && \
+    yum install -y --enablerepo=osg-upcoming condor && \
+    yum install -y python3-pip httpd mod_auth_openidc mod_ssl python3-mod_wsgi && \
     osg-ca-generator --host && \
     yum clean all && rm -rf /var/cache/yum/*
 
