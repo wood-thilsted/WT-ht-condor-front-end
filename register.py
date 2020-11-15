@@ -18,12 +18,13 @@ logger = logging.getLogger("register")
 logger.setLevel(logging.ERROR + 10)
 
 DEFAULT_PORT = "9618"
+WEBAPP_HOST = "os-registry.osgdev.chtc.io"
 DEFAULT_TARGET = "flock.opensciencegrid.org:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "token"
 RECONFIG_COMMAND = ["condor_reconfig"]
 TOKEN_BOUNDING_SET = ["READ", "ADVERTISE_STARTD"]
-SOURCE_PREFIX = "RESOURCE-"
-SOURCE_POSTFIX = "flock.opensciencegrid.org"
+RESOURCE_PREFIX = "RESOURCE-"
+RESOURCE_POSTFIX = "flock.opensciencegrid.org"
 NUM_RETRIES = 10
 TOKEN_OWNER_USER = TOKEN_OWNER_GROUP = "condor"
 SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
@@ -31,10 +32,10 @@ SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Register a source with the HT Phenotyping project."
+        description="Register a resource with the Open Science pool."
     )
 
-    parser.add_argument("--source", help="The source name to register.", required=True)
+    parser.add_argument("--host", help="The resource hostname to register.", required=True)
 
     parser.add_argument(
         "--pool",
@@ -78,7 +79,7 @@ def main():
 
         logger.addHandler(handler)
 
-    if not SOURCE_CHECK.match(args.source):
+    if not SOURCE_CHECK.match(args.host):
         error(
             "The requested hostname must be composed of only alphabetical characters (A-Z, a-z), digits (0-9), periods (.), and dashes (-). It may not begin with a digit."
         )
@@ -91,19 +92,20 @@ def main():
 
     logger.debug('Setting SEC_CLIENT_AUTHENTICATION_METHODS to "SSL"')
     htcondor.param["SEC_CLIENT_AUTHENTICATION_METHODS"] = "SSL"
+    htcondor.param["SEC_CLIENT_ENCRYPTION"] = "REQUIRED"
 
     # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/17
     if htcondor.param["AUTH_SSL_CLIENT_CAFILE"] == "/etc/ssl/certs/ca-bundle.crt":
         htcondor.param["AUTH_SSL_CLIENT_CAFILE"] = "/etc/ssl/certs/ca-certificates.crt"
 
-    success = request_token(pool=args.pool, source=args.source)
+    success = request_token(pool=args.pool, resource=args.host)
 
     if not success:
         error("Failed to complete the token request workflow.")
 
     reconfig()
 
-    print("Registration of source {} is complete!".format(args.source))
+    print("Registration of resource {} is complete!".format(args.host))
 
 
 def is_admin():
@@ -115,7 +117,7 @@ def is_admin():
         return ctypes.windll.shell32.IsUserAnAdmin() == 0
 
 
-def request_token(pool, source):
+def request_token(pool, resource):
     if ":" in pool:
         alias, port = pool.split(":")
     else:
@@ -132,7 +134,7 @@ def request_token(pool, source):
 
     htcondor.param["SEC_TOKEN_DIRECTORY"] = "/etc/condor/tokens.d"
 
-    token = request_token_and_wait_for_approval(source, alias, collector_ad=coll_ad)
+    token = request_token_and_wait_for_approval(resource, alias, collector_ad=coll_ad)
 
     if token is None:
         return False
@@ -140,7 +142,7 @@ def request_token(pool, source):
     print("Token request approved!")
 
     token_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
-    token_name = "50-{}-{}-registration".format(alias, source)
+    token_name = "50-{}-{}-registration".format(alias, resource)
     token_path = os.path.join(token_dir, token_name)
 
     logger.debug("Writing token to disk (in {})".format(token_dir))
@@ -150,12 +152,18 @@ def request_token(pool, source):
     logger.debug("Correcting token file permissions...")
     shutil.chown(token_path, user=TOKEN_OWNER_USER, group=TOKEN_OWNER_GROUP)
     logger.debug("Corrected token file permissions...")
+    print("Token was written to {}".format(token_path))
+    if not is_admin():
+        print("Registration not run as root; to use token:")
+        print("  1. Copy token to the system tokens directory: cp \"{}\" /etc/condor/tokens.d/".format(token_path))
+        print("  2. Ensure the token is owned by HTCondor: chown condor: /etc/condor/tokens.d/{}".format(token_name))
+        
 
     return True
 
 
 def request_token_and_wait_for_approval(
-    source, alias, collector_ad, retries=10, retry_delay=5
+    resource, alias, collector_ad, retries=10, retry_delay=5
 ):
     """
     This function requests a token and waits for the request to be authorized.
@@ -164,8 +172,8 @@ def request_token_and_wait_for_approval(
 
     Parameters
     ----------
-    source
-        The data source name to request a token for.
+    resource
+        The resource to request a token for.
     alias
         The alias of the server (only used for user-facing messages).
     collector_ad
@@ -192,7 +200,7 @@ def request_token_and_wait_for_approval(
 
         print("\nAttempting to get token (attempt {}/{}) ...".format(attempt, retries))
         try:
-            req = make_token_request(collector_ad, source)
+            req = make_token_request(collector_ad, resource)
         except Exception as e:
             logger.exception("Token request failed")
             print("Token request failed due to: {}".format(e))
@@ -204,7 +212,7 @@ def request_token_and_wait_for_approval(
                 "Token request is queued with ID {}.".format(req.request_id),
                 'Go to this URL in your web browser (copy and paste it into the address bar) and approve the request by clicking "Approve":',
                 "https://{}/{}?code={}".format(
-                    alias, REGISTRATION_CODE_PATH, req.request_id
+                    WEBAPP_HOST, REGISTRATION_CODE_PATH, req.request_id
                 ),
             ]
             print("\n".join(lines))
@@ -214,8 +222,8 @@ def request_token_and_wait_for_approval(
             print("An error occurred while waiting for token approval: {}".format(e))
 
 
-def make_token_request(collector_ad, source):
-    identity = "{}{}@{}".format(SOURCE_PREFIX, source, SOURCE_POSTFIX)
+def make_token_request(collector_ad, resource):
+    identity = "{}{}@{}".format(RESOURCE_PREFIX, resource, RESOURCE_POSTFIX)
 
     req = htcondor.TokenRequest(identity, bounding_set=TOKEN_BOUNDING_SET)
     req.submit(collector_ad)
@@ -227,7 +235,7 @@ def make_token_request(collector_ad, source):
     # we can drop this code entirely.
     if req.request_id.startswith("0"):
         logger.debug("Got a token with a leading 0; trying again.")
-        return make_token_request(collector_ad, source)
+        return make_token_request(collector_ad, resource)
 
     return req
 

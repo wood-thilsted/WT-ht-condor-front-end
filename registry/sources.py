@@ -107,7 +107,7 @@ def get_sources(user_info):
     return ces
 
 
-SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
+SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
 
 def is_valid_source_name(source_name):
     return bool(SOURCE_CHECK.match(source_name))

@@ -22,8 +22,8 @@ def code_get():
     return response
 
 
-SOURCE_PREFIX = "SOURCE_"
-SOURCE_POSTFIX = "htpheno-cm.chtc.wisc.edu"
+SOURCE_PREFIX = "RESOURCE-"
+SOURCE_POSTFIX = "flock.opensciencegrid.org"
 ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD"}
 
 
@@ -64,9 +64,47 @@ def code_post():
         return error("Request {} is unknown".format(request_id), 400)
     result = result[0]
 
-    requested_source = result.get("RequestedIdentity").split("@")[0][
-        len(SOURCE_PREFIX) :
-    ]
+    split_identity = result.get("RequestedIdentity").rsplit("@", 1)
+    if len(split_identity) != 2:
+        current_app.logger.debug(
+            "The requested identity was {}, which is invalid (missing domain).".format(
+                result.get("RequestedIdentity")
+            )
+        )
+        return error(
+            "The requested identity is invalid; it must be of the form 'user@domain'",
+            400
+        )
+
+    requested_identity, requested_domain = split_identity
+
+    if requested_domain != SOURCE_POSTFIX:
+        current_app.logger.debug(
+            "The requested identity was {}, which is invalid (wrong domain).".format(
+                result.get("RequestedIdentity")
+            )
+        )
+        return error(
+            "The requested identity is invalid; it must use domain {}.".format(
+                SOURCE_POSTFIX
+            ),
+            400
+        )
+
+    if not requested_identity.startswith(SOURCE_PREFIX):
+        current_app.logger.debug(
+            "The requested identity was {}, which is invalid (wrong prefix).".format(
+                result.get("RequestedIdentity")
+            )
+        )
+        return error(
+            "The requested identity is invalid; it must start with prefix {}.".format(
+                SOURCE_PREFIX
+            ),
+            400
+        )
+
+    requested_source = requested_identity[len(SOURCE_PREFIX):]
     if not is_valid_source_name(requested_source):
         current_app.logger.debug(
             "The requested source name was {}, which is invalid.".format(
@@ -129,6 +167,14 @@ def code_post():
             "Was not able to approve token request. Please try again or contact the administrators.",
             400,
         )
+    current_app.logger.info("Approved token request: approver_id={}, approver_name={}, approver_email={}, "
+        "req_id={}, requester_identity={}, authz_limits={}, requester_ip={}, token_identity={}, "
+        "request_client_id={}".format(
+            user_id.get("id"), user_id.get("name"), user_id.get("email"),
+            request_id, result.get("AuthenticatedIdentity"), result.get("LimitAuthorization"),
+            result.get("PeerLocation"), result.get("RequestedIdentity"), result.get("ClientId")
+        )
+    )
 
     context = {"source": requested_source, "collector": current_app.config["COLLECTOR"]}
     return make_response(render_template("code_submit_success.html", **context))
@@ -145,9 +191,9 @@ def get_pending_token_request(request_id):
     binary = current_app.config.get(
         "CONDOR_TOKEN_REQUEST_LIST", "condor_token_request_list"
     )
-    args = [binary, "-reqid", str(request_id), "-json"]
+    args = [binary, "-pool", current_app.config["COLLECTOR"], "-reqid", str(request_id), "-json"]
 
-    current_app.logger.debug("Running {}".format(" ".join(args)))
+    current_app.logger.error("Running {}".format(" ".join(args)))
 
     process = subprocess.Popen(
         args,
@@ -175,7 +221,7 @@ def approve_token_request(request_id):
     binary = current_app.config.get(
         "CONDOR_TOKEN_REQUEST_APPROVE", "condor_token_request_approve"
     )
-    args = [binary, "-reqid", str(request_id)]
+    args = [binary, "-pool", current_app.config["COLLECTOR"], "-reqid", str(request_id)]
 
     current_app.logger.debug("Running {}".format(" ".join(args)))
 
@@ -198,6 +244,7 @@ def make_request_environment():
     req_environ = dict(os.environ)
     req_environ.setdefault("CONDOR_CONFIG", "/etc/condor/condor_config")
     req_environ["_condor_SEC_CLIENT_AUTHENTICATION_METHODS"] = "TOKEN"
+    req_environ["_condor_SEC_CLIENT_ENCRYPTION"] = "REQUIRED"
     req_environ["_condor_SEC_TOKEN_DIRECTORY"] = "/etc/condor/tokens.d"
 
     return req_environ
