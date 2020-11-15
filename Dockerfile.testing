@@ -12,12 +12,12 @@ RUN \
     osg-ca-generator --host && \
     yum clean all && rm -rf /var/cache/yum/*
 
-COPY ../registry ../run_local.sh ../requirements.txt /opt/registry/
+COPY registry run_local.sh requirements.txt /opt/registry/
 RUN pip3 install -r /opt/registry/requirements.txt
 
-COPY ../register.py /usr/bin
-COPY ../supervisor-apache.conf /etc/supervisord.d/40-apache.conf
-COPY apache.conf /etc/httpd/conf.d/
+COPY register.py /usr/bin
+COPY supervisor-apache.conf /etc/supervisord.d/40-apache.conf
+COPY examples/apache.conf /etc/httpd/conf.d/
 
 ENV CONFIG_DIR=/srv
 #ENTRYPOINT ["/opt/registry/run_local.sh"]

@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
-from ..sources import get_user_id, get_sources, is_valid_source_name
+from ..sources import get_user_info, get_sources, is_valid_source_name
 from ..exceptions import CondorToolException, ConfigurationError
 
 token_bp = Blueprint(
@@ -42,7 +42,7 @@ def code_post():
         )
 
     try:
-        user_id = get_user_id()
+        user_id = get_user_info()
     except ConfigurationError:
         return error(
             "Server configuration error. Please contact the administrators.", 500

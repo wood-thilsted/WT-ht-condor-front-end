@@ -11,17 +11,16 @@
         <div class="row">
             <div class="col">
                 <div class="jumbotron shadow">
-                    <h1 class="display-r">HT Phenotyping Project</h1>
+                    <h1 class="display-r">Open Science Pool Token Service</h1>
 
                     <p class="lead">
-                        The HT Phenotyping Transfer Service enables
-                        automated, reliable, and secure
-                        synchronization of phenotypic image data to a
-                        centralized location.
+                        The Open Science Pool token service provides system administrators
+                        with the ability to request and receive tokens necessary to authenticate
+                        worker node containers with the Open Science Pool.
                     </p>
 
                     <p class="lead">
-                        <a class="btn btn-primary" href="{{ url_for('index.about') }}">Learn More</a>
+                        <a class="btn btn-primary" href="https://opensciencegrid.org/docs/resource-sharing/os-backfill-containers/">Learn More</a>
                     </p>
                 </div>
             </div>
@@ -33,12 +32,12 @@
                     <h5 class="card-header text-center">Step 1: Sign Up</h5>
                     <div class="card-body flex-fill">
                         <p class="card-text">
-                            To use the HT Phenotyping service, you must first sign up.
+                            To use this service, you must be registered as a site administrator with the OSG.
                             You will be asked to log in using your local university ID (through CILogon).
                         </p>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="{{ url_for("signup.signup_get") }}" class="btn btn-primary btn-lg">Sign Up!</a>
+                        <a href="https://opensciencegrid.org/technology/policy/comanage-instructions-user/" class="btn btn-primary btn-lg">Sign Up!</a>
                     </div>
                 </div>
             </div>
@@ -47,26 +46,23 @@
                     <h5 class="card-header text-center">Step 2: Register</h5>
                     <div class="card-body flex-fill flex-column">
                         <p class="card-text">
-                            Once you have signed up, you can register a new data
-                            source.
-                            You can do this even if your signup has not
-                            been approved yet.
+                            Once you have signed up, you must have a site registered
+                            with the OSG topology to get a token.
+                            This can be started even if your sign-up isn't complete.
                         </p>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="{{ url_for("signup.register_get") }}" class="btn btn-primary btn-lg">Register!</a>
+                        <a href="https://opensciencegrid.org/docs/common/registration/" class="btn btn-primary btn-lg">Register!</a>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 d-flex">
                 <div class="card shadow hover-shadow-lg border-primary">
-                    <h5 class="card-header text-center">Step 3: Connect</h5>
+                    <h5 class="card-header text-center">Step 3: Get Token</h5>
                     <div class="card-body flex-fill">
                         <p class="card-text">
                             Once your registration has been approved,
-                            you can connect your data source to the
-                            HT Phenotyping transfer service
-                            and begin uploading data.
+                            you can request and approve your own tokens.
                         </p>
                     </div>
                     <div class="card-footer text-center">

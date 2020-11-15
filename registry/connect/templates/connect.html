@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}HT Phenotyping - Connect a New Data Source{% endblock %}
+{% block title %}OS Registry - Get a New Token{% endblock %}
 
 {% block head %}
     <link href="{{ url_for('connect.static', filename='connect.css') }}" rel="stylesheet"/>
@@ -10,7 +10,7 @@
     <div class="container">
         <div class="row">
             <div class="col">
-                <h1>Connect a New Data Source</h1>
+                <h1>Get a New Open Science Pool Token</h1>
 
                 {% include "no-sources-warning.html" %}
 
@@ -25,30 +25,29 @@
         <div class="row">
             <div class="col-lg-4 d-flex">
                 <div class="card shadow hover-shadow-lg border-info">
-                    <h5 class="card-header text-center">Ubuntu 18</h5>
+                    <h5 class="card-header text-center">Docker</h5>
                     <div class="card-body flex-fill">
                         <p class="card-text">
-                            Your computer is running the
-                            <a href="https://releases.ubuntu.com/18.04.4/">Ubuntu 18.04</a>
-                            operating system and you have administrator privileges.
+                            You want to launch an Open Science Pool worker node inside
+                            a Docker container on your computer.
                         </p>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="{{ url_for("connect.ubuntu_18") }}" class="btn btn-info btn-lg">Connect on Ubuntu 18</a>
+                        <a href="{{ url_for("connect.docker") }}" class="btn btn-info btn-lg">Token on Docker</a>
                     </div>
                 </div>
             </div>
             <div class="col-lg-4 d-flex">
                 <div class="card shadow hover-shadow-lg border-info">
-                    <h5 class="card-header text-center">macOS with Docker</h5>
+                    <h5 class="card-header text-center">Kubernetes</h5>
                     <div class="card-body flex-fill">
                         <p class="card-text">
-                            Your computer is running macOS
-                            and Docker Desktop is installed.
+                            Your want to launch many Open Science Pool worker nodes
+                            inside a Kubernetes cluster.
                         </p>
                     </div>
                     <div class="card-footer text-center">
-                        <a href="{{ url_for("connect.macos") }}" class="btn btn-info btn-lg">Connect on macOS</a>
+                        <a href="{{ url_for("connect.kubernetes") }}" class="btn btn-info btn-lg">Token on Kubernetes</a>
                     </div>
                 </div>
             </div>

@@ -9,10 +9,8 @@ from flask import (
 
 from ..mail import send_mail_to_admins
 from ..sources import (
-    get_user_id,
+    get_user_info,
     is_valid_source_name,
-    get_name,
-    get_contact_email,
 )
 from ..exceptions import ConfigurationError
 
@@ -50,7 +48,7 @@ def signup_post():
     email = request.form["email"]
 
     try:
-        user_id = get_user_id()
+        user_id = get_user_info()
     except ConfigurationError:
         return error("Server configuration error", "signup", 500)
 
@@ -97,7 +95,7 @@ def signup_post():
 @signup_bp.route("/register", methods=["GET"])
 def register_get():
     try:
-        user_id = get_user_id()
+        user_id = get_user_info()
     except ConfigurationError:
         return error(
             "Server configuration error. Please contact the administrators.",
@@ -106,7 +104,7 @@ def register_get():
         )
 
     if user_id is not None:
-        context = {"contact": get_contact_email(user_id), "name": get_name(user_id)}
+        context = {"contact": user_id.get("email", "(Unknown email)"), "name": user_id.get("name", "(Unknown name)")}
     else:
         context = {}
 
@@ -142,7 +140,7 @@ def register_post():
     email = request.form["email"]
 
     try:
-        user_id = get_user_id()
+        user_id = get_user_info()
     except ConfigurationError:
         return error("Server configuration error", "registration", 500)
 

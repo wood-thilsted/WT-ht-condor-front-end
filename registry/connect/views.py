@@ -1,6 +1,6 @@
 from flask import Blueprint, make_response, render_template, current_app
 
-from ..sources import get_user_id, get_sources
+from ..sources import get_user_info, get_sources
 from ..exceptions import ConfigurationError
 
 install_bp = Blueprint(
@@ -15,11 +15,11 @@ install_bp = Blueprint(
 @install_bp.route("/connect", methods=["GET"])
 def connect():
     try:
-        user_id = get_user_id()
+        user_info = get_user_info()
     except ConfigurationError:
         return "Server configuration error", 500
 
-    sources = get_sources(user_id)
+    sources = get_sources(user_info)
 
     context = {"sources": sources}
 
@@ -27,14 +27,14 @@ def connect():
     return response
 
 
-@install_bp.route("/connect/ubuntu-18", methods=["GET"])
-def ubuntu_18():
+@install_bp.route("/connect/docker", methods=["GET"])
+def docker():
     try:
-        user_id = get_user_id()
+        user_info = get_user_info()
     except ConfigurationError:
         return "Server configuration error", 500
 
-    sources = get_sources(user_id)
+    sources = get_sources(user_info)
 
     install_commands = {
         source: "bash install_htcondor.sh -c {} -n {} -d {}".format(
@@ -51,14 +51,14 @@ def ubuntu_18():
     return response
 
 
-@install_bp.route("/connect/macos", methods=["GET"])
-def macos():
+@install_bp.route("/connect/kubernetes", methods=["GET"])
+def kubernetes():
     try:
-        user_id = get_user_id()
+        user_info = get_user_info()
     except ConfigurationError:
         return "Server configuration error", 500
 
-    sources = get_sources(user_id)
+    sources = get_sources(user_info)
 
     install_commands = {
         source: "bash install_htcondor.sh -c {} -n {} -d {} -x Docker".format(

@@ -44,18 +44,7 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index.index') }}">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index.about') }}">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index.contact') }}">Contact</a></li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="sourceDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Data Sources
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="sourceDropdown">
-                            <a class="dropdown-item" href="{{ url_for('signup.register_get') }}">Register a New Data Source</a>
-                            <a class="dropdown-item" href="{{ url_for('connect.connect') }}">Connect a New Data Source</a>
-                        </div>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('connect.connect') }}">Get a Token</a></li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="btn btn-info nav-item" href="{{ url_for('account.account_get') }}">Account</a></li>

@@ -5,89 +5,109 @@ try:  # py3
 except ImportError:  # py2
     from ConfigParser import ConfigParser
 
+import xml.etree.ElementTree as ET
+import http.client
+import urllib.error
+import urllib.request
+
 from flask import current_app, request
 
 from .exceptions import ConfigurationError
 
+TOPOLOGY_RG = "https://topology.opensciencegrid.org/rgsummary/xml"
 
-def get_user_id():
+def get_user_info():
     try:
-        return current_app.config["USER_ID_FAKE"]
+        return current_app.config["USER_INFO_FAKE"]
     except:
         pass
-    try:
-        user_id_env_var = current_app.config["USER_ID_ENV_VAR"]
-    except KeyError:
-        msg = "Config variable USER_ID_ENV_VAR not set; this should be set to the name of the environment variable that holds the user's identity (perhaps REMOTE_USER ?)"
-        current_app.logger.error(msg)
-        raise ConfigurationError(msg)
 
-    current_app.logger.debug(
-        "Will read user ID from request environment variable {}".format(user_id_env_var)
-    )
-
-    user_id = request.environ.get(user_id_env_var, None)
-    current_app.logger.debug("User ID is {}".format(user_id))
-
-    return user_id
-
-
-def is_signed_up(user_id):
-    return any(user_id == entry["name"] for entry in parse_humans_file())
-
-
-def get_sources(user_id):
-    """
-    Map a given user ID to a list of sources they are authorized to administrate.
-    """
-    names_to_sources = {
-        entry["name"]: entry.get("sources", "").split() for entry in parse_humans_file()
+    result = {
+        "idp": request.environ.get("OIDC_CLAIM_idp_name", None),
+        "id": request.environ.get("OIDC_CLAIM_osgid", None),
+        "name": request.environ.get("OIDC_CLAIM_name", None),
+        "email": request.environ.get("OIDC_CLAIM_email", None)
     }
-    return names_to_sources.get(user_id, [])
+
+    current_app.logger.debug("Authenticated user info is {}".format(str(result)))
+
+    return result
 
 
-def get_contact_email(user_id):
-    names_to_contacts = {entry["name"]: entry["email"] for entry in parse_humans_file()}
-    return names_to_contacts.get(user_id, None)
+def is_signed_up(user_info):
+    return user_info.get("id")
 
 
-def get_name(user_id):
-    names_to_contacts = {
-        entry["name"]: entry["contactname"] for entry in parse_humans_file()
-    }
-    return names_to_contacts.get(user_id, None)
-
-
-def parse_humans_file():
+def get_sources(user_info):
+    """
+    Query topology to get a list of valid CEs and their managers
+    """
+    osgid = user_info.get("id")
+    if not osgid:
+        return []
+    # URL for all Production CE resources
+    # topology_url = TOPOLOGY_RG + '?gridtype=on&gridtype_1=on&service_on&service_1=on'
+    # URL for all CE resources
+    topology_url = TOPOLOGY_RG + '?service_on&service_1=on'
     try:
-        humans_file = current_app.config["HUMANS_FILE"]
-    except KeyError:
-        msg = "Config variable HUMANS_FILE not set; this should be set to the path of the file containing the information on humans."
-        current_app.logger.error(msg)
-        raise ConfigurationError(msg)
+        response = urllib.request.urlopen(topology_url)
+        topology_xml = response.read()
+    except (urllib.error.URLError, http.client.HTTPException):
+        raise TopologyError('Error retrieving OSG Topology registrations')
 
-    config = ConfigParser()
-    config.read(humans_file)
+    try:
+        topology_et = ET.fromstring(topology_xml)
+    except ET.ParseError:
+        if not topology_xml:
+            msg = 'OSG Topology query returned empty response'
+        else:
+            msg = 'OSG Topology query returned malformed XML'
+        raise TopologyError(msg)
 
-    entries = config_to_entries(config)
+    ces = []
+    resources = topology_et.findall('./ResourceGroup/Resources/Resource')
+    if not resources:
+        raise TopologyError('Failed to find any OSG Topology resources')
 
-    return entries
+    for resource in resources:
+        try:
+            fqdn = resource.find('./FQDN').text.strip()
+        except AttributeError:
+            # skip malformed resource missing an FQDN
+            continue
 
+        active = False
+        try:
+            active = resource.find('./Active').text.strip().lower() == "true"
+        except AttributeError:
+            continue
+        if not active:
+            continue
 
-def config_to_entries(config):
-    entries = []
-    for section in config.sections():
-        entry = {}
-        for option in config.options(section):
-            entry[option] = config.get(section, option)
+        try:
+            services = [service.find("./Name").text.strip()
+                        for service in resource.findall("./Services/Service")]
+        except AttributeError:
+            continue
+        if 'CE' not in services:
+            continue
 
-        entries.append(entry)
+        try:
+            admin_contacts = [contact_list.find('./Contacts')
+                              for contact_list in resource.findall('./ContactLists/ContactList')
+                              if contact_list.findtext('./ContactType', '').strip() == 'Administrative Contact']
+        except AttributeError:
+            # skip malformed resource missing contacts
+            continue
 
-    return entries
+        for contact in admin_contacts:
+            if contact.findtext('./Contact/CILogonID', '').strip() == osgid:
+                ces.append(fqdn)
+
+    return ces
 
 
 SOURCE_CHECK = re.compile(r"^[a-zA-Z]\w*$")
-
 
 def is_valid_source_name(source_name):
     return bool(SOURCE_CHECK.match(source_name))

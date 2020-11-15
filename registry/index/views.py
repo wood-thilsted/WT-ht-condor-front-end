@@ -25,17 +25,6 @@ def index():
     return make_response(render_template("index.html"))
 
 
-@index_bp.route("/about")
-def about():
-    return make_response(render_template("about.html"))
-
-
-@index_bp.route("/contact")
-def contact():
-    context = {"contact_email": current_app.config["SUPPORT_EMAIL"]}
-    return make_response(render_template("contact.html", **context))
-
-
 @index_bp.route("/health")
 def health():
     return "Hello!"

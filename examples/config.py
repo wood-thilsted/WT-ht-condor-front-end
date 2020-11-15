@@ -1,7 +1,9 @@
 
 SUPPORT_EMAIL="example@morgridge.org"
-USER_ID_ENV_VAR = "REMOTE_USER"
-USER_ID_FAKE = "example@wisc.edu"
+USER_INFO_FAKE = {"idp": "University of Example",
+        "id": "OSG1000002",
+        "name": "John Smith",
+        "email": "jsmith@example.com"}
 HUMANS_FILE = "humans.ini"
 COLLECTOR = "flock.opensciencegrid.org"
 DEFAULT_DATA_DIRECTORY = "/srv"
