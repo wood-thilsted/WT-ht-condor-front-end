@@ -100,9 +100,10 @@ def get_sources(user_info):
             # skip malformed resource missing contacts
             continue
 
-        for contact in admin_contacts:
-            if contact.findtext('./Contact/CILogonID', '').strip() == osgid:
-                ces.append(fqdn)
+        for contact_list in admin_contacts:
+            for contact in contact_list.findall("./Contact"):
+                if contact.findtext('./CILogonID', '').strip() == osgid:
+                    ces.append(fqdn)
 
     return ces
 
