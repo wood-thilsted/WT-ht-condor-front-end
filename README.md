@@ -34,13 +34,24 @@ needs to stay in sync with it.
 
 ## Development
 
-To run the registration server locally, `pip install -r requirements.txt`, then run
+To run the registration server locally, build and run the testing container image:
 
-```console
-$ ./run_local.sh
-```
+1.  Build the container image:
 
-You will need a `config.py` file with settings in it, as described below.
+        docker build -t os-registry-test -f Dockerfile.testing .
+
+1.  Copy example configuration required by the registry server:
+
+        cp examples/config.py examples/humans.ini .
+
+1.  Start the local registry:
+
+        docker run --rm -it -v ${PWD}:/srv -p 8443:443 os-registry-test
+
+1.  Access the local registry in your browser by accessing <https://localhost:8443>
+
+Note that changes to files copied into the container image (e.g. `COPY` lines in `Dockerfile.testing`) will require
+a rebuild of the container image.
 
 ## Installation
 
