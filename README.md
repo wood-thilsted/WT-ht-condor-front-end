@@ -46,9 +46,15 @@ To run the registration server locally, build and run the testing container imag
 
 1.  Start the local registry:
 
-        docker run --rm -it -v ${PWD}:/srv -p 8443:443 os-registry-test
+        docker run --rm --name my-registry -it -v ${PWD}:/srv -p 8443:443 os-registry-test
 
 1.  Access the local registry in your browser by accessing <https://localhost:8443>
+
+1.  For a login shell to the registry, run the following:
+
+        docker exec -it my-registry /bin/bash
+
+    Helpful log files can be found in `/var/log/httpd/` and `/var/log/condor/registration.log`.
 
 Note that changes to files copied into the container image (e.g. `COPY` lines in `Dockerfile.testing`) will require
 a rebuild of the container image.
