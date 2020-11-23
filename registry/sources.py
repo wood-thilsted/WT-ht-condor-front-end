@@ -89,7 +89,7 @@ def get_sources(user_info):
                         for service in resource.findall("./Services/Service")]
         except AttributeError:
             continue
-        if 'CE' not in services:
+        if ('CE' not in services) and ('Submit Node' not in services):
             continue
 
         try:
