@@ -10,6 +10,7 @@ import traceback
 import time
 import shutil
 import re
+import posixpath # for converting DOS style separator to Unix style
 
 import htcondor
 import classad
@@ -28,6 +29,7 @@ RESOURCE_POSTFIX = "flock.opensciencegrid.org"
 NUM_RETRIES = 10
 TOKEN_OWNER_USER = TOKEN_OWNER_GROUP = "condor"
 SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
+TOKEN_DIR = "" # if user didn't specify, it is set to be dir in container
 
 
 def parse_args():
@@ -53,14 +55,24 @@ def parse_args():
         help="Enable verbose output. Useful for debugging.",
     )
 
-    args = parser.parse_args()
+    parser.add_argument(
+        "--dir",
+        default=None,
+        help="Using user working directory to make output more understandable.",
+    )
 
+    args = parser.parse_args()
     return args
 
 
 def main():
     args = parse_args()
 
+    global TOKEN_DIR
+    if args.dir:
+        # update host working directory
+        TOKEN_DIR = args.dir
+        
     if args.verbose:
         # HTCondor library logging setup
         htcondor.param["TOOL_DEBUG"] = "D_FULLDEBUG D_SECURITY"
@@ -141,11 +153,12 @@ def request_token(pool, resource):
 
     print("Token request approved!")
 
-    token_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
+    global TOKEN_DIR
+    if TOKEN_DIR == "":
+        TOKEN_DIR = htcondor.param["SEC_TOKEN_DIRECTORY"]
     token_name = "50-{}-{}-registration".format(alias, resource)
-    token_path = os.path.join(token_dir, token_name)
-
-    logger.debug("Writing token to disk (in {})".format(token_dir))
+    token_path = '/'.join(os.path.join(TOKEN_DIR, token_name).split('\\'))
+    logger.debug("Writing token to disk (in {})".format(TOKEN_DIR))
     token.write(token_name)
     logger.debug("Wrote token to disk (at {})".format(token_path))
 
