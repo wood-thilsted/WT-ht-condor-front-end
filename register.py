@@ -10,7 +10,6 @@ import traceback
 import time
 import shutil
 import re
-import posixpath # for converting DOS style separator to Unix style
 
 import htcondor
 import classad
