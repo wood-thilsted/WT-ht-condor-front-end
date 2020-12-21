@@ -28,7 +28,6 @@ RESOURCE_POSTFIX = "flock.opensciencegrid.org"
 NUM_RETRIES = 10
 TOKEN_OWNER_USER = TOKEN_OWNER_GROUP = "condor"
 SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
-TOKEN_DIR = "" # if user didn't specify, it is set to be dir in container
 
 
 def parse_args():
@@ -55,9 +54,9 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--dir",
+        "--local-dir",
         default=None,
-        help="Using user working directory to make output more understandable.",
+        help="Full path to the user's local working directory outside of the container.",
     )
 
     args = parser.parse_args()
@@ -66,11 +65,6 @@ def parse_args():
 
 def main():
     args = parse_args()
-
-    global TOKEN_DIR
-    if args.dir:
-        # update host working directory
-        TOKEN_DIR = args.dir
         
     if args.verbose:
         # HTCondor library logging setup
@@ -108,8 +102,12 @@ def main():
     # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/17
     if htcondor.param["AUTH_SSL_CLIENT_CAFILE"] == "/etc/ssl/certs/ca-bundle.crt":
         htcondor.param["AUTH_SSL_CLIENT_CAFILE"] = "/etc/ssl/certs/ca-certificates.crt"
-
-    success = request_token(pool=args.pool, resource=args.host)
+    
+    if args.local_dir:
+        # user specified path for their local directory
+        success = request_token(pool=args.pool, resource=args.host, local_dir=args.local_dir)
+    else:
+        success = request_token(pool=args.pool, resource=args.host)
 
     if not success:
         error("Failed to complete the token request workflow.")
@@ -128,7 +126,7 @@ def is_admin():
         return ctypes.windll.shell32.IsUserAnAdmin() == 0
 
 
-def request_token(pool, resource):
+def request_token(pool, resource, local_dir=None):
     if ":" in pool:
         alias, port = pool.split(":")
     else:
@@ -152,12 +150,12 @@ def request_token(pool, resource):
 
     print("Token request approved!")
 
-    global TOKEN_DIR
-    if TOKEN_DIR == "":
-        TOKEN_DIR = htcondor.param["SEC_TOKEN_DIRECTORY"]
+    if local_dir is None:
+        local_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
     token_name = "50-{}-{}-registration".format(alias, resource)
-    token_path = '/'.join(os.path.join(TOKEN_DIR, token_name).split('\\'))
-    logger.debug("Writing token to disk (in {})".format(TOKEN_DIR))
+    # '/' is an accepted path separator across operating systems
+    token_path = os.path.join(local_dir, token_name).replace('\\', '/')
+    logger.debug("Writing token to disk (in {})".format(token_path))
     token.write(token_name)
     logger.debug("Wrote token to disk (at {})".format(token_path))
 
