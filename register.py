@@ -102,7 +102,6 @@ def main():
     # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/17
     if htcondor.param["AUTH_SSL_CLIENT_CAFILE"] == "/etc/ssl/certs/ca-bundle.crt":
         htcondor.param["AUTH_SSL_CLIENT_CAFILE"] = "/etc/ssl/certs/ca-certificates.crt"
-    
     success = request_token(pool=args.pool, resource=args.host, local_dir=args.local_dir)
 
     if not success:
