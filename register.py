@@ -121,6 +121,12 @@ def is_admin():
         return ctypes.windll.shell32.IsUserAnAdmin() == 0
 
 
+NONROOT_TOKEN_MSG = '''"Registration not run as root; to use token:"
+  1. Copy token to the system tokens directory: cp "{path}" /etc/condor/tokens.d/
+  2. Ensure the token is owned by HTCondor: chown condor: /etc/condor/tokens.d/{name}
+'''
+
+
 def request_token(pool, resource, local_dir=None):
     if ":" in pool:
         alias, port = pool.split(":")
@@ -167,10 +173,7 @@ def request_token(pool, resource, local_dir=None):
     logger.debug("Corrected token file permissions...")
     print("Token was written to {}".format(msg_path))
     if not is_admin():
-        print("Registration not run as root; to use token:")
-        print("  1. Copy token to the system tokens directory: cp \"{}\" /etc/condor/tokens.d/".format(token_path))
-        print("  2. Ensure the token is owned by HTCondor: chown condor: /etc/condor/tokens.d/{}".format(token_name))
-        
+        print(NONROOT_TOKEN_MSG.format(path=msg_path, name=token_name))
 
     return True
 
