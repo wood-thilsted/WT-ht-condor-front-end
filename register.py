@@ -145,19 +145,27 @@ def request_token(pool, resource, local_dir=None):
 
     print("Token request approved!")
 
-    if local_dir is None:
-        local_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
+    token_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
     token_name = "50-{}-{}-registration".format(alias, resource)
-    # '/' is an accepted path separator across operating systems
-    token_path = os.path.join(local_dir, token_name).replace('\\', '/')
-    logger.debug("Writing token to disk (in {})".format(token_path))
+    token_path = os.path.join(token_dir, token_name)
+
+    # We tell users to run register.py through the container and volume mount
+    # "$PWD/tokens" into /etc/condor/tokens.d so our messages need to reflect
+    # the host dir whenever they specify --local-dir (SOFTWARE-4372)
+    if local_dir:
+        # '/' is an accepted path separator across operating systems
+        msg_path = os.path.join(local_dir, token_name).replace('\\', '/')
+    else:
+        msg_path = token_path
+
+    logger.debug("Writing token to disk (in {})".format(msg_path))
     token.write(token_name)
-    logger.debug("Wrote token to disk (at {})".format(token_path))
+    logger.debug("Wrote token to disk (at {})".format(msg_path))
 
     logger.debug("Correcting token file permissions...")
     shutil.chown(token_path, user=TOKEN_OWNER_USER, group=TOKEN_OWNER_GROUP)
     logger.debug("Corrected token file permissions...")
-    print("Token was written to {}".format(token_path))
+    print("Token was written to {}".format(msg_path))
     if not is_admin():
         print("Registration not run as root; to use token:")
         print("  1. Copy token to the system tokens directory: cp \"{}\" /etc/condor/tokens.d/".format(token_path))
