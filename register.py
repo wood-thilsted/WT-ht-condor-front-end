@@ -56,7 +56,7 @@ def parse_args():
     parser.add_argument(
         "--local-dir",
         default=None,
-        help="Full path to the user's local working directory outside of the container.",
+        help="Full path to the user's local token directory outside of the container.",
     )
 
     args = parser.parse_args()
@@ -121,6 +121,12 @@ def is_admin():
         return ctypes.windll.shell32.IsUserAnAdmin() == 0
 
 
+NONROOT_TOKEN_MSG = '''"Registration not run as root; to use token:"
+  1. Copy token to the system tokens directory: cp "{path}" /etc/condor/tokens.d/
+  2. Ensure the token is owned by HTCondor: chown condor: /etc/condor/tokens.d/{name}
+'''
+
+
 def request_token(pool, resource, local_dir=None):
     if ":" in pool:
         alias, port = pool.split(":")
@@ -145,24 +151,29 @@ def request_token(pool, resource, local_dir=None):
 
     print("Token request approved!")
 
-    if local_dir is None:
-        local_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
+    token_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
     token_name = "50-{}-{}-registration".format(alias, resource)
-    # '/' is an accepted path separator across operating systems
-    token_path = os.path.join(local_dir, token_name).replace('\\', '/')
-    logger.debug("Writing token to disk (in {})".format(token_path))
+    token_path = os.path.join(token_dir, token_name)
+
+    # We tell users to run register.py through the container and volume mount
+    # "$PWD/tokens" into /etc/condor/tokens.d so our messages need to reflect
+    # the host dir whenever they specify --local-dir (SOFTWARE-4372)
+    if local_dir:
+        # '/' is an accepted path separator across operating systems
+        msg_path = os.path.join(local_dir, token_name).replace('\\', '/')
+    else:
+        msg_path = token_path
+
+    logger.debug("Writing token to disk (in {})".format(msg_path))
     token.write(token_name)
-    logger.debug("Wrote token to disk (at {})".format(token_path))
+    logger.debug("Wrote token to disk (at {})".format(msg_path))
 
     logger.debug("Correcting token file permissions...")
     shutil.chown(token_path, user=TOKEN_OWNER_USER, group=TOKEN_OWNER_GROUP)
     logger.debug("Corrected token file permissions...")
-    print("Token was written to {}".format(token_path))
+    print("Token was written to {}".format(msg_path))
     if not is_admin():
-        print("Registration not run as root; to use token:")
-        print("  1. Copy token to the system tokens directory: cp \"{}\" /etc/condor/tokens.d/".format(token_path))
-        print("  2. Ensure the token is owned by HTCondor: chown condor: /etc/condor/tokens.d/{}".format(token_name))
-        
+        print(NONROOT_TOKEN_MSG.format(path=msg_path, name=token_name))
 
     return True
 
