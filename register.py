@@ -56,7 +56,7 @@ def parse_args():
     parser.add_argument(
         "--local-dir",
         default=None,
-        help="Full path to the user's local working directory outside of the container.",
+        help="Full path to the user's local token directory outside of the container.",
     )
 
     args = parser.parse_args()
