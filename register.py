@@ -53,8 +53,13 @@ def parse_args():
         help="Enable verbose output. Useful for debugging.",
     )
 
-    args = parser.parse_args()
+    parser.add_argument(
+        "--local-dir",
+        default=None,
+        help="Full path to the user's local working directory outside of the container.",
+    )
 
+    args = parser.parse_args()
     return args
 
 
@@ -97,8 +102,7 @@ def main():
     # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/17
     if htcondor.param["AUTH_SSL_CLIENT_CAFILE"] == "/etc/ssl/certs/ca-bundle.crt":
         htcondor.param["AUTH_SSL_CLIENT_CAFILE"] = "/etc/ssl/certs/ca-certificates.crt"
-
-    success = request_token(pool=args.pool, resource=args.host)
+    success = request_token(pool=args.pool, resource=args.host, local_dir=args.local_dir)
 
     if not success:
         error("Failed to complete the token request workflow.")
@@ -117,7 +121,7 @@ def is_admin():
         return ctypes.windll.shell32.IsUserAnAdmin() == 0
 
 
-def request_token(pool, resource):
+def request_token(pool, resource, local_dir=None):
     if ":" in pool:
         alias, port = pool.split(":")
     else:
@@ -141,11 +145,12 @@ def request_token(pool, resource):
 
     print("Token request approved!")
 
-    token_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
+    if local_dir is None:
+        local_dir = htcondor.param["SEC_TOKEN_DIRECTORY"]
     token_name = "50-{}-{}-registration".format(alias, resource)
-    token_path = os.path.join(token_dir, token_name)
-
-    logger.debug("Writing token to disk (in {})".format(token_dir))
+    # '/' is an accepted path separator across operating systems
+    token_path = os.path.join(local_dir, token_name).replace('\\', '/')
+    logger.debug("Writing token to disk (in {})".format(token_path))
     token.write(token_name)
     logger.debug("Wrote token to disk (at {})".format(token_path))
 
