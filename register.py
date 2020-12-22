@@ -65,7 +65,7 @@ def parse_args():
 
 def main():
     args = parse_args()
-        
+
     if args.verbose:
         # HTCondor library logging setup
         htcondor.param["TOOL_DEBUG"] = "D_FULLDEBUG D_SECURITY"
@@ -103,11 +103,7 @@ def main():
     if htcondor.param["AUTH_SSL_CLIENT_CAFILE"] == "/etc/ssl/certs/ca-bundle.crt":
         htcondor.param["AUTH_SSL_CLIENT_CAFILE"] = "/etc/ssl/certs/ca-certificates.crt"
     
-    if args.local_dir:
-        # user specified path for their local directory
-        success = request_token(pool=args.pool, resource=args.host, local_dir=args.local_dir)
-    else:
-        success = request_token(pool=args.pool, resource=args.host)
+    success = request_token(pool=args.pool, resource=args.host, local_dir=args.local_dir)
 
     if not success:
         error("Failed to complete the token request workflow.")
