@@ -37,7 +37,8 @@ def docker():
     sources = get_sources(user_info)
 
     install_commands = {
-        source: "docker run --rm -v $PWD/tokens:/etc/condor/tokens.d " +
+        source: "mkdir tokens && \\" +
+                "docker run --rm -v $PWD/tokens:/etc/condor/tokens.d " +
                 f"opensciencegrid/open-science-pool-registry:fresh register.py --local-dir $PWD/tokens --host {source}"
         for source in sources
     }
