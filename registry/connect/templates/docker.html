@@ -21,7 +21,7 @@
                 </p>
                 <ol>
                     <li>
-                        Installation requires a running Docker daemon and the ability to launch containers.
+                        Installation requires a container runtime (such as Docker or podman) and the ability to launch containers.
                         Typically, this requires root (administrator) access on the host.
                     </li>
                     <li>
@@ -78,7 +78,7 @@
                 <p class="text-center">
                     <img class="example" src="{{ url_for('connect.static', filename="terminal-approved.png") }}" alt="Approval message in terminal">
                 </p>
-                <p>The token is now available inside the "tokens/" where you invoked the "docker run" command.</p>
+                <p>The token is now available inside the "tokens" directory relative to where you invoked the "docker run" command.</p>
             </div>
         </div>
     </div>
