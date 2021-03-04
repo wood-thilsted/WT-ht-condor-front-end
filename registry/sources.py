@@ -47,8 +47,8 @@ def get_sources(user_info):
         return []
     # URL for all Production CE resources
     # topology_url = TOPOLOGY_RG + '?gridtype=on&gridtype_1=on&service_on&service_1=on'
-    # URL for all CE resources
-    topology_url = TOPOLOGY_RG + '?service_on&service_1=on'
+    # URL for all Execution Endpoint resources
+    topology_url = TOPOLOGY_RG + '?service_on&service_157=on'
     try:
         response = urllib.request.urlopen(topology_url)
         topology_xml = response.read()
