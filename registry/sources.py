@@ -64,7 +64,7 @@ def get_sources(user_info):
             msg = 'OSG Topology query returned malformed XML'
         raise TopologyError(msg)
 
-    ces = []
+    os_pool_resources = []
     resources = topology_et.findall('./ResourceGroup/Resources/Resource')
     if not resources:
         raise TopologyError('Failed to find any OSG Topology resources')
@@ -89,7 +89,7 @@ def get_sources(user_info):
                         for service in resource.findall("./Services/Service")]
         except AttributeError:
             continue
-        if ('CE' not in services) and ('Submit Node' not in services):
+        if ('Execution Endpoint' not in services) and ('Submit Node' not in services):
             continue
 
         try:
@@ -103,9 +103,9 @@ def get_sources(user_info):
         for contact_list in admin_contacts:
             for contact in contact_list.findall("./Contact"):
                 if contact.findtext('./CILogonID', '').strip() == osgid:
-                    ces.append(fqdn)
+                    os_pool_resources.append(fqdn)
 
-    return ces
+    return os_pool_resources
 
 
 SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
