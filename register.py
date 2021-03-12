@@ -18,7 +18,7 @@ logger = logging.getLogger("register")
 logger.setLevel(logging.ERROR + 10)
 
 DEFAULT_PORT = "9618"
-WEBAPP_HOST = "os-registry.osgdev.chtc.io"
+WEBAPP_HOST = "os-registry.opensciencegrid.org"
 DEFAULT_TARGET = "flock.opensciencegrid.org:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "token"
 RECONFIG_COMMAND = ["condor_reconfig"]
