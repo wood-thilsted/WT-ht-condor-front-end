@@ -39,7 +39,7 @@ def docker():
     install_commands = {
         source: "mkdir -p tokens && " +
                 "docker run --rm -v $PWD/tokens:/etc/condor/tokens.d " +
-                f"opensciencegrid/open-science-pool-registry:fresh register.py --local-dir $PWD/tokens --host {source}"
+                f"opensciencegrid/open-science-pool-registry:release register.py --local-dir $PWD/tokens --host {source}"
         for source in sources
     }
 
