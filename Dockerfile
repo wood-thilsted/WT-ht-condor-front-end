@@ -1,5 +1,5 @@
 
-ARG IMAGE_BASE_TAG=fresh
+ARG IMAGE_BASE_TAG=release
 
 FROM opensciencegrid/software-base:$IMAGE_BASE_TAG
 
