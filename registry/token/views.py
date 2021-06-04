@@ -24,7 +24,7 @@ def code_get():
 
 SOURCE_PREFIX = "RESOURCE-"
 SOURCE_POSTFIX = "flock.opensciencegrid.org"
-ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD"}
+ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD", "ADVERTISE_MASTER"}
 
 
 @token_bp.route("/token", methods=["POST"])
