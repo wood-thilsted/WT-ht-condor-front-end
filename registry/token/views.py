@@ -24,7 +24,9 @@ def code_get():
 
 SOURCE_PREFIX = "RESOURCE-"
 SOURCE_POSTFIX = "flock.opensciencegrid.org"
-ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD", "ADVERTISE_MASTER"}
+BASE_ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_MASTER"}
+AP_ALLOWED_AUTHORIZATIONS = {"ADVERTISE_SCHEDD", "DAEMON"}
+EE_ALLOWED_AUTHORIZATIONS = {"ADVERTISE_STARTD"}
 
 
 @token_bp.route("/token", methods=["POST"])
@@ -157,6 +159,23 @@ def code_post():
             ),
             403,
         )
+
+    def verify_requested_authz(requested, allowed):
+        if not requested.issubset(allowed):
+            return error(
+                "The requested token must be limited to the authorizations {}; but you requested {}.".format(
+                    ", ".join(allowed), ", ".join(requested)
+                ),
+                400,
+            )
+
+    requested_authorizations = set(result.get("LimitAuthorization").split(","))
+    if requested_fqdn in allowed_ap:
+        verify_requested_authz(requested_authorizations,
+                               set.union(BASE_ALLOWED_AUTHORIZATIONS, AP_ALLOWED_AUTHORIZATIONS))
+    elif requested_fqdn in allowed_ee:
+        verify_requested_authz(requested_authorizations,
+                               set.union(BASE_ALLOWED_AUTHORIZATIONS, EE_ALLOWED_AUTHORIZATIONS))
 
     try:
         approve_token_request(request_id)
