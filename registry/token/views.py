@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
-from ..sources import get_user_info, get_sources, is_valid_source_name
+from ..sources import get_user_info, get_access_point_fqdns, get_execution_endpoint_fqdns, is_valid_source_name
 from ..exceptions import CondorToolException, ConfigurationError
 
 token_bp = Blueprint(
@@ -126,7 +126,9 @@ def code_post():
         )
 
     try:
-        allowed_sources = get_sources(user_id)
+        allowed_ap = get_access_point_fqdns(user_id)
+        allowed_ee = get_execution_endpoint_fqdns(user_id)
+        allowed_sources = allowed_ap + allowed_ee
     except ConfigurationError:
         return error(
             "Server configuration error. Please contact the administrators.", 500

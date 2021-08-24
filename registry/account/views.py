@@ -1,6 +1,6 @@
 from flask import Blueprint, make_response, render_template, current_app, request
 
-from ..sources import get_user_info, get_sources, is_signed_up
+from ..sources import get_user_info, get_access_point_fqdns, get_execution_endpoint_fqdns, is_signed_up
 from ..exceptions import ConfigurationError
 
 account_bp = Blueprint(
@@ -23,7 +23,8 @@ def account_get():
         context = {"user_info": user_info, "signed_up": False}
         return make_response(render_template("account.html", **context))
 
-    sources = get_sources(user_info)
+    sources = get_access_point_fqdns(user_info)
+    sources += get_execution_endpoint_fqdns(user_info)
 
     context = {
         "user_info": user_info,

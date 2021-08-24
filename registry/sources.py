@@ -5,6 +5,7 @@ try:  # py3
 except ImportError:  # py2
     from ConfigParser import ConfigParser
 
+from typing import Dict, List
 import xml.etree.ElementTree as ET
 import http.client
 import urllib.error
@@ -15,6 +16,8 @@ from flask import current_app, request
 from .exceptions import ConfigurationError
 
 TOPOLOGY_RG = "https://topology.opensciencegrid.org/rgsummary/xml"
+SERVICE_MAPPING = {'Submit Node': 109,
+                   'Execution Endpoint': 157}
 
 def get_user_info():
     try:
@@ -38,17 +41,27 @@ def is_signed_up(user_info):
     return user_info.get("id")
 
 
-def get_sources(user_info):
+def get_access_point_fqdns(user_info: Dict) -> List[str]:
+    """Return a list of access point FQDNs administered by the user
     """
-    Query topology to get a list of valid CEs and their managers
+    return get_sources(user_info, 'Submit Node')
+
+
+def get_execution_endpoint_fqdns(user_info: Dict) -> List[str]:
+    """Return a list of execution endpoint FQDNs administered by the user
+    """
+    return get_sources(user_info, 'Execution Endpoint')
+
+
+def get_sources(user_info: Dict, topology_service: str):
+    """
+    Query topology to get a list of FQDNs for active resources administered by the user
     """
     osgid = user_info.get("id")
     if not osgid:
         return []
-    # URL for all Production CE resources
-    # topology_url = TOPOLOGY_RG + '?gridtype=on&gridtype_1=on&service_on&service_1=on'
-    # URL for all Execution Endpoint resources
-    topology_url = TOPOLOGY_RG + '?service=on&service_109=on&service_157=on'
+    # URL for all Execution Endpoint and Submit Node (access points) resources
+    topology_url = TOPOLOGY_RG + f'?service=on&service_{SERVICE_MAPPING[topology_service]}=on'
     try:
         response = urllib.request.urlopen(topology_url)
         topology_xml = response.read()
@@ -89,7 +102,7 @@ def get_sources(user_info):
                         for service in resource.findall("./Services/Service")]
         except AttributeError:
             continue
-        if ('Execution Endpoint' not in services) and ('Submit Node' not in services):
+        if topology_service not in services:
             continue
 
         try:
