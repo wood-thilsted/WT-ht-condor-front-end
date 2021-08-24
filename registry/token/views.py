@@ -146,14 +146,8 @@ def code_post():
             403,
         )
 
-    found_requested_identity = False
-    for source in allowed_sources:
-        identity = "{}{}@{}".format(SOURCE_PREFIX, source, SOURCE_POSTFIX)
-        if identity == result.get("RequestedIdentity"):
-            found_requested_identity = True
-            break
-
-    if not found_requested_identity:
+    requested_fqdn = result.get("RequestedIdentity").lstrip(SOURCE_PREFIX).rstrip(f'@{SOURCE_POSTFIX}')
+    if requested_fqdn not in allowed_sources:
         return error(
             "The requested source ({}) was not in the list of allowed sources for user {} ({})".format(
                 requested_source, user_id, ", ".join(allowed_sources),
