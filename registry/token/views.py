@@ -125,6 +125,9 @@ def code_post():
             400,
         )
 
+    allowed_ap = []
+    allowed_ee = []
+    allowed_sources = []
     try:
         allowed_ap = get_access_point_fqdns(user_id)
         allowed_ee = get_execution_endpoint_fqdns(user_id)
