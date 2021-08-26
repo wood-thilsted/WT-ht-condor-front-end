@@ -4,7 +4,7 @@ import json
 
 from flask import Blueprint, request, current_app, make_response, render_template
 
-from ..sources import get_user_info, get_sources, is_valid_source_name
+from ..sources import get_user_info, get_access_point_fqdns, get_execution_endpoint_fqdns, is_valid_source_name
 from ..exceptions import CondorToolException, ConfigurationError
 
 token_bp = Blueprint(
@@ -24,7 +24,9 @@ def code_get():
 
 SOURCE_PREFIX = "RESOURCE-"
 SOURCE_POSTFIX = "flock.opensciencegrid.org"
-ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_STARTD", "ADVERTISE_MASTER"}
+BASE_ALLOWED_AUTHORIZATIONS = {"READ", "ADVERTISE_MASTER"}
+AP_ALLOWED_AUTHORIZATIONS = {"ADVERTISE_SCHEDD"}
+EE_ALLOWED_AUTHORIZATIONS = {"ADVERTISE_STARTD"}
 
 
 @token_bp.route("/token", methods=["POST"])
@@ -125,8 +127,13 @@ def code_post():
             400,
         )
 
+    allowed_ap = []
+    allowed_ee = []
+    allowed_sources = []
     try:
-        allowed_sources = get_sources(user_id)
+        allowed_ap = get_access_point_fqdns(user_id)
+        allowed_ee = get_execution_endpoint_fqdns(user_id)
+        allowed_sources = allowed_ap + allowed_ee
     except ConfigurationError:
         return error(
             "Server configuration error. Please contact the administrators.", 500
@@ -144,20 +151,31 @@ def code_post():
             403,
         )
 
-    found_requested_identity = False
-    for source in allowed_sources:
-        identity = "{}{}@{}".format(SOURCE_PREFIX, source, SOURCE_POSTFIX)
-        if identity == result.get("RequestedIdentity"):
-            found_requested_identity = True
-            break
-
-    if not found_requested_identity:
+    requested_fqdn = result.get("RequestedIdentity").lstrip(SOURCE_PREFIX).rstrip(f'@{SOURCE_POSTFIX}')
+    if requested_fqdn not in allowed_sources:
         return error(
             "The requested source ({}) was not in the list of allowed sources for user {} ({})".format(
                 requested_source, user_id, ", ".join(allowed_sources),
             ),
             403,
         )
+
+    def verify_requested_authz(requested, allowed):
+        if not requested.issubset(allowed):
+            return error(
+                "The requested token must be limited to the authorizations {}; but you requested {}.".format(
+                    ", ".join(allowed), ", ".join(requested)
+                ),
+                400,
+            )
+
+    requested_authorizations = set(result.get("LimitAuthorization").split(","))
+    if requested_fqdn in allowed_ap:
+        verify_requested_authz(requested_authorizations,
+                               set.union(BASE_ALLOWED_AUTHORIZATIONS, AP_ALLOWED_AUTHORIZATIONS))
+    elif requested_fqdn in allowed_ee:
+        verify_requested_authz(requested_authorizations,
+                               set.union(BASE_ALLOWED_AUTHORIZATIONS, EE_ALLOWED_AUTHORIZATIONS))
 
     try:
         approve_token_request(request_id)

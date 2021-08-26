@@ -1,6 +1,6 @@
 from flask import Blueprint, make_response, render_template, current_app
 
-from ..sources import get_user_info, get_sources
+from ..sources import get_user_info, get_access_point_fqdns, get_execution_endpoint_fqdns
 from ..exceptions import ConfigurationError
 
 install_bp = Blueprint(
@@ -19,7 +19,8 @@ def connect():
     except ConfigurationError:
         return "Server configuration error", 500
 
-    sources = get_sources(user_info)
+    sources = get_access_point_fqdns(user_info)
+    sources += get_execution_endpoint_fqdns(user_info)
 
     context = {"sources": sources}
 
@@ -34,7 +35,8 @@ def docker():
     except ConfigurationError:
         return "Server configuration error", 500
 
-    sources = get_sources(user_info)
+    sources = get_access_point_fqdns(user_info)
+    sources += get_execution_endpoint_fqdns(user_info)
 
     install_commands = {
         source: "mkdir -p tokens && " +
@@ -56,7 +58,8 @@ def kubernetes():
     except ConfigurationError:
         return "Server configuration error", 500
 
-    sources = get_sources(user_info)
+    sources = get_access_point_fqdns(user_info)
+    sources += get_execution_endpoint_fqdns(user_info)
 
     install_commands = {
         source: "bash install_htcondor.sh -c {} -n {} -d {} -x Docker".format(
