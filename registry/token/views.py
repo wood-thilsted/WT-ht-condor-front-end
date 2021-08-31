@@ -202,7 +202,7 @@ def get_pending_token_request(request_id):
     )
     args = [binary, "-pool", current_app.config["COLLECTOR"], "-reqid", str(request_id), "-json"]
 
-    current_app.logger.error("Running {}".format(" ".join(args)))
+    current_app.logger.debug("Running {}".format(" ".join(args)))
 
     process = subprocess.Popen(
         args,
