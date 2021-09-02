@@ -2,6 +2,7 @@ from flask import Blueprint, make_response, render_template, current_app
 
 from ..sources import get_user_info, get_access_point_fqdns, get_execution_endpoint_fqdns
 from ..exceptions import ConfigurationError
+from ..token.views import AP_ALLOWED_AUTHORIZATIONS, EE_ALLOWED_AUTHORIZATIONS
 
 install_bp = Blueprint(
     "connect",
@@ -35,17 +36,21 @@ def docker():
     except ConfigurationError:
         return "Server configuration error", 500
 
-    sources = get_access_point_fqdns(user_info)
-    sources += get_execution_endpoint_fqdns(user_info)
+    def generate_cmd(sources, scopes):
+        scope_opts = '--scope ' + ' --scope '.join(scopes)
+        return {source: "mkdir -p tokens && " +
+                "docker run --rm -v $PWD/tokens:/etc/condor/tokens.d opensciencegrid/open-science-pool-registry:release" +
+                f" register.py --local-dir $PWD/tokens --host {source} {scope_opts}"
+                for source in sources}
 
-    install_commands = {
-        source: "mkdir -p tokens && " +
-                "docker run --rm -v $PWD/tokens:/etc/condor/tokens.d " +
-                f"opensciencegrid/open-science-pool-registry:release register.py --local-dir $PWD/tokens --host {source}"
-        for source in sources
-    }
+    ap_sources = get_access_point_fqdns(user_info)
+    ee_sources = get_execution_endpoint_fqdns(user_info)
 
-    context = {"sources": sources, "install_commands": install_commands}
+    install_commands = generate_cmd(ee_sources, EE_ALLOWED_AUTHORIZATIONS)
+    # If a host is in both the AP and EE lists, prefer an AP token
+    install_commands.update(generate_cmd(ap_sources, AP_ALLOWED_AUTHORIZATIONS))
+
+    context = {"sources": ap_sources + ee_sources, "install_commands": install_commands}
 
     response = make_response(render_template("docker.html", **context))
     return response

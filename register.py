@@ -22,7 +22,7 @@ WEBAPP_HOST = "os-registry.opensciencegrid.org"
 DEFAULT_TARGET = "flock.opensciencegrid.org:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "token"
 RECONFIG_COMMAND = ["condor_reconfig"]
-TOKEN_BOUNDING_SET = ["READ", "ADVERTISE_STARTD", "ADVERTISE_MASTER"]
+DEFAULT_TOKEN_SCOPES = ["READ", "ADVERTISE_MASTER"]
 RESOURCE_PREFIX = "RESOURCE-"
 RESOURCE_POSTFIX = "flock.opensciencegrid.org"
 NUM_RETRIES = 10
@@ -57,6 +57,14 @@ def parse_args():
         "--local-dir",
         default=None,
         help="Full path to the user's local token directory outside of the container.",
+    )
+
+    parser.add_argument(
+        "--scope",
+        "-s",
+        action="append",
+        default=DEFAULT_TOKEN_SCOPES,
+        help=f"Additional IDTOKEN scope to request (default: {DEFAULT_TOKEN_SCOPES}). May be specified multiple times."
     )
 
     args = parser.parse_args()
@@ -102,7 +110,7 @@ def main():
     # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/17
     if htcondor.param["AUTH_SSL_CLIENT_CAFILE"] == "/etc/ssl/certs/ca-bundle.crt":
         htcondor.param["AUTH_SSL_CLIENT_CAFILE"] = "/etc/ssl/certs/ca-certificates.crt"
-    success = request_token(pool=args.pool, resource=args.host, local_dir=args.local_dir)
+    success = request_token(pool=args.pool, resource=args.host, scopes=args.scope, local_dir=args.local_dir)
 
     if not success:
         error("Failed to complete the token request workflow.")
@@ -127,13 +135,17 @@ NONROOT_TOKEN_MSG = '''"Registration not run as root; to use token:"
 '''
 
 
-def request_token(pool, resource, local_dir=None):
+def request_token(pool, resource, scopes=None, local_dir=None):
     if ":" in pool:
         alias, port = pool.split(":")
     else:
         alias = pool
         port = DEFAULT_PORT
     ip, port = socket.getaddrinfo(alias, int(port), socket.AF_INET)[0][4]
+
+    if not scopes:
+        scopes = DEFAULT_TOKEN_SCOPES
+
     coll_ad = classad.ClassAd(
         {
             "MyAddress": "<{}:{}?alias={}>".format(ip, port, alias),
@@ -144,7 +156,7 @@ def request_token(pool, resource, local_dir=None):
 
     htcondor.param["SEC_TOKEN_DIRECTORY"] = "/etc/condor/tokens.d"
 
-    token = request_token_and_wait_for_approval(resource, alias, collector_ad=coll_ad)
+    token = request_token_and_wait_for_approval(resource, alias, coll_ad, scopes)
 
     if token is None:
         return False
@@ -179,7 +191,7 @@ def request_token(pool, resource, local_dir=None):
 
 
 def request_token_and_wait_for_approval(
-    resource, alias, collector_ad, retries=10, retry_delay=5
+    resource, alias, collector_ad, scopes=None, retries=10, retry_delay=5
 ):
     """
     This function requests a token and waits for the request to be authorized.
@@ -201,6 +213,9 @@ def request_token_and_wait_for_approval(
     -------
 
     """
+    if not scopes:
+        scopes = DEFAULT_TOKEN_SCOPES
+
     start_time = None
     for attempt in range(1, retries + 1):
         if start_time is not None:
@@ -216,7 +231,7 @@ def request_token_and_wait_for_approval(
 
         print("\nAttempting to get token (attempt {}/{}) ...".format(attempt, retries))
         try:
-            req = make_token_request(collector_ad, resource)
+            req = make_token_request(collector_ad, resource, scopes)
         except Exception as e:
             logger.exception("Token request failed")
             print("Token request failed due to: {}".format(e))
@@ -238,10 +253,13 @@ def request_token_and_wait_for_approval(
             print("An error occurred while waiting for token approval: {}".format(e))
 
 
-def make_token_request(collector_ad, resource):
+def make_token_request(collector_ad, resource, scopes=None):
+    if not scopes:
+        scopes = DEFAULT_TOKEN_SCOPES
+
     identity = "{}{}@{}".format(RESOURCE_PREFIX, resource, RESOURCE_POSTFIX)
 
-    req = htcondor.TokenRequest(identity, bounding_set=TOKEN_BOUNDING_SET)
+    req = htcondor.TokenRequest(identity, bounding_set=scopes)
     req.submit(collector_ad)
 
     # TODO: temporary fix for https://github.com/HTPhenotyping/registration/issues/10

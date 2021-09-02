@@ -118,15 +118,6 @@ def code_post():
             400,
         )
 
-    requested_authorizations = set(result.get("LimitAuthorization").split(","))
-    if not requested_authorizations.issubset(ALLOWED_AUTHORIZATIONS):
-        return error(
-            "The requested token must be limited to the authorizations {}; but you requested {}.".format(
-                ", ".join(ALLOWED_AUTHORIZATIONS), ", ".join(requested_authorizations)
-            ),
-            400,
-        )
-
     allowed_ap = []
     allowed_ee = []
     allowed_sources = []
@@ -151,31 +142,29 @@ def code_post():
             403,
         )
 
-    requested_fqdn = result.get("RequestedIdentity").lstrip(SOURCE_PREFIX).rstrip(f'@{SOURCE_POSTFIX}')
+    requested_fqdn = result.get("RequestedIdentity")[len(SOURCE_PREFIX):-len(f'@{SOURCE_POSTFIX}')]
     if requested_fqdn not in allowed_sources:
         return error(
             "The requested source ({}) was not in the list of allowed sources for user {} ({})".format(
-                requested_source, user_id, ", ".join(allowed_sources),
+                requested_fqdn, user_id, ", ".join(allowed_sources),
             ),
             403,
         )
 
-    def verify_requested_authz(requested, allowed):
-        if not requested.issubset(allowed):
-            return error(
-                "The requested token must be limited to the authorizations {}; but you requested {}.".format(
-                    ", ".join(allowed), ", ".join(requested)
-                ),
-                400,
-            )
-
     requested_authorizations = set(result.get("LimitAuthorization").split(","))
+    allowed_authorizations = set()
     if requested_fqdn in allowed_ap:
-        verify_requested_authz(requested_authorizations,
-                               set.union(BASE_ALLOWED_AUTHORIZATIONS, AP_ALLOWED_AUTHORIZATIONS))
+        allowed_authorizations = set.union(BASE_ALLOWED_AUTHORIZATIONS, AP_ALLOWED_AUTHORIZATIONS)
     elif requested_fqdn in allowed_ee:
-        verify_requested_authz(requested_authorizations,
-                               set.union(BASE_ALLOWED_AUTHORIZATIONS, EE_ALLOWED_AUTHORIZATIONS))
+        allowed_authorizations = set.union(BASE_ALLOWED_AUTHORIZATIONS, EE_ALLOWED_AUTHORIZATIONS)
+
+    if not requested_authorizations.issubset(allowed_authorizations):
+        return error(
+            "The requested token must be limited to the authorizations {}; but you requested {}.".format(
+                ", ".join(allowed_authorizations), ", ".join(requested_authorizations)
+            ),
+            400,
+        )
 
     try:
         approve_token_request(request_id)
@@ -211,7 +200,7 @@ def get_pending_token_request(request_id):
     )
     args = [binary, "-pool", current_app.config["COLLECTOR"], "-reqid", str(request_id), "-json"]
 
-    current_app.logger.error("Running {}".format(" ".join(args)))
+    current_app.logger.debug("Running {}".format(" ".join(args)))
 
     process = subprocess.Popen(
         args,
