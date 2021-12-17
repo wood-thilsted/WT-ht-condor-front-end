@@ -15,8 +15,8 @@ found in some of the subdirectories of `registry/`.
 Blueprints:
 - `index` - landing page, "about" page, etc.
 - `account` - handles user accounts. We don't quite have registration because we use CILogon, but this is where you can go to see (for example) your contact email.
-- `signup` - handles forms for users to register themselves and their data sources.
-- `connect` - provides instructions for users to install and connect their data sources.
+- `signup` - handles forms for users to register themselves and their resources.
+- `connect` - provides instructions for users to install and connect their resources.
 - `token` - handles the server side of the token workflow when connecting a new data source.
 
 Each blueprint has its own `static` and `templates` directories, and there
