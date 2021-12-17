@@ -16,22 +16,25 @@
                     </p>
                     {% if sources %}
                         <p>
-                            Your registered data sources are
+                          You have the following resources 
+                          <a href="https://opensciencegrid.org/docs/common/registration/">registered</a>
+                          with the OSG:
                         </p>
                         <ul>
                             {% for source in sources %}
                                 <li>{{ source }}</li>
                             {% endfor %}
                         </ul>
+                        <a href="{{ url_for("connect.docker") }}" class="btn btn-info btn-lg">Get a Token</a>
                     {% else %}
                         <p>
-                            You have no registered sources.
+                            You have no registered resources.
                         </p>
                     {% endif %}
                 {% else %}
                     <p>
                         {% if user_info.get("name") %}
-                            You successfully with the following identity:
+                            You successfully logged in with the following identity:
                             <ul>
                                 <li>Name: {{ user_info.get("name") }}</li>
                                 {% if user_info.get("idp") %}
