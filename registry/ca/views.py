@@ -14,6 +14,12 @@ import cryptography.x509 as x509
 
 import htcondor
 
+# At the time of writing, HTCSS has a bug that causes SecMan calls inside
+# the context manager to deadlock (see: HTCONDOR-924).  This unwraps the
+# call gracefully for now and should just be dead code one the bug is fixed.
+if hasattr(htcondor.SecMan.__enter__, "__wrapped__"):
+    htcondor.SecMan.__enter__ = htcondor.SecMan.__enter__.__wrapped__
+
 ca_bp = Blueprint(
     "ca",
     __name__,
@@ -40,8 +46,8 @@ def ping_authz(token):
     myaddr = f"<{addrs[0]}:{addrs[1]}>"
 
     with htcondor.SecMan() as secman:
-        secman.cm.setToken(htcondor.Token(token))
-        return secman.cm.ping(myaddr)
+        secman.setToken(htcondor.Token(token))
+        return secman.ping(myaddr)
 
 @ca_bp.route("/syslog-ca/issue", methods=["POST"])
 def connect():
@@ -93,7 +99,7 @@ def connect():
         x509_obj = builder.sign(private_key=cakey, algorithm=hashes.SHA256())
 
         return jsonify(certificate=x509_obj.public_bytes(serialization.Encoding.PEM).decode(),
-                       ca=ca.public_bytes(serialization.Encoding.PEM))
+                       ca=ca.public_bytes(serialization.Encoding.PEM).decode())
     except Exception as exc:
         return make_response(jsonify(err="Internal error when building certificate", exc=str(exc)), 500)
 
