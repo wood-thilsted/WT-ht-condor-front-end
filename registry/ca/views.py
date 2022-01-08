@@ -22,8 +22,8 @@ ca_bp = Blueprint(
 
 def get_ca_cert_key():
 
-    ca_filename = current_app.config.get("CA_CERTFILE", "/etc/pki/rsyslog/ca.pem")
-    cakey_filename = current_app.config.get("CA_KEYFILE", "/etc/pki/rsyslog/cakey.pem")
+    ca_filename = current_app.config.get("CA_CERTFILE", "/etc/pki/rsyslog-ca/tls.crt")
+    cakey_filename = current_app.config.get("CA_KEYFILE", "/etc/pki/rsyslog-ca/tls.key")
 
     with open(ca_filename, "rb") as fp:
         ca = x509.load_pem_x509_certificate(fp.read())
@@ -43,7 +43,7 @@ def ping_authz(token):
         secman.cm.setToken(htcondor.Token(token))
         return secman.cm.ping(myaddr)
 
-@ca_bp.route("/ca", methods=["POST"])
+@ca_bp.route("/syslog-ca/issue", methods=["POST"])
 def connect():
 
     authorization = request.headers.get("Authorization")
@@ -92,7 +92,8 @@ def connect():
 
         x509_obj = builder.sign(private_key=cakey, algorithm=hashes.SHA256())
 
-        return jsonify(x509=x509_obj.public_bytes(serialization.Encoding.PEM).decode())
+        return jsonify(certificate=x509_obj.public_bytes(serialization.Encoding.PEM).decode(),
+                       ca=ca.public_bytes(serialization.Encoding.PEM))
     except Exception as exc:
         return make_response(jsonify(err="Internal error when building certificate", exc=str(exc)), 500)
 
