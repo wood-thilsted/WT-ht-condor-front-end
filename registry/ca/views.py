@@ -1,5 +1,6 @@
 
 import datetime
+import functools
 import socket
 
 from flask import current_app, Blueprint, jsonify, request, make_response
@@ -26,6 +27,7 @@ ca_bp = Blueprint(
 )
 
 
+@functools.lru_cache()
 def get_ca_cert_key():
 
     ca_filename = current_app.config.get("CA_CERTFILE", "/etc/pki/rsyslog-ca/tls.crt")
@@ -40,14 +42,19 @@ def get_ca_cert_key():
     return ca, cakey
 
 
-def ping_authz(token):
+# Instead of setting up proper caching, I simply do an LRU from functools and
+# add the date to the arguments.  This way, we'll do the lookup at the collector
+# once a day.
+@functools.lru_cache(maxsize=256)
+def ping_authz(token, today):
     collector = current_app.config.get("COLLECTOR", "flock.opensciencegrid.org")
     addrs = socket.getaddrinfo(collector, 9618, socket.AF_INET, socket.SOCK_STREAM)[0][-1]
     myaddr = f"<{addrs[0]}:{addrs[1]}>"
 
     with htcondor.SecMan() as secman:
         secman.setToken(htcondor.Token(token))
-        return secman.ping(myaddr)
+        return dict(secman.ping(myaddr))
+
 
 @ca_bp.route("/syslog-ca/issue", methods=["POST"])
 def connect():
@@ -60,7 +67,7 @@ def connect():
         return make_response(jsonify(err="Endpoint requires bearer token"), 401)
 
     try:
-        authz_info = ping_authz(authz_info[1].strip())
+        authz_info = ping_authz(authz_info[1].strip(), datetime.date.today())
 
         if authz_info.get("AuthMethods") != "TOKEN" or authz_info.get("Authentication") != "YES" or \
                 authz_info.get("AuthorizationSucceeded") != True or not authz_info.get("MyRemoteUserName"):
