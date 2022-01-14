@@ -1,7 +1,7 @@
 
 ARG IMAGE_BASE_TAG=release
 
-FROM opensciencegrid/software-base:3.5-el7-$IMAGE_BASE_TAG
+FROM opensciencegrid/software-base:3.6-el7-$IMAGE_BASE_TAG
 
 LABEL maintainer OSG Software <support@opensciencegrid.org>
 
@@ -12,7 +12,7 @@ RUN \
     yum clean all && rm -rf /var/cache/yum/*
 
 COPY registry run_local.sh requirements.txt /opt/registry/
-RUN pip3 install -r /opt/registry/requirements.txt
+RUN pip3 install -U pip && pip3 install -r /opt/registry/requirements.txt
 
 COPY register.py /usr/bin
 COPY supervisor-apache.conf /etc/supervisord.d/40-apache.conf
