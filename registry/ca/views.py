@@ -1,6 +1,8 @@
 
+import base64
 import datetime
 import functools
+import json
 import socket
 
 from flask import current_app, Blueprint, jsonify, request, make_response
@@ -48,6 +50,20 @@ def get_ca_cert_key():
 @functools.lru_cache(maxsize=256)
 def ping_authz(token, today):
     collector = current_app.config.get("COLLECTOR", "flock.opensciencegrid.org")
+
+    # We are sufficiently friendly with the CHTC collector that, if we see a token from there,
+    # use that collector instead of the OSG one.  This allows CHTC glideins to send logs to the
+    # OSPool syslog service.  Mostly, this allows testing without disturbing the OSPool.
+    token_pieces = token.split(".")
+    if len(token_pieces) == 3:
+        try:
+            payload = base64.b64decode(token_pieces[1] + "="*(4 - (len(token_pieces[1]) % 4)))
+            payload = json.loads(payload)
+            if payload.get("iss") == "cm.chtc.wisc.edu":
+                collector = "glidein-cm.chtc.wisc.edu"
+        except:
+            pass
+
     addrs = socket.getaddrinfo(collector, 9618, socket.AF_INET, socket.SOCK_STREAM)[0][-1]
     myaddr = f"<{addrs[0]}:{addrs[1]}>"
 
