@@ -49,7 +49,7 @@ def get_ca_cert_key():
 # once a day.
 @functools.lru_cache(maxsize=256)
 def ping_authz(token, today):
-    collector = current_app.config.get("COLLECTOR", "flock.opensciencegrid.org")
+    collector = current_app.config.get("COLLECTOR", "cm-1.ospool.osg-htc.org")
 
     # We are sufficiently friendly with the CHTC collector that, if we see a token from there,
     # use that collector instead of the OSG one.  This allows CHTC glideins to send logs to the
