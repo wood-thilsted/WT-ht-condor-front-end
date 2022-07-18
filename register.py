@@ -19,12 +19,12 @@ logger.setLevel(logging.ERROR + 10)
 
 DEFAULT_PORT = "9618"
 WEBAPP_HOST = "os-registry.opensciencegrid.org"
-DEFAULT_TARGET = "flock.opensciencegrid.org:{}".format(DEFAULT_PORT)
+DEFAULT_TARGET = "cm-1.ospool.osg-htc.org:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "token"
 RECONFIG_COMMAND = ["condor_reconfig"]
 DEFAULT_TOKEN_SCOPES = ["READ", "ADVERTISE_MASTER"]
 RESOURCE_PREFIX = "RESOURCE-"
-RESOURCE_POSTFIX = "flock.opensciencegrid.org"
+RESOURCE_POSTFIX = "cm-1.ospool.osg-htc.org"
 NUM_RETRIES = 10
 TOKEN_OWNER_USER = TOKEN_OWNER_GROUP = "condor"
 SOURCE_CHECK = re.compile(r"^[a-zA-Z][-.0-9a-zA-Z]*$")
