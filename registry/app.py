@@ -1,16 +1,12 @@
+from flask import Flask
 import os
 
-from flask import Flask
+from registry.index import index_bp
+from registry.api import api_bp
 
-from .index import index_bp
-from .connect import install_bp
-from .token import token_bp
-from .account import account_bp
-from .ca import ca_bp
+from registry.template_filters import contact_us
 
-from .template_filters import contact_us
-
-BLUEPRINTS = [index_bp, install_bp, token_bp, account_bp, ca_bp]
+BLUEPRINTS = [index_bp, api_bp]
 CONTEXT_PROCESSORS = []
 TEMPLATE_FILTERS = [contact_us]
 
@@ -46,4 +42,4 @@ def create_app(test_config=None):
 
 if __name__ == "__main__":
     app = create_app()
-    app.run()
+    app.run(port=9618)

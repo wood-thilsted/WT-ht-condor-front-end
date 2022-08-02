@@ -25,8 +25,14 @@ dictConfig(
                 "maxBytes": 10485760,
                 "backupCount": 5,
             },
+            "wsgi": {
+                "class": "logging.StreamHandler",
+                "level": "DEBUG",
+                "formatter": "default",
+                "stream": "ext://flask.logging.wsgi_errors_stream",
+            },
         },
-        "root": {"level": "DEBUG", "handlers": ["file"]},
+        "root": {"level": "DEBUG", "handlers": ["file", "wsgi"]},
     }
 )
 
