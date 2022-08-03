@@ -39,7 +39,7 @@ jobs:
         docker_repo=CannonLock
         tag_list=()
         for image_tag in "$REPO" "$REPO-$TIMESTAMP"; do
-          tag_list+=("hub.opensciencegrid.org/cannonlock/$docker_repo":"$image_tag")
+          tag_list+=("hub.opensciencegrid.org/cannonlock/osg-portal":"$image_tag")
         done
         # This causes the tag_list array to be comma-separated below,
         # which is required for build-push-action
