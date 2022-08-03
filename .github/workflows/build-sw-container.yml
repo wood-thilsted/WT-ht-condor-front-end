@@ -36,12 +36,10 @@ jobs:
         REPO: ${{ matrix.repo }}
         TIMESTAMP: ${{ needs.make-date-tag.outputs.dtag }}
       run: |
-        docker_repo="CannonLock"
+        docker_repo=CannonLock
         tag_list=()
-        for registry in hub.opensciencegrid.org docker.io; do
-          for image_tag in "$REPO" "$REPO-$TIMESTAMP"; do
-            tag_list+=("$registry/$docker_repo":"$image_tag")
-          done
+        for image_tag in "$REPO" "$REPO-$TIMESTAMP"; do
+          tag_list+=("hub.opensciencegrid.org/cannonlock/$docker_repo":"$image_tag")
         done
         # This causes the tag_list array to be comma-separated below,
         # which is required for build-push-action
