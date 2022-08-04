@@ -16,57 +16,23 @@ if os.path.exists("config.py"):
 else:
   HERE = os.path.dirname(__file__)
 
-def define_assets(app: flask.Flask) -> None:
+def define_assets(app) -> None:
     assets = flask_assets.Environment(app)
     assets.url = app.static_url_path
-
-    if app.config["DEBUG"]:
-        assets.config["LIBSASS_STYLE"] = "nested"
-        js_main = flask_assets.Bundle(
-            "js/bootstrap.js",
-            output="assets/js/main.js",
-        )
-        js_registration = flask_assets.Bundle(
-            "js/registration.js",
-            output="assets/js/registration.js",
-        )
-        js_account = flask_assets.Bundle(
-            "js/account.js",
-            output="assets/js/account.js",
-        )
-    else:
-        ## Assume that a production webserver cannot write these files.
-        assets.auto_build = False
-        assets.cache = False
-        assets.manifest = False
-
-        assets.config["LIBSASS_STYLE"] = "compressed"
-        js_main = flask_assets.Bundle(
-            "js/bootstrap.js",
-            filters="rjsmin",
-            output="assets/js/main.min.js",
-        )
-        js_registration = flask_assets.Bundle(
-            "js/registration.js",
-            filters="rjsmin",
-            output="assets/js/registration.min.js",
-        )
-        js_account = flask_assets.Bundle(
-            "js/account.js",
-            filters="rjsmin",
-            output="assets/js/account.min.js",
-        )
+    assets.config['SECRET_KEY'] = 'secret!'
+    assets.config['PYSCSS_LOAD_PATHS'] = assets.load_path
+    assets.config['PYSCSS_STATIC_URL'] = assets.url
+    assets.config['PYSCSS_STATIC_ROOT'] = assets.directory
+    assets.config['PYSCSS_ASSETS_URL'] = assets.url
+    assets.config['PYSCSS_ASSETS_ROOT'] = assets.directory
 
     css = flask_assets.Bundle(
-        "style.scss",
+        "scss/main.scss",
         filters="libsass",
-        output="assets/css/style.css",
+        output="css/main.css",
     )
 
-    assets.register("soteria_js_main", js_main)
-    assets.register("soteria_js_registration", js_registration)
-    assets.register("soteria_js_account", js_account)
-    assets.register("soteria_css", css)
+    assets.register("css_main", css)
 
 
 def create_app(test_config=None):
@@ -78,6 +44,8 @@ def create_app(test_config=None):
         )
     else:
         app.config.update(test_config)
+
+    define_assets(app)
 
     with app.app_context():
         for bp in BLUEPRINTS:

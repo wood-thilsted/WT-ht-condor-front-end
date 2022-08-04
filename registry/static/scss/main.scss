@@ -1,0 +1,64 @@
+$primary: #00364d;
+$secondary: #4aaed9;
+$light: lighten($secondary, 40%);
+
+@import url('https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,200;0,300;0,400;0,600;0,700;0,900;1,200;1,300;1,400;1,600;1,700&display=swap');
+$font-family-base: 'Titillium Web', sans-serif;
+
+@import "bootstrap/bootstrap";
+
+div.col-12:not(:last-child){
+  margin-bottom: 1rem;
+}
+
+footer {
+  .row{
+    align-content: center;
+  }
+  box-shadow: 0 -1px 2px #b3b3b3;
+  margin-top: 2rem;
+  background-color: $light;
+  display: flex;
+  height: 4rem;
+  justify-content: center;
+}
+
+.sub-message.error {
+    color: red;
+}
+
+.status-icon>.failure{
+  color: red;
+}
+
+.status-icon>.success{
+  color: green;
+}
+
+body{
+  min-height: 100vh;
+}
+
+body.home {
+  background: linear-gradient(165deg, lighten($secondary, 35%) 50%, #fff 50%);
+}
+
+body.subpage {
+  background-color: lighten($secondary, 35%);
+}
+
+.project-card {
+  a {
+    text-decoration: none;
+  }
+}
+
+#registration {
+  display: none;
+}
+
+.home {
+  #registration {
+    display: flex;
+  }
+}
