@@ -1,4 +1,5 @@
 from flask import Flask
+import flask_assets
 import os
 
 from registry.index import index_bp
@@ -14,6 +15,58 @@ if os.path.exists("config.py"):
   HERE = os.getcwd() + "/"
 else:
   HERE = os.path.dirname(__file__)
+
+def define_assets(app: flask.Flask) -> None:
+    assets = flask_assets.Environment(app)
+    assets.url = app.static_url_path
+
+    if app.config["DEBUG"]:
+        assets.config["LIBSASS_STYLE"] = "nested"
+        js_main = flask_assets.Bundle(
+            "js/bootstrap.js",
+            output="assets/js/main.js",
+        )
+        js_registration = flask_assets.Bundle(
+            "js/registration.js",
+            output="assets/js/registration.js",
+        )
+        js_account = flask_assets.Bundle(
+            "js/account.js",
+            output="assets/js/account.js",
+        )
+    else:
+        ## Assume that a production webserver cannot write these files.
+        assets.auto_build = False
+        assets.cache = False
+        assets.manifest = False
+
+        assets.config["LIBSASS_STYLE"] = "compressed"
+        js_main = flask_assets.Bundle(
+            "js/bootstrap.js",
+            filters="rjsmin",
+            output="assets/js/main.min.js",
+        )
+        js_registration = flask_assets.Bundle(
+            "js/registration.js",
+            filters="rjsmin",
+            output="assets/js/registration.min.js",
+        )
+        js_account = flask_assets.Bundle(
+            "js/account.js",
+            filters="rjsmin",
+            output="assets/js/account.min.js",
+        )
+
+    css = flask_assets.Bundle(
+        "style.scss",
+        filters="libsass",
+        output="assets/css/style.css",
+    )
+
+    assets.register("soteria_js_main", js_main)
+    assets.register("soteria_js_registration", js_registration)
+    assets.register("soteria_js_account", js_account)
+    assets.register("soteria_css", css)
 
 
 def create_app(test_config=None):
