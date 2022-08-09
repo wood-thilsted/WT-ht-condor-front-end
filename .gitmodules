@@ -1,0 +1,4 @@
+[submodule "registry/website/templates/documentation"]
+	path = documentation
+	url = https://github.com/osg-htc/portal.git
+    branch = static
