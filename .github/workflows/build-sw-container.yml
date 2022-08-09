@@ -22,7 +22,7 @@ jobs:
       run: |
         tag_list=()
         for image_tag in latest "${GITHUB_REF##*/v}"; do
-          tag_list+=("hub.opensciencegrid.org/CannonLock":"$image_tag")
+          tag_list+=("hub.opensciencegrid.org/cannonlock/osg-portal":"$image_tag")
         done
         # This causes the tag_list array to be comma-separated below,
         # which is required for build-push-action
