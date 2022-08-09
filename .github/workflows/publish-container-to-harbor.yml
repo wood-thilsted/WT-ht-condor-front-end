@@ -1,4 +1,4 @@
-name: Build and Push Docker image
+name: Build and Push Docker Image to Harbor
 
 on:
   push:
@@ -11,19 +11,21 @@ on:
       - dispatch-build
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
     if: startsWith(github.repository, 'osg-htc/')
+
     steps:
     - uses: actions/checkout@v2
 
     - name: Generate tag list
       id: generate-tag-list
       run: |
-        docker_repo=CannonLock
+        docker_repo=${GITHUB_REPOSITORY/osg-htc/opensciencegrid}
         tag_list=()
         for image_tag in latest "${GITHUB_REF##*/v}"; do
-          tag_list+=("$registry/$docker_repo":"$image_tag")
+          tag_list+=("hub.opensciencegrid.org/$docker_repo":"$image_tag")
         done
         # This causes the tag_list array to be comma-separated below,
         # which is required for build-push-action
