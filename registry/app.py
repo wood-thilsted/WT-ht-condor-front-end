@@ -2,12 +2,12 @@ from flask import Flask
 import flask_assets
 import os
 
-from registry.index import index_bp
+from registry.website import website_bp
 from registry.api import api_bp
 
 from registry.template_filters import contact_us
 
-BLUEPRINTS = [index_bp, api_bp]
+BLUEPRINTS = [website_bp, api_bp]
 CONTEXT_PROCESSORS = []
 TEMPLATE_FILTERS = [contact_us]
 
@@ -25,14 +25,15 @@ def define_assets(app) -> None:
     assets.config['PYSCSS_STATIC_ROOT'] = assets.directory
     assets.config['PYSCSS_ASSETS_URL'] = assets.url
     assets.config['PYSCSS_ASSETS_ROOT'] = assets.directory
+    assets.cache = False
 
-    css = flask_assets.Bundle(
+    css_main = flask_assets.Bundle(
         "scss/main.scss",
         filters="libsass",
-        output="css/main.css",
+        output="css/main.css"
     )
 
-    assets.register("css_main", css)
+    assets.register("css_main", css_main)
 
 
 def create_app(test_config=None):
@@ -63,4 +64,4 @@ def create_app(test_config=None):
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(port=9618)
+    app.run(port=9618, debug=True)

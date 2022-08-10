@@ -4,8 +4,11 @@ import requests
 from flask import (
     Blueprint,
     current_app,
-    request
+    request,
+    make_response
 )
+
+from registry.website.util import verify_captcha
 
 from .models.response import OkResponse, ErrorResponse
 
@@ -26,8 +29,8 @@ class FreshDeskAPI:
 
         self.session = requests.Session()
 
-        self.base_url = current_app.config["FRESH_DESK_API_URL"]
-        self.api_key = current_app.config["FRESH_DESK_API_KEY"]
+        self.base_url = current_app.config["FRESHDESK_API_URL"]
+        self.api_key = current_app.config["FRESHDESK_API_KEY"]
 
         self.log = logging.getLogger(__name__)
 
@@ -77,6 +80,7 @@ class FreshDeskAPI:
             name: str,
             email: str,
             subject: str,
+            group_id: int,
             description: str,
             priority: int,
             status: int,
@@ -88,13 +92,14 @@ class FreshDeskAPI:
         """
 
         data = json.dumps({
-            name: name,
-            email: email,
-            subject: subject,
-            description: description,
-            priority: priority,
-            status: status,
-            type: type,
+            'name': name,
+            'email': email,
+            'subject': subject,
+            'group_id': group_id,
+            'description': description,
+            'priority': priority,
+            'status': status,
+            'type': type,
             **kwargs
         })
 
@@ -102,30 +107,51 @@ class FreshDeskAPI:
 
         return self._post(f"/api/v2/tickets", data=data, headers=headers)
 
+    def create_ospool_ticket(
+            self,
+            name: str,
+            email: str,
+            description: str
+    ):
+        ticket_data = {
+            "name": name,
+            "email": email,
+            "description": description,
+            "subject": "OSPool User - Account Creation",
+            "group_id": 12000006347,  # Actual Value 5000247959
+            "priority": 1,
+            "status": 2,
+            "type": "Other"  # Actual value User Facilitation-Account or login
+        }
+
+        return self.create_ticket(**ticket_data)
+
 
 @freshdesk_api_bp.route("/ticket", methods=["POST"])
 def create_ticket():
     """Endpoint for creating a ticket in Freshdesk"""
 
-    ticket_data = {
-        "name": request.json['name'],
-        "email": request.json['email'],
-        "description": request.json['description'],
-        "subject": "SOTERIA Researcher Application",
-        "group_id": 5000247959,
-        "priority": 1,
-        "status": 2,
-        "type": "OSPool User Orientation Application",
-        **request.json
-    }
+    # if not verify_captcha(request.json['h-captcha-response']["value"]):
+    #     return make_response({'error': "You did not complete the h_captcha"}, 403)
 
-    response = FreshDeskAPI().create_ticket(**ticket_data)
+    json = request.json
 
-    if response.status_code == 200:
-        return OkResponse("ok", response.json())
+    # Grab the standard information
+    email = json["email"]['value']
+    name = json["full-name"]['value']
 
-    else:
-        return ErrorResponse("error", {
-            "code": response.status_code,
-            "message": response.text
-        })
+    # Delete extraneous information to parse the description
+    del json['email']
+    del json['full-name']
+    del json['h-captcha-response']
+    del json['g-recaptcha-response']
+
+    # Grab the description
+    description = ""
+    for key in json.keys():
+        description += f"<h3>\n{json[key]['label']}\n</h3>\n"
+        description += f"<p>\n{json[key]['value']}\n</p>\n"
+
+    response = FreshDeskAPI().create_ospool_ticket(name=name, email=email, description=description)
+
+    return {**json}

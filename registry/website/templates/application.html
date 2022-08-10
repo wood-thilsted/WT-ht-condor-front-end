@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}OSPool Application{% endblock %}
+
+{% block script %}
+    <script defer src="/static/js/pages/application.js"  type="application/javascript"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="container-xxl pt-5">
+        <div class="row">
+            <div class="col-12 col-xl-7 col-lg-8 col-md-10">
+                <h1>Schedule A Consultation</h1>
+                <p>
+                    Before we can give you access to the OSPool we ask that researchers meet with our Research
+                    Computing Facilitators, so they can help you manage your workloads on our resources as effectively
+                    as possible. To help us help you we ask that you provide some basic information on your compute
+                    and storage needs.
+                </p>
+                <p>
+                    On filling out the form below you will be emailed with a ticket # and link so that
+                    we can follow up with you and a schedule consultation.
+                </p>
+                <p>
+                    We are excited to meet with you and look forward to helping you scale up your research!
+                </p>
+                <h2>Request Form</h2>
+                <form id="consultation-form" name="consultation-form">
+                    <div>
+                        <label for="full-name" class="form-label">Full Name</label>
+                        <input id="full-name" name="full-name" type="text" class="form-control" placeholder="First Last">
+                    </div>
+                    <div class="pt-2">
+                        <label for="email" class="form-label">Email</label>
+                        <input id="email" name="email" type="email" class="form-control" placeholder="username@domain.ext">
+                    </div>
+                    <div class="pt-2">
+                        <label for="how-did-you-hear-about-us" class="form-label">How did you hear about us?</label>
+                        <textarea id="how-did-you-hear-about-us" name="how-did-you-hear-about-us" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="research-description" class="form-label">Briefly describe your research</label>
+                        <textarea id="research-description" name="research-description" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="why-scale-up" class="form-label">Why are you looking to scale up your compute capacity?</label>
+                        <textarea id="why-scale-up" name="why-scale-up" class="form-control" rows="4"></textarea>
+                    </div>
+                    <h3>About your Computing Workloads</h3>
+                    <div>
+                        <label for="names-and-languages" class="form-label">Program name(s) and coding language(s)</label>
+                        <textarea id="names-and-languages" name="names-and-languages" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="special-dependencies-or-circumstances" class="form-label">
+                            Are there any special dependencies or compiling considerations you've had to deal with?
+                        </label>
+                        <textarea id="special-dependencies-or-circumstances" name="special-dependencies-or-circumstances" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="prior-computing-environment" class="form-label">
+                            Tell us where you've run similar computing work before: desktop, shared cluster, etc.? Linux, Windows, Mac?
+                        </label>
+                        <textarea id="prior-computing-environment" name="prior-computing-environment" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="gpu-usage" class="form-label">
+                            Do you have interest in using GPUs, and/or have you used GPUs for similar work in the past?
+                        </label>
+                        <textarea id="gpu-usage" name="gpu-usage" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="communicating-processes" class="form-label">
+                            Do you typically run your program(s) with multiple processors working/communicating with one another? If so, how have you accomplished that? (OpenMP/MPI, etc?)
+                        </label>
+                        <textarea id="communicating-processes" name="communicating-processes" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="decomposition-of-workload"  class="form-label">
+                            Could your computing work be broken up into many separate, but complete 'pieces' that don't rely on one another? If so, how many pieces can this computing work be broken into?
+                        </label>
+                        <textarea id="decomposition-of-workload" name="decomposition-of-workload" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="input-output-size" class="form-label">
+                            Typical input and output size for each 'piece' (can be a range)
+                        </label>
+                        <textarea id="input-output-size" name="input-output-size" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="resource-amount" class="form-label">
+                            Typical RAM and number of CPU cores (or GPU model) you've used for each 'piece'?
+                        </label>
+                        <textarea id="resource-amount" name="resource-amount" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="runtime" class="form-label">
+                            How long does one piece run in your typical setup?
+                        </label>
+                        <textarea id="runtime" name="runtime" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="pt-2">
+                        <label for="additional-info" class="form-label">
+                            Is there anything else you'd like to share about your computing practices or methods?
+                        </label>
+                        <textarea id="additional-info" name="additional-info" class="form-control" rows="4"></textarea>
+                    </div>
+                    <div class="h-captcha mt-3" data-sitekey="deb6e053-975d-4c72-86be-6c91fdf4babf"></div>
+                    <button id="submit" class="form-control btn btn-primary mt-3" type="submit">Submit</button>
+                </form>
+            </div>
+            <div class="col-12 col-xl-7 col-lg-8 col-md-10">
+
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Modal title</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Modal body text goes here.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="failure-modal" class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Submission Error</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>
+                Your application submission failed but don't give up hope!.
+            </p>
+            <p>
+                Please take your entered information from below and paste it into an email to
+                our support team at <a href="mailto:support@osg-htc.org">support@osg-htc.org</a>
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block postscript %}
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+{% endblock %}
