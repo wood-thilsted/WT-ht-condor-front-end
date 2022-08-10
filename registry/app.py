@@ -25,7 +25,10 @@ def define_assets(app) -> None:
     assets.config['PYSCSS_STATIC_ROOT'] = assets.directory
     assets.config['PYSCSS_ASSETS_URL'] = assets.url
     assets.config['PYSCSS_ASSETS_ROOT'] = assets.directory
-    assets.cache = False
+
+    if not app.debug:
+        assets.cache = False
+        assets.manifest = False
 
     css_main = flask_assets.Bundle(
         "scss/main.scss",
@@ -64,4 +67,4 @@ def create_app(test_config=None):
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(port=9618, debug=True)
+    app.run(port=9618, debug=False)
