@@ -181,3 +181,27 @@ They do not have defaults.
 
 * `CONDOR_TOKEN_REQUEST_LIST` - The path to the `condor_token_request_list` executable. By default, discover it on `$PATH`.
 * `CONDOR_TOKEN_REQUEST_APPROVE` - The path to the `condor_token_request_approve` executable. By default, discover it on `$PATH`.
+
+### Debugging on Kubernetes 
+
+Couple nice lines to expedite debugging a container on kubernetes in the dev instance
+
+```shell
+POD_NAME=$(kubectl --namespace osgdev get pods | grep osg-portal | awk '{print $1}')
+```
+
+```shell
+kubectl --namespace osgdev get pods | grep osg-portal
+```
+
+```shell
+kubectl --namespace osgdev describe pods $POD_NAME
+```
+
+```shell
+kubectl -n osgdev --since 30m logs deploy/flux | grep osg-portal |  scripts/fluxpipe 
+```
+
+```shell
+kubectl exec --namespace osgdev -it $POD_NAME osg-portal -- bash
+```

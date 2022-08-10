@@ -38,9 +38,7 @@ def define_assets(app) -> None:
 
     assets.register("css_main", css_main)
 
-
-def create_app(test_config=None):
-    app = Flask(__name__, instance_relative_config=True)
+def load_config(app: Flask, test_config: str) -> None:
 
     if test_config is None:
         app.config.from_pyfile(
@@ -49,6 +47,19 @@ def create_app(test_config=None):
     else:
         app.config.update(test_config)
 
+    for key in [
+        "FRESHDESK_API_KEY",
+        "H_CAPTCHA_SECRET"
+    ]:
+
+        if (val := os.environ.get(key)) is not None:
+            app.config[key] = val
+
+
+def create_app(test_config=None):
+    app = Flask(__name__, instance_relative_config=True)
+
+    load_config(app, test_config)
     define_assets(app)
 
     with app.app_context():
