@@ -154,4 +154,5 @@ def create_ticket():
 
     response = FreshDeskAPI().create_ospool_ticket(name=name, email=email, description=description)
 
-    return {**json}
+    return make_response(response.json(), response.status_code)
+
