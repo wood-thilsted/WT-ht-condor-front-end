@@ -38,21 +38,31 @@ To run the registration server locally, build and run the testing container imag
 
 1.  Build the container image:
 
+    ```shell
         docker build -t os-registry-test -f Dockerfile.testing .
+    ```
+        
+1. Copy example configuration required by the registry server:
 
-1.  Copy example configuration required by the registry server:
-
+    ```shell
         cp examples/config.py examples/humans.ini .
+    ```
 
-1.  Start the local registry:
+1. Start the local registry:
 
+    ```shell
         docker run --rm --name my-registry -it -v ${PWD}:/srv -p 8443:443 os-registry-test
+    ```
+           
 
-1.  Access the local registry in your browser by accessing <https://localhost:8443>
+1. Access the local registry in your browser by accessing <https://localhost:8443>
 
-1.  For a login shell to the registry, run the following:
+1. For a login shell to the registry, run the following:
 
-        docker exec -it my-registry /bin/bash
+    ```shell
+       docker exec -it my-registry /bin/bash
+    ```
+        
 
     Helpful log files can be found in `/var/log/httpd/` and `/var/log/condor/registration.log`.
 

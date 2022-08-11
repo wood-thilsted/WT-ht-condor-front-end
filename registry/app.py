@@ -51,8 +51,8 @@ def load_config(app: Flask, test_config: str) -> None:
         "FRESHDESK_API_KEY",
         "H_CAPTCHA_SECRET"
     ]:
-
-        if (val := os.environ.get(key)) is not None:
+        val = os.environ.get(key)
+        if val is not None:
             app.config[key] = val
 
 
