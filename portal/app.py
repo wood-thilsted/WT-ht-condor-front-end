@@ -2,10 +2,10 @@ from flask import Flask
 import flask_assets
 import os
 
-from registry.website import website_bp
-from registry.api import api_bp
+from portal.website import website_bp
+from portal.api import api_bp
 
-from registry.template_filters import contact_us
+from portal.template_filters import contact_us
 
 BLUEPRINTS = [website_bp, api_bp]
 CONTEXT_PROCESSORS = []

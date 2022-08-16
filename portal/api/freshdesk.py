@@ -8,7 +8,7 @@ from flask import (
     make_response
 )
 
-from registry.website.util import verify_captcha
+from portal.website.util import verify_captcha
 
 from .models.response import OkResponse, ErrorResponse
 
@@ -131,8 +131,8 @@ class FreshDeskAPI:
 def create_ticket():
     """Endpoint for creating a ticket in Freshdesk"""
 
-    # if not verify_captcha(request.json['h-captcha-response']["value"]):
-    #     return make_response({'error': "You did not complete the h_captcha"}, 403)
+    if not verify_captcha(request.json['h-captcha-response']["value"]):
+        return make_response({'error': "You did not complete the h_captcha"}, 403)
 
     json = request.json
 
