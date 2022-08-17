@@ -5,7 +5,7 @@
 let submitButton = document.getElementById("submit")
 let form = document.getElementById("consultation-form")
 
-submitButton.addEventListener("click", (e) => submitForm(e, form, "/api/v1/freshdesk/ticke", callback))
+submitButton.addEventListener("click", (e) => submitForm(e, form, "/api/v1/freshdesk/ticket", callback))
 
 let callback = (submissionSuccess, json) => {
     if(submissionSuccess){
@@ -19,8 +19,8 @@ let submissionSuccessCallback = (json) => {
     const successModalNode = document.getElementById("success-modal")
     const successModal = new bootstrap.Modal(successModalNode)
 
-    const userEmail = document.getElementById("email")
-    userEmail.textContent = json?.email
+    const userEmail = document.getElementById("user-email")
+    userEmail.textContent = json?.email?.value
 
     successModal.show()
 }
@@ -31,9 +31,13 @@ let submissionFailureCallback = () => {
 
     const formInformationNode = document.getElementById("form-information")
     const formData = getFormData(form)
-    const formInformation = formData.keys().reduce((currentValue, key) => {
-        currentValue.append(`${formData[key]['label']}\n${formData[key]['value']}\n`)
-    }, []).join('\n')
+    const formInformation = Object.keys(formData)
+        .filter(key => ['h-captcha-response', 'g-recaptcha-response'].indexOf(key) === -1)
+        .reduce((currentValue, key) => {
+            currentValue.push(`${formData[key]['label']}\r\n${formData[key]['value']}\r\n`)
+            return currentValue
+        }, [])
+        .join('\r\n')
     formInformationNode.textContent = formInformation
 
     failureModal.show()

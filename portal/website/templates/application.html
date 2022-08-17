@@ -125,7 +125,7 @@
           </div>
           <div class="modal-body">
             <p>
-                Please check your inbox at <b id="email"></b> for an email which you can use
+                Please check your inbox at <b id="user-email"></b> for an email which you can use
                 to follow up or adjust any provided information as needed.
             </p>
             <p>
@@ -134,7 +134,6 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
           </div>
         </div>
       </div>
@@ -152,7 +151,9 @@
                 Your automatic application submission failed, please copy the below text and email it to
                 us at <a href="mailto:support@osg-htc.org">support@osg-htc.org</a> so that we can create a ticket manually.
             </p>
-            <code id="form-information"></code>
+            <div class="rounded bg-light p-2">
+                <pre id="form-information" class="text-black mb-0"></pre>
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

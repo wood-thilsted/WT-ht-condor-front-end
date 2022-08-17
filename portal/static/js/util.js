@@ -12,6 +12,7 @@ let submitForm = async (e, form, endpoint, callback) => {
     const body = JSON.stringify(formData)
 
     let response;
+    let json;
     try {
         response = await fetch(endpoint, {
             method: "POST",
@@ -20,14 +21,13 @@ let submitForm = async (e, form, endpoint, callback) => {
               'Content-Type': 'application/json'
             }
         })
+        json = await response.json()
     } catch (e) {
         console.error(e)
     }
 
-    const json = await response.json()
-
     if(callback){
-        callback(response?.ok, json)
+        callback(response?.ok, formData)
     }
 
     if(!response?.ok){
