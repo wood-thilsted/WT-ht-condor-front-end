@@ -1,4 +1,7 @@
-from flask import Flask
+from flask import (
+    Flask,
+    render_template
+)
 import flask_assets
 import os
 
@@ -62,6 +65,11 @@ def create_app(test_config=None):
     load_config(app, test_config)
     define_assets(app)
 
+    @app.errorhandler(404)
+    def page_not_found(e):
+        # note that we set the 404 status explicitly
+        return render_template('404.html'), 404
+
     with app.app_context():
         for bp in BLUEPRINTS:
             app.register_blueprint(bp)
@@ -78,4 +86,4 @@ def create_app(test_config=None):
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(port=9618, debug=False)
+    app.run(port=9618, debug=True)

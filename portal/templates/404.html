@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('website.static', filename='index.css') }}">
+{% endblock %}
+
+{% block body %}
+    <div class="container-xxl">
+        <div class="row justify-content-center">
+            <div class="col-12 d-flex"><span class=" mx-auto text-center" style="font-size:400px;">404</span></div>
+            <div class="col-12 text-center">
+                <p>
+                    You have found a page that does not exist, please direct yourself to our
+                    <a href="/documentation/">Documentation</a> which is currently our only offering
+                    on this portal.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
