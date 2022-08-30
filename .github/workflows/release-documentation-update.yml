@@ -1,0 +1,41 @@
+name: Update the documentation website
+
+on:
+  repository_dispatch:
+    types:
+      - dispatch-build
+
+jobs:
+
+  Update-Submodules:
+    runs-on: ubuntu-latest
+    if: startsWith(github.repository, 'osg-htc/')
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+        fetch-depth: 0
+
+    - name: Pull down submodules
+      run: |
+        git checkout -b master
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git submodule update --remote --merge
+        git add .
+        git commit -m "Update Documentation"
+        git push --set-upstream origin preview-update-submodules
+
+  Publish-New-Release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.repository, 'osg-htc/')
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+
+    - name: Pull down submodules
+      run: |
+        python3 /.github/scripts/create-documentation-release.py
+
