@@ -32,7 +32,7 @@ jobs:
   Publish-New-Release:
     runs-on: ubuntu-latest
     if: startsWith(github.repository, 'osg-htc/')
-
+    needs: Update-Submodules
     steps:
     - uses: actions/checkout@v2
       with:
