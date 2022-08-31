@@ -14,15 +14,20 @@ jobs:
         submodules: 'recursive'
         fetch-depth: 0
 
-    - name: Pull down submodules
+    - name: Pull, Merge, Push submodules
       run: |
-        git checkout -b master
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
+        
         git submodule update --remote --merge
-        git add .
-        git commit -m "Update Documentation"
-        git push --set-upstream origin preview-update-submodules
+        
+        if [ -n "$(git status --porcelain)" ]; then 
+          git add .
+          git commit -m "Update Documentation"
+          git push
+        else
+          echo "no changes";
+        fi
 
   Publish-New-Release:
     runs-on: ubuntu-latest
