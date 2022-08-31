@@ -1,9 +1,7 @@
 name: Update the documentation website
 
 on:
-  repository_dispatch:
-    types:
-      - dispatch-build
+  workflow_dispatch:
 
 jobs:
 
@@ -38,4 +36,3 @@ jobs:
     - name: Pull down submodules
       run: |
         python3 /.github/scripts/create-documentation-release.py
-

@@ -7,17 +7,8 @@ This does not update the development branches code documentation.
 import requests
 import json
 
-USERNAME = "CannonLock"
-
-TOKEN = "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"
-
-AUTH = (USERNAME, TOKEN)
-
 OWNER = "osg-htc"
-
 REPO = "osg-portal"
-
-URL = f"https://api.github.com/repos/{OWNER}/{REPO}/tags"
 
 
 class Tag:
@@ -95,7 +86,7 @@ def get_tags() -> list:
         "per_page": "100"
     }
 
-    response = requests.get(api_url, auth=AUTH, data=query_parameters)
+    response = requests.get(api_url, data=query_parameters)
     tags = response.json()
 
     return tags
