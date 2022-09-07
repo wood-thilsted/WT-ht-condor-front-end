@@ -6,6 +6,7 @@ This does not update the development branches code documentation.
 
 import requests
 import json
+import sys
 
 OWNER = "osg-htc"
 REPO = "osg-portal"
@@ -65,7 +66,7 @@ class Tag:
             self.decomposed_tag = self.decomposed_tag[:-1] + [str(int(self.decomposed_tag[-1]) + 1)]
 
 
-def create_release(tag: str):
+def create_release(tag: str, auth: str):
     api_endpoint = f"https://api.github.com/repos/{OWNER}/{REPO}/releases"
 
     data = {
@@ -74,7 +75,7 @@ def create_release(tag: str):
         "message": "This is a automated release resulting from a update to the documentation website",
     }
 
-    response = requests.post(api_endpoint, auth=AUTH, data=json.dumps(data))
+    response = requests.post(api_endpoint, auth=auth, data=json.dumps(data))
 
     print(response)
 
@@ -105,11 +106,12 @@ def get_incremented_release_tag(tags: list):
     return most_recent_production_tag
 
 
-def create_updated_documentation_release():
+def create_updated_documentation_release(auth):
     tags = get_tags()
     incremented_release_tag = get_incremented_release_tag(tags)
-    create_release(str(incremented_release_tag))
+    create_release(str(incremented_release_tag), auth)
 
 
 if __name__ == "__main__":
-    create_updated_documentation_release()
+    gh_auth = sys.argv[1]
+    create_updated_documentation_release(gh_auth)
