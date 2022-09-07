@@ -40,4 +40,4 @@ jobs:
 
     - name: Publish a new release
       run: |
-        python3 ./.github/scripts/create-documentation-release.py
+        python3 ./.github/scripts/create-documentation-release.py ${{ secrets.GITHUB_TOKEN }}
