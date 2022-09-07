@@ -66,7 +66,7 @@ class Tag:
             self.decomposed_tag = self.decomposed_tag[:-1] + [str(int(self.decomposed_tag[-1]) + 1)]
 
 
-def create_release(tag: str, auth: str):
+def create_release(tag: str, token: str):
     api_endpoint = f"https://api.github.com/repos/{OWNER}/{REPO}/releases"
 
     data = {
@@ -75,7 +75,11 @@ def create_release(tag: str, auth: str):
         "message": "This is a automated release resulting from a update to the documentation website",
     }
 
-    response = requests.post(api_endpoint, auth=auth, data=json.dumps(data))
+    authorization_header = {
+        "Authorization": f"token {token}"
+    }
+
+    response = requests.post(api_endpoint, headers=authorization_header, data=json.dumps(data))
 
     print(response)
 
@@ -106,12 +110,12 @@ def get_incremented_release_tag(tags: list):
     return most_recent_production_tag
 
 
-def create_updated_documentation_release(auth):
+def create_updated_documentation_release(token):
     tags = get_tags()
     incremented_release_tag = get_incremented_release_tag(tags)
-    create_release(str(incremented_release_tag), auth)
+    create_release(str(incremented_release_tag), token)
 
 
 if __name__ == "__main__":
-    gh_auth = sys.argv[1]
-    create_updated_documentation_release(gh_auth)
+    gh_token = sys.argv[1]
+    create_updated_documentation_release(gh_token)
