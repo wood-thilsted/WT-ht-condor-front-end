@@ -1,6 +1,6 @@
-# OSG Portal
+# PATH
 
-This is the web application for the OSG Portal
+This is the web application for the PATh Portal
 
 ## Structure
 
@@ -11,7 +11,7 @@ and some choice webpages, and the documentation which is built using mkdocs.
 
 The Flask app is found in the ```/portal``` directory. 
 
-### Documentation
+### Documentation - Coming Soon
 
 The documentation is automatically updated with GHA and is found at ```/documentation```. 
 If you want to update the documentation you should do so on the [user-documenation repo](https://github.com/osg-htc/user-documentation).
@@ -34,13 +34,13 @@ To run the registration server locally, build and run the testing container imag
 1.  Build the container image:
 
     ```shell
-    docker build -t osg-portal-testing -f Dockerfile.testing .
+    docker build -t path-portal-testing -f Dockerfile.testing .
     ```
 
 1. Start the local portal:
 
     ```shell
-    docker run --rm --name osg-portal -it -v ${PWD}:/srv -p 8443:443 osg-portal-testing
+    docker run --rm --name path-portal -it -v ${PWD}:/srv -p 8445:443 path-portal-testing
     ```
   
 
@@ -121,11 +121,11 @@ v<major>.<minor>.<bugFix>.itb.<dev>.<doc>
 Couple nice lines to expedite debugging a container on kubernetes in the dev instance
 
 ```shell
-POD_NAME=$(kubectl --namespace osgdev get pods | grep osg-portal | awk '{print $1}')
+POD_NAME=$(kubectl --namespace osgdev get pods | grep path-portal | awk '{print $1}')
 ```
 
 ```shell
-kubectl --namespace osgdev get pods | grep osg-portal
+kubectl --namespace osgdev get pods | grep path-portal
 ```
 
 ```shell
@@ -133,9 +133,9 @@ kubectl --namespace osgdev describe pods $POD_NAME
 ```
 
 ```shell
-kubectl -n osgdev --since 30m logs deploy/flux | grep osg-portal |  scripts/fluxpipe 
+kubectl -n osgdev --since 30m logs deploy/flux | grep path-portal |  scripts/fluxpipe 
 ```
 
 ```shell
-kubectl exec --namespace osgdev -it $POD_NAME osg-portal -- bash
+kubectl exec --namespace osgdev -it $POD_NAME path-portal -- bash
 ```

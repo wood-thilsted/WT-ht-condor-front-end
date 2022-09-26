@@ -10,13 +10,7 @@
     <div class="container-xxl py-4">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-7 col-lg-8 col-md-10">
-                <h1>Schedule A Consultation</h1>
-                <p>
-                    Before we can give you access to the OSPool we ask that researchers meet with our Research
-                    Computing Facilitators, so they can help you manage your workloads on our resources as effectively
-                    as possible. To help us help you we ask that you provide some basic information on your compute
-                    and storage needs.
-                </p>
+                <h1>PATh Account Request</h1>
                 <p>
                     On filling out the form below you will be emailed with a ticket # and link so that
                     we can follow up with you and a schedule consultation.
@@ -35,74 +29,39 @@
                         <input id="email" name="email" type="email" class="form-control" placeholder="username@domain.ext" required>
                     </div>
                     <div class="pt-3">
-                        <label for="how-did-you-hear-about-us" class="form-label">How did you hear about us?</label>
-                        <textarea id="how-did-you-hear-about-us" name="how-did-you-hear-about-us" class="form-control" rows="4" required></textarea>
+                        <label for="affiliation" class="form-label">Affiliation with an existing user/project/group</label>
+                        <textarea id="affiliation" name="affiliation" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="research-description" class="form-label">Briefly describe your research</label>
-                        <textarea id="research-description" name="research-description" class="form-control" rows="4" required></textarea>
+                        <label for="institution" class="form-label">Institution</label>
+                        <textarea id="institution" name="institution" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="why-scale-up" class="form-label">Why are you looking to scale up your compute capacity?</label>
-                        <textarea id="why-scale-up" name="why-scale-up" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <h3 class="mt-4">About your Computing Workloads</h3>
-                    <div>
-                        <label for="names-and-languages" class="form-label">Program name(s) and coding language(s)</label>
-                        <textarea id="names-and-languages" name="names-and-languages" class="form-control" rows="4" required></textarea>
+                        <label for="pi-name" class="form-label">PI Name</label>
+                        <textarea id="pi-name" name="pi-name" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="special-dependencies-or-circumstances" class="form-label">
-                            Are there any special dependencies or compiling considerations you've had to deal with?
-                        </label>
-                        <textarea id="special-dependencies-or-circumstances" name="special-dependencies-or-circumstances" class="form-control" rows="4" required></textarea>
+                        <label for="access-point" class="form-label">Access Point</label>
+                        <textarea id="access-point" name="access-point" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="prior-computing-environment" class="form-label">
-                            Tell us where you've run similar computing work before: desktop, shared cluster, etc.? Linux, Windows, Mac?
-                        </label>
-                        <textarea id="prior-computing-environment" name="prior-computing-environment" class="form-control" rows="4" required></textarea>
+                        <label for="cpu-credits" class="form-label">CPU Credits</label>
+                        <textarea id="cpu-credits" name="cpu-credits" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="gpu-usage" class="form-label">
-                            Do you have interest in using GPUs, and/or have you used GPUs for similar work in the past?
-                        </label>
-                        <textarea id="gpu-usage" name="gpu-usage" class="form-control" rows="4" required></textarea>
+                        <label for="gpu-credits" class="form-label">GPU Credits</label>
+                        <textarea id="gpu-credits" name="gpu-credits" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="communicating-processes" class="form-label">
-                            Do you typically run your program(s) with multiple processors working/communicating with one another? If so, how have you accomplished that? (OpenMP/MPI, etc?)
-                        </label>
-                        <textarea id="communicating-processes" name="communicating-processes" class="form-control" rows="4" required></textarea>
+                        <label for="name-and-email-of-path-user-to-report-usage" class="form-label">Name and Email address of PATh user to email with weekly credit usage reports (Typically PI):</label>
+                        <textarea id="name-and-email-of-path-user-to-report-usage" name="name-and-email-of-path-user-to-report-usage" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="decomposition-of-workload"  class="form-label">
-                            Could your computing work be broken up into many separate, but complete 'pieces' that don't rely on one another? If so, how many pieces can this computing work be broken into?
-                        </label>
-                        <textarea id="decomposition-of-workload" name="decomposition-of-workload" class="form-control" rows="4" required></textarea>
+                        <label for="meet-with-rcf" class="form-label">Would you like to meet with a Research Computing Facilitator, and if so what about?</label>
+                        <textarea id="meet-with-rcf" name="meet-with-rcf" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="input-output-size" class="form-label">
-                            Typical input and output size for each 'piece' (can be a range)
-                        </label>
-                        <textarea id="input-output-size" name="input-output-size" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="pt-3">
-                        <label for="resource-amount" class="form-label">
-                            Typical RAM and number of CPU cores (or GPU model) you've used for each 'piece'?
-                        </label>
-                        <textarea id="resource-amount" name="resource-amount" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="pt-3">
-                        <label for="runtime" class="form-label">
-                            How long does one piece run in your typical setup?
-                        </label>
-                        <textarea id="runtime" name="runtime" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="pt-3">
-                        <label for="additional-info" class="form-label">
-                            Is there anything else you'd like to share about your computing practices or methods?
-                        </label>
+                        <label for="additional-info" class="form-label">Additional Information:</label>
                         <textarea id="additional-info" name="additional-info" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="h-captcha mt-3" data-sitekey="deb6e053-975d-4c72-86be-6c91fdf4babf"></div>
@@ -149,7 +108,7 @@
           <div class="modal-body">
             <p>
                 Your automatic application submission failed, please copy the below text and email it to
-                us at <a href="mailto:support@osg-htc.org">support@osg-htc.org</a> so that we can create a ticket manually.
+                us at <a href="mailto:support@path-cc.io">support@osg-htc.org</a> so that we can create a ticket manually.
             </p>
             <div class="rounded bg-light p-2">
                 <pre id="form-information" class="text-black mb-0"></pre>

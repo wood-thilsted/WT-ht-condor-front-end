@@ -1,5 +1,4 @@
 flask
-htcondor
 cryptography
 flask-assets
 libsass

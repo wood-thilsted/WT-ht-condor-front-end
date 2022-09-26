@@ -107,7 +107,7 @@ class FreshDeskAPI:
 
         return self._post(f"/api/v2/tickets", data=data, headers=headers)
 
-    def create_ospool_ticket(
+    def create_path_ticket(
             self,
             name: str,
             email: str,
@@ -117,8 +117,8 @@ class FreshDeskAPI:
             "name": name,
             "email": email,
             "description": description,
-            "subject": "OSPool User - Account Creation",
-            "group_id": 12000006347,  # Actual Value 5000247959
+            "subject": "PATh User - Account Creation",
+            "group_id": 12000006347,  # Actual Value 12000007319
             "priority": 1,
             "status": 2,
             "type": "Other"  # Actual value User Facilitation-Account or login
@@ -152,7 +152,6 @@ def create_ticket():
         description += f"<h3>\n{json[key]['label']}\n</h3>\n"
         description += f"<p>\n{json[key]['value']}\n</p>\n"
 
-    response = FreshDeskAPI().create_ospool_ticket(name=name, email=email, description=description)
+    response = FreshDeskAPI().create_path_ticket(name=name, email=email, description=description)
 
     return make_response(response.json(), response.status_code)
-

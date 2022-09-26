@@ -9,7 +9,7 @@ import json
 import sys
 
 OWNER = "osg-htc"
-REPO = "osg-portal"
+REPO = "path-portal"
 
 
 class Tag:

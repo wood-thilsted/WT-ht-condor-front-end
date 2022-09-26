@@ -18,7 +18,7 @@ logger = logging.getLogger("register")
 logger.setLevel(logging.ERROR + 10)
 
 DEFAULT_PORT = "9618"
-WEBAPP_HOST = "portal.osg-htc.org"
+WEBAPP_HOST = "portal.path-cc.io"
 DEFAULT_TARGET = "cm-1.ospool.osg-htc.org:{}".format(DEFAULT_PORT)
 REGISTRATION_CODE_PATH = "token"
 RECONFIG_COMMAND = ["condor_reconfig"]

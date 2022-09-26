@@ -4,11 +4,11 @@
     <head>
         <meta charset="UTF-8">
 
-        <title>OSG Portal | {% block title %}{% endblock %}</title>
+        <title>PATh Portal | {% block title %}{% endblock %}</title>
 
         <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 
-        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+        <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}">
 
         {% assets "css_main" %}
             <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}">
@@ -32,7 +32,7 @@
             <nav class="navbar navbar-expand-lg navbar-light">
                 <div class="container-xxl">
                     <a class="navbar-brand" href="/">
-                        <img height="60" width="240" src="/static/index/images/OSG-Portal-Logo.png" alt="OSG Portal Logo"
+                        <img height="60" width="240" src="/static/index/images/Path_Portal_Logo.png" alt="OSG Portal Logo"
                              class="d-inline-block align-text-top">
                     </a>
 
@@ -43,12 +43,12 @@
 
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav">
-                            {#<li class="nav-item">
-                                <a class="nav-link active" aria-current="page" href="/application">OSPool Application</a>
-                            </li>#}
                             <li class="nav-item">
-                                <a class="nav-link" href="/documentation">Documentation</a>
+                                <a class="nav-link active" aria-current="page" href="/application">User Application</a>
                             </li>
+{#                            <li class="nav-item">#}
+{#                                <a class="nav-link" href="/documentation">Documentation</a>#}
+{#                            </li>#}
                         </ul>
                     </div>
                 </div>
