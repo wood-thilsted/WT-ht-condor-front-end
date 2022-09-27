@@ -21,8 +21,10 @@ RUN \
     popd && \
     popd
 
-COPY portal run_local.sh requirements.txt /opt/portal/
+COPY run_local.sh requirements.txt /opt/portal/
 RUN pip3 install -U pip && pip3 install -r /opt/portal/requirements.txt
+
+COPY portal  /opt/portal/
 
 COPY register.py /usr/bin
 COPY supervisor-apache.conf /etc/supervisord.d/40-apache.conf

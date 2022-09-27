@@ -11,6 +11,7 @@ let callback = (submissionSuccess, json) => {
     if(submissionSuccess){
         submissionSuccessCallback(json)
     } else {
+        console.log(json)
         submissionFailureCallback()
     }
 }
