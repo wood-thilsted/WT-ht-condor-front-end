@@ -49,7 +49,7 @@ To run the registration server locally, build and run the testing container imag
 1. For a login shell to the portal, run the following:
 
     ```shell
-    docker exec -it my-portal /bin/bash
+    docker exec -it path-portal /bin/bash
     ```
         
 

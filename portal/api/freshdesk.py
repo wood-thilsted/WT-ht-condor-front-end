@@ -10,8 +10,6 @@ from flask import (
 
 from portal.website.util import verify_captcha
 
-from .models.response import OkResponse, ErrorResponse
-
 freshdesk_api_bp = Blueprint(
     "freshdesk_api",
     __name__,
@@ -52,7 +50,7 @@ class FreshDeskAPI:
             if "auth" not in kwargs:
                 kwargs["auth"] = (self.api_key, "X")
 
-        self.log.info("%s %s", method.upper(), url)
+        self.log.info("%s %s %s", method.upper(), url, self.api_key)
 
         try:
             r = self.session.request(method, url, **kwargs)

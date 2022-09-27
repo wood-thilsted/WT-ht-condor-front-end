@@ -26,12 +26,12 @@ let submitForm = async (e, form, endpoint, callback) => {
         console.error(e)
     }
 
-    if(callback){
-        callback(response?.ok, formData)
+    if(!response?.ok){
+        console.log(json)
     }
 
-    if(!response?.ok){
-        console.log(response?.error)
+    if(callback){
+        callback(response?.ok, formData)
     }
 }
 
