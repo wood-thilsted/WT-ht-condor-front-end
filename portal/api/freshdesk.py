@@ -50,7 +50,7 @@ class FreshDeskAPI:
             if "auth" not in kwargs:
                 kwargs["auth"] = (self.api_key, "X")
 
-        self.log.info("%s %s %s", method.upper(), url, self.api_key)
+        self.log.info("%s %s %s", method.upper(), url, kwargs)
 
         try:
             r = self.session.request(method, url, **kwargs)
