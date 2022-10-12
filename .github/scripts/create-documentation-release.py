@@ -81,7 +81,8 @@ def create_release(tag: str, token: str):
 
     response = requests.post(api_endpoint, headers=authorization_header, data=json.dumps(data))
 
-    print(response)
+    if response.ok:
+        print(tag, end="")  # Need the tag so that we can use it in following workflows
 
 
 def get_tags() -> list:
