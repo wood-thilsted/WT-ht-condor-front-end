@@ -34,7 +34,7 @@ To run the registration server locally, build and run the testing container imag
 1.  Build the container image:
 
     ```shell
-    docker build -t path-portal-testing -f Dockerfile.testing .
+    docker build -t path-portal-testing -f testing.Dockerfile .
     ```
 
 1. Start the local portal:

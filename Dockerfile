@@ -19,6 +19,7 @@ COPY supervisor-apache.conf /etc/supervisord.d/40-apache.conf
 COPY examples/apache.conf /etc/httpd/conf.d/
 COPY examples/config.py wsgi.py portal /srv/
 COPY portal /srv/portal/
+COPY documentation /srv/documentation/
 
 ENV PYTHONUNBUFFERED=1
 ENV CONFIG_DIR=/srv
