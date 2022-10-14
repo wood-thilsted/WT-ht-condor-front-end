@@ -147,7 +147,7 @@ def create_ticket():
     # Grab the description
     description = ""
     for key in json.keys():
-        description += f"<h3>\n{json[key]['label']}\n</h3>\n"
+        description += f"<h5>\n{json[key]['label']}\n</h5>\n"
         description += f"<p>\n{json[key]['value']}\n</p>\n"
 
     response = FreshDeskAPI().create_path_ticket(name=name, email=email, description=description)

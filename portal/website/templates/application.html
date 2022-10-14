@@ -10,7 +10,7 @@
     <div class="container-xxl py-4">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-7 col-lg-8 col-md-10">
-                <h1>PATh Account Request</h1>
+                <h1>PATh User Application</h1>
                 <p>
                     On filling out the form below you will be emailed with a ticket # and link so that
                     we can follow up with you and a schedule consultation.
@@ -37,7 +37,7 @@
                         <textarea id="institution" name="institution" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="pi-name" class="form-label">PI Name</label>
+                        <label for="pi-name" class="form-label">Principal Investigator Name</label>
                         <textarea id="pi-name" name="pi-name" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
@@ -53,16 +53,22 @@
                         <textarea id="gpu-credits" name="gpu-credits" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="name-and-email-of-path-user-to-report-usage" class="form-label">Name and Email address of PATh user to email with weekly credit usage reports (Typically PI):</label>
+                        <label for="name-and-email-of-path-user-to-report-usage" class="form-label">Name and Email address of PATh user to email with weekly credit usage reports (Typically Principal Investigator):</label>
                         <textarea id="name-and-email-of-path-user-to-report-usage" name="name-and-email-of-path-user-to-report-usage" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="meet-with-rcf" class="form-label">Would you like to meet with a Research Computing Facilitator, and if so what about?</label>
+                        <label for="meet-with-rcf" class="form-label">Would you like to meet with a Research Computing Facilitator to help you get started?</label>
                         <textarea id="meet-with-rcf" name="meet-with-rcf" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
                         <label for="additional-info" class="form-label">Additional Information:</label>
                         <textarea id="additional-info" name="additional-info" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="pt-3">
+                      <input class="form-check-input" name="been-awarded-allocation" type="checkbox" id="been-awarded-allocation">
+                      <label class="form-check-label" for="been-awarded-allocation">
+                        I have been awarded a PATh Facility Allocation
+                      </label>
                     </div>
                     <div class="h-captcha mt-3" data-sitekey="deb6e053-975d-4c72-86be-6c91fdf4babf"></div>
                     <div id="form-error" class="alert alert-warning py-2 my-2" role="alert" hidden></div>

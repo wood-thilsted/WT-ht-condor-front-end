@@ -60,14 +60,31 @@ let validateForm = (form) => {
     return true;
 }
 
-let getFormData = (form) => {
-    // Grabs all the form data as a dictionary of input information key'd by name
 
-    const FD = new FormData(form);
-    return Array.from(FD).reduce((currentValue,[name, value]) => {
+
+/**
+ * Grabs all the form data as a dictionary of input information key'd by name
+ * @param form - Form element
+ * @returns {{}}
+ */
+let getFormData = (form) => {
+
+    // Create default inputs for elements that are not reported if values are none
+    let defaults = Array.from(form.getElementsByTagName("input")).reduce((currentValue, element) => {
+        console.log(element)
+        if(element.type == "checkbox"){
+            currentValue.push([element.name, "off"])
+        }
+        return currentValue
+    }, [])
+
+    const formData = new FormData(form);
+    const formDataAndDefaults = defaults.concat(Array.from(formData)) // Order important, defaults should be overwritten
+
+    let namesAndInputs = formDataAndDefaults.reduce((currentValue,[name, value]) => {
         let component = {
             name: name,
-            value: value,
+            value: value
         }
 
         if(document.getElementById(name)){
@@ -78,4 +95,12 @@ let getFormData = (form) => {
 
         return currentValue
     }, {})
+
+    Object.keys(namesAndInputs).forEach((k,i) => {
+        if(['off', 'on'].includes(namesAndInputs[k].value)){
+            namesAndInputs[k].value = namesAndInputs[k].value === "off" ? "False" : "True";
+        }
+    })
+
+    return namesAndInputs
 }
