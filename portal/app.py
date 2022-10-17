@@ -44,12 +44,7 @@ def define_assets(app) -> None:
 def load_config(app: Flask, test_config: str) -> None:
 
     if test_config is None:
-
-        app.logger.debug(f"Config presumed to be here: {os.path.join(os.path.dirname(HERE), 'config.py')}")
-
-        app.config.from_pyfile(
-            os.path.join(os.path.dirname(HERE), "config.py")
-        )
+        app.config.from_envvar('CONFIG_PATH')
     else:
         app.config.update(test_config)
 
