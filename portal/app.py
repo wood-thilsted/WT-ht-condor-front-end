@@ -44,8 +44,11 @@ def define_assets(app) -> None:
 def load_config(app: Flask, test_config: str) -> None:
 
     if test_config is None:
+
+        app.logger.debug(f"Config presumed to be here: {os.path.join(os.path.dirname(HERE), 'config.py')}")
+
         app.config.from_pyfile(
-            os.path.join(os.path.dirname(HERE), "config.py"), silent=True
+            os.path.join(os.path.dirname(HERE), "config.py")
         )
     else:
         app.config.update(test_config)
@@ -80,7 +83,7 @@ def create_app(test_config=None):
         for tf in TEMPLATE_FILTERS:
             app.add_template_filter(tf)
 
-    app.logger.debug("Created!")
+    app.logger.debug(f"Created: Location is '{HERE}'")
     return app
 
 
