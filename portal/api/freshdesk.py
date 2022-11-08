@@ -116,10 +116,10 @@ class FreshDeskAPI:
             "email": email,
             "description": description,
             "subject": "PATh User - Account Creation",
-            "group_id": 12000006347,  # Actual Value 12000007319
+            "group_id": 12000007319,
             "priority": 1,
             "status": 2,
-            "type": "Other"  # Actual value User Facilitation-Account or login
+            "type": "User Facilitation-Account or login"
         }
 
         return self.create_ticket(**ticket_data)
