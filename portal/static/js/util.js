@@ -41,7 +41,7 @@ let validateForm = (form) => {
 
     // Check that all input validity
     for (const el of form.querySelectorAll("[required]")) {
-      if (!el.reportValidity()) {
+      if (isVisible(el) && !el.reportValidity()) {
         errorNode.textContent = "Please fill out all elements in the form, if not applicable you can write 'NA'.";
         errorNode.hidden = false;
         return false;
@@ -82,20 +82,21 @@ let getFormData = (form) => {
     const formDataAndDefaults = defaults.concat(Array.from(formData)) // Order important, defaults should be overwritten
 
     let namesAndInputs = formDataAndDefaults.reduce((currentValue,[name, value]) => {
-        let component = {
+        currentValue[name] = {
             name: name,
             value: value
         }
 
-        if(document.getElementById(name)){
-            component["label"] = document.getElementById(name).labels[0].textContent.trim()
-        }
+        let element = document.getElementById(name)
 
-        currentValue[name] = component
+        if(isVisible(element)){
+            currentValue[name]["label"] = document.getElementById(name).labels[0].textContent.trim()
+        }
 
         return currentValue
     }, {})
 
+    // Convert 'off' and 'on' check values to bools
     Object.keys(namesAndInputs).forEach((k,i) => {
         if(['off', 'on'].includes(namesAndInputs[k].value)){
             namesAndInputs[k].value = namesAndInputs[k].value === "off" ? "False" : "True";
@@ -103,4 +104,13 @@ let getFormData = (form) => {
     })
 
     return namesAndInputs
+}
+
+let isVisible = (htmlElement) => {
+    try {
+        return htmlElement.offsetParent !== null
+    } catch (e) {
+        console.error(e)
+        return false
+    }
 }

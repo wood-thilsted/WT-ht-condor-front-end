@@ -10,10 +10,17 @@
     <div class="container-xxl py-4">
         <div class="row justify-content-center">
             <div class="col-12 col-xl-7 col-lg-8 col-md-10">
-                <h1>PATh User Application</h1>
+                <h1>PATh Facility User Application</h1>
                 <p>
-                    On filling out the form below you will be emailed with a ticket # and link so that
-                    we can follow up with you and a schedule consultation.
+                    Please fill out the form below if you would like to begin using PATh Facility compute resources.
+                    Once this form is complete, a Research Computing Facilitator will contact you within one business
+                    day with next steps. Research Computing Facilitators are here to provide you with information on
+                    submitting a PATh Facility credit allocation request to the National Science Foundation (NSF)
+                    and assist you with using your credit allocations on PATh Facility resources.
+                </p>
+                <p>
+                    On filling out the form below you will be emailed with a ticket number and link so that we can
+                    follow up with you and a schedule consultation.
                 </p>
                 <p>
                     We are excited to meet with you and look forward to helping you scale up your research!
@@ -21,16 +28,21 @@
                 <h2>Request Form</h2>
                 <form id="consultation-form" name="consultation-form" method="post" action="">
                     <div>
+                        <label for="status" class="form-label">Credit Allocation Status</label>
+                        <select id="status" name="status" class="form-select" required>
+                            <option selected disabled value="">-- Select a Researcher Application Status --</option>
+                            <option value="awarded">I have been awarded a credit allocation by the NSF</option>
+                            <option value="submitted">I have submitted a proposal for a credit allocation</option>
+                            <option value="assistance">I would like assistance submitting a proposal for a credit allocation</option>
+                        </select>
+                    </div>
+                    <div class="pt-3">
                         <label for="full-name" class="form-label">Full Name</label>
                         <input id="full-name" name="full-name" type="text" class="form-control" placeholder="First Last" required>
                     </div>
                     <div class="pt-3">
                         <label for="email" class="form-label">Email</label>
                         <input id="email" name="email" type="email" class="form-control" placeholder="username@domain.ext" required>
-                    </div>
-                    <div class="pt-3">
-                        <label for="affiliation" class="form-label">Affiliation with an existing user/project/group</label>
-                        <textarea id="affiliation" name="affiliation" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
                         <label for="institution" class="form-label">Institution</label>
@@ -41,34 +53,30 @@
                         <textarea id="pi-name" name="pi-name" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
-                        <label for="access-point" class="form-label">Access Point</label>
-                        <textarea id="access-point" name="access-point" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="pt-3">
-                        <label for="cpu-credits" class="form-label">CPU Credits</label>
-                        <textarea id="cpu-credits" name="cpu-credits" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="pt-3">
-                        <label for="gpu-credits" class="form-label">GPU Credits</label>
-                        <textarea id="gpu-credits" name="gpu-credits" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="pt-3">
-                        <label for="name-and-email-of-path-user-to-report-usage" class="form-label">Name and Email address of PATh user to email with weekly credit usage reports (Typically Principal Investigator):</label>
-                        <textarea id="name-and-email-of-path-user-to-report-usage" name="name-and-email-of-path-user-to-report-usage" class="form-control" rows="4" required></textarea>
+                        <label for="affiliation" class="form-label">Affiliation with an existing user/project/group</label>
+                        <textarea id="affiliation" name="affiliation" class="form-control" rows="4" required></textarea>
                     </div>
                     <div class="pt-3">
                         <label for="meet-with-rcf" class="form-label">Would you like to meet with a Research Computing Facilitator to help you get started?</label>
                         <textarea id="meet-with-rcf" name="meet-with-rcf" class="form-control" rows="4" required></textarea>
                     </div>
+                    <div hidden id="questions-for-the-awarded">
+                        <div class="pt-3">
+                            <label for="cpu-credits" class="form-label">CPU Credits Awarded by NSF</label>
+                            <textarea id="cpu-credits" name="cpu-credits" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="pt-3">
+                            <label for="gpu-credits" class="form-label">GPU Credits Awarded by NSF</label>
+                            <textarea id="gpu-credits" name="gpu-credits" class="form-control" rows="4" required></textarea>
+                        </div>
+                        <div class="pt-3">
+                            <label for="name-and-email-of-path-user-to-report-usage" class="form-label">Name and Email address of PATh user to email with weekly credit usage reports (Typically Principal Investigator)</label>
+                            <textarea id="name-and-email-of-path-user-to-report-usage" name="name-and-email-of-path-user-to-report-usage" class="form-control" rows="4" required></textarea>
+                        </div>
+                    </div>
                     <div class="pt-3">
                         <label for="additional-info" class="form-label">Additional Information:</label>
                         <textarea id="additional-info" name="additional-info" class="form-control" rows="4" required></textarea>
-                    </div>
-                    <div class="pt-3">
-                      <input class="form-check-input" name="been-awarded-allocation" type="checkbox" id="been-awarded-allocation">
-                      <label class="form-check-label" for="been-awarded-allocation">
-                        I have been awarded a PATh Facility Allocation
-                      </label>
                     </div>
                     <div class="h-captcha mt-3" data-sitekey="deb6e053-975d-4c72-86be-6c91fdf4babf"></div>
                     <div id="form-error" class="alert alert-warning py-2 my-2" role="alert" hidden></div>

@@ -7,6 +7,15 @@ let form = document.getElementById("consultation-form")
 
 submitButton.addEventListener("click", (e) => submitForm(e, form, "/api/v1/freshdesk/ticket", callback))
 
+let statusSelect = document.getElementById("status")
+statusSelect.addEventListener("change", (e) => {
+    if(e.target.value == "awarded"){
+        document.getElementById("questions-for-the-awarded").hidden = false
+    } else {
+        document.getElementById("questions-for-the-awarded").hidden = true
+    }
+})
+
 let callback = (submissionSuccess, json) => {
     if(submissionSuccess){
         submissionSuccessCallback(json)
