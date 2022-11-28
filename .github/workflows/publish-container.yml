@@ -56,7 +56,7 @@ jobs:
         fi
         
         tag_list=()
-        for registry in hub.opensciencegrid.org docker.io; do
+        for registry in hub.opensciencegrid.org; do
           for image_tag in "latest${ITB_SUFFIX}" "${GITHUB_TAG}" "$(git rev-parse HEAD)"; do
             tag_list+=("$registry/$docker_repo":"$image_tag")
           done
@@ -68,13 +68,6 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v1
-      continue-on-error: true
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Log in to OSG Harbor
       uses: docker/login-action@v1
