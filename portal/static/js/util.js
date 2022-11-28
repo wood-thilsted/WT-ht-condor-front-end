@@ -2,21 +2,37 @@
 // General util functions used sitewide
 //
 
-let submitForm = async (e, form, endpoint, callback) => {
+let submitForm = async (e, form, endpoint, callback, metadata) => {
 
     e.preventDefault()
 
     if(!validateForm(form)){ return; } // Validate the form
 
     const formData = getFormData(form)
-    const body = JSON.stringify(formData)
+
+    // Build the description text
+    let description = Object.entries(formData).reduce((previousValue, [k, v]) => {
+        if(!['h-captcha-response', 'g-recaptcha-response'].includes(k)){
+            previousValue += `<h5>\n${v['label']}\n</h5>\n`
+            previousValue += `<p>\n${v['value']}\n</p>\n`
+        }
+        return previousValue
+    }, "")
+
+    const body = {
+        ...formData,
+        ...metadata,
+        email: formData['email']['value'],
+        name: formData['full-name']['value'],
+        description: description
+    }
 
     let response;
     let json;
     try {
         response = await fetch(endpoint, {
             method: "POST",
-            body: body,
+            body: JSON.stringify(body),
             headers: {
               'Content-Type': 'application/json'
             }
@@ -88,6 +104,10 @@ let getFormData = (form) => {
         }
 
         let element = document.getElementById(name)
+
+        if(element.tagName === "SELECT"){
+            currentValue[name]["value"] = document.querySelectorAll(`option[value=${value}]`)[0].textContent.trim()
+        }
 
         if(isVisible(element)){
             currentValue[name]["label"] = document.getElementById(name).labels[0].textContent.trim()
