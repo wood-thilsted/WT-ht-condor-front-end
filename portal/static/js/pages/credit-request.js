@@ -192,11 +192,11 @@ class NodeContainer {
         // Create the interactive elements
         this.nodeContainer = createNode({tagName: "div", ...containerOptions})
 
-        this.removeNodeButton = createNode({tagName: "button",  innerText: "-", ...buttonOptions})
+        this.removeNodeButton = createNode({tagName: "button",  innerText: "-", type: "button", ...buttonOptions})
         this.removeNodeButton.addEventListener("click", this.removeNode.bind(this))
         this.removeNodeButtonContainer = createNode({tagName: "div", children: [this.removeNodeButton], className: "col-6"})
 
-        this.addNodeButton = createNode({tagName: "button",  innerText: "+", ...buttonOptions})
+        this.addNodeButton = createNode({tagName: "button",  innerText: "+", type: "button", ...buttonOptions})
         this.addNodeButton.addEventListener("click", this.addNode.bind(this))
         this.addNodeButtonContainer = createNode({tagName: "div", children: [this.addNodeButton], className: "col-6"})
 
@@ -445,7 +445,7 @@ class CreditRequestPage{
             id: "ensembles",
             constructor: Ensemble,
             nodeOptions: { updateFunction: this.updateCreditCost.bind(this) },
-            buttonOptions: { className: "border border-3 form-control"}
+            buttonOptions: { type: "button", className: "border border-3 form-control"}
         })
 
         this.creditTotalNode = document.getElementById("credit-total")
