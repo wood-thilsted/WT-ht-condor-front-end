@@ -60,6 +60,15 @@ let submissionFailureCallback = () => {
 
 class CreditCalculator {
 
+    /**
+     *
+     * @param cpu
+     * @param memory
+     * @param gpu
+     * @param walltime
+     * @param runs
+     * @returns {Object}
+     */
     static calculateCost = ({cpu, memory, gpu, walltime, runs}) => {
         cpu = parseInt(cpu)
         memory = parseInt(memory)
@@ -67,12 +76,50 @@ class CreditCalculator {
         walltime = parseInt(walltime)
         runs = parseInt(runs)
 
+        // Report if a task is invalid for calculating
+        if([cpu, memory, walltime, runs].filter(x => isNaN(x)).length > 1){
+            return {
+                gpu: 0,
+                cpu: 0,
+                errors: "Missing Required Value [Runs, CPU, Memory, Walltime, Disk]"
+            }
+        }
+
         const creditMultiplier = walltime * runs
 
         if(gpu > 0){
-            return CreditCalculator.calculateGpuCost({gpu, cpu, memory}) * creditMultiplier
+            let gpuCredits = CreditCalculator.calculateGpuCost({gpu, cpu, memory})
+
+            if(typeof gpuCredits === "string"){
+                return {
+                    gpu: 0,
+                    cpu: 0,
+                    errors: gpuCredits
+                }
+            } else {
+                return {
+                    gpu: gpuCredits * creditMultiplier,
+                    cpu: 0,
+                    errors: ""
+                }
+            }
+
         } else {
-            return CreditCalculator.calculateCpuCost({cpu, memory}) * creditMultiplier
+            let cpuCredits = CreditCalculator.calculateCpuCost({cpu, memory})
+
+            if(typeof cpuCredits === "string"){
+                return {
+                    gpu: 0,
+                    cpu: 0,
+                    errors: cpuCredits
+                }
+            } else {
+                return {
+                    gpu: 0,
+                    cpu: cpuCredits * creditMultiplier,
+                    errors: ""
+                }
+            }
         }
     }
 
@@ -104,7 +151,6 @@ class CreditCalculator {
         return  gpuCost + gpuCpuCost + gpuMemoryCost
     }
 
-
     static cpu = (cores) => {
         if(cores <= 1){
             return 1 * cores
@@ -114,10 +160,9 @@ class CreditCalculator {
             return 1.5 * cores
         } else if(cores > 32) {
             return 2 * cores
-        } else {
-            return undefined
         }
     }
+
     static cpuMemory = (memory, cores) => {
         const nominal = 2
         memory = nominal - (cores*nominal)
@@ -132,9 +177,10 @@ class CreditCalculator {
         } else if(memory <= 512) {
             return .5 * memory
         } else {
-            return undefined
+            return "We are currently unable to fulfill memory requests greater then 512 GB"
         }
     }
+
     static gpus = (gpus) => {
         if(gpus === 1){
             return 1 * gpus
@@ -145,9 +191,10 @@ class CreditCalculator {
         } else if(gpus === 4){
             return 2 * gpus
         } else {
-            return undefined
+            return "We are currently unable to fulfill GPU requests greater then 4"
         }
     }
+
     static gpuCpus = (gpus, cpus) => {
         const nominal = 16
         cpus = cpus - (gpus * nominal)
@@ -158,9 +205,10 @@ class CreditCalculator {
         } else if(cpus <= 48){
             return .2 * cpus
         } else {
-            return undefined
+            return "We are unable to fulfill requests for greater then 64 cpu cores per gpu"
         }
     }
+
     static gpuMemory = (gpus, memory) => {
         const nominal = 128
         memory = memory - (gpus * nominal)
@@ -171,7 +219,7 @@ class CreditCalculator {
         } else if(memory <= 384){
             return  .02 * memory
         } else {
-            return undefined
+            return "We are unable to fulfill requests for greater then 512 GB memory per gpu"
         }
     }
 }
@@ -237,12 +285,29 @@ class Ensemble {
     }
 
     get creditCost() {
-        const taskCreditCost = this.tasks.nodes.reduce((pv, x) => {
-            pv += x.creditCost
-            return pv
-        }, 0)
+        const taskCreditCost = this.tasks.nodes.reduce((pv, task) => {
+            let {cpu, gpu} = task.creditCost
+            return {
+                cpu: pv['cpu'] += cpu,
+                gpu: pv['gpu'] += gpu
+            }
+        }, {cpu: 0, gpu: 0})
 
-        return taskCreditCost * parseInt(this.runs.value)
+        // Handle runs being set
+        let runs = parseInt(this.runs.value)
+        if(isNaN(runs)){
+            this.errorNode.innerText = "Missing Required Ensemble Value [Runs]"
+            runs = 0
+        } else {
+            this.errorNode.innerText = ""
+        }
+
+
+
+        return {
+            cpu: taskCreditCost['cpu'] * runs,
+            gpu: taskCreditCost['gpu'] * runs,
+        }
     }
 
     get title() {
@@ -262,10 +327,13 @@ class Ensemble {
     get node() {
         if(!this._node){
             this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Ensemble - ${this.title}`})
+            this.errorNode = createNode({tagName: "div", className: "text-danger"})
 
             // Set up the input nodes
+            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1"}
+
             this.name = new Input(`name-${this.id}`, {}, { innerText: "Name"})
-            this.runs = new Input(`runs-${this.id}`, {}, { innerText: "Runs"})
+            this.runs = new Input(`runs-${this.id}`, {}, { innerText: "Runs"}, inputOptions)
             this.runs.node.addEventListener("change", this.updateFunction)
 
             // Set up the tasks input
@@ -320,8 +388,10 @@ class SharedFile {
             this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Shared File - ${this.title}`})
 
             // Create the input nodes
+            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1"}
+
             this.name = new Input(`name-${this.compositeId}`, {}, { innerText: "Name"})
-            this.size = new Input(`size-${this.compositeId}`, {}, { innerText: "Size ( in gigabytes )"})
+            this.size = new Input(`size-${this.compositeId}`, {}, { innerText: "Size ( in gigabytes )"}, inputOptions)
 
             // Create Parent Node
             this._node = createNode({tagName: "div", className: "border border-warning rounded p-2 my-2"})
@@ -375,17 +445,18 @@ class Task {
         if(! this._node){
             // Create the input nodes
             this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Task - ${this.title}`})
+            this.errorNode = createNode({tagName: "div", className: "text-danger"})
             this.name = new Input(`name-${this.compositeId}`, {}, { innerText: "Name"})
 
             // Group these together so we can make the task more compact
             let parentOptions = {className: "col-6"}
-            let inputOptions = {className: "credit-cost-component form-control"}
+            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1"}
 
             this.runs = new Input(`runs-${this.compositeId}`, parentOptions, { innerText: "Runs"}, inputOptions)
             this.cpuCores = new Input(`cpu-cores-${this.compositeId}`, parentOptions, { innerText: "CPU Cores"}, inputOptions)
             this.gpus = new Input(`gpu-${this.compositeId}`, parentOptions, { innerText: "GPUs"}, inputOptions)
             this.memory = new Input(`memory-${this.compositeId}`, parentOptions, { innerText: "Memory ( in gigabytes )"}, inputOptions)
-            this.disk = new Input(`disk-${this.compositeId}`, parentOptions, { innerText: "Disk ( in gigabytes )"})
+            this.disk = new Input(`disk-${this.compositeId}`, parentOptions, { innerText: "Disk ( in gigabytes )"}, inputOptions)
             this.walltime = new Input(`walltime-${this.compositeId}`, parentOptions, { innerText: "Walltime ( in hours )"}, inputOptions)
             this.taskInputContainer = createNode({
                 tagName: "div",
@@ -394,10 +465,11 @@ class Task {
             })
 
             // Create Parent Node
-            this._node = createNode({tagName: "div", className: "border border-info rounded p-2 my-2"})
-            this._node.appendChild(this.titleNode)
-            this._node.appendChild(this.name.node)
-            this._node.appendChild(this.taskInputContainer)
+            this._node = createNode({
+                tagName: "div",
+                children: [this.titleNode, this.errorNode, this.name.node, this.taskInputContainer],
+                className: "border border-info rounded p-2 my-2"
+            })
 
             // Add listeners to the input nodes
             this.inputs.forEach(input => {
@@ -413,13 +485,21 @@ class Task {
     }
 
     get creditCost() {
-        return CreditCalculator.calculateCost({
+        const creditCost = CreditCalculator.calculateCost({
             cpu: this.cpuCores.value,
             memory: this.memory.value,
             gpu: this.gpus.value,
             walltime: this.walltime.value,
             runs: this.runs.value
         })
+
+        if(creditCost.errors){
+            this.errorNode.innerText = creditCost.errors
+        } else {
+            this.errorNode.innerText = ""
+        }
+
+        return creditCost
     }
 
     get compositeId() {
@@ -448,16 +528,21 @@ class CreditRequestPage{
             buttonOptions: { type: "button", className: "border border-3 form-control"}
         })
 
-        this.creditTotalNode = document.getElementById("credit-total")
+        this.cpuCreditTotalNode = document.getElementById("cpu-credit-total")
+        this.gpuCreditTotalNode = document.getElementById("gpu-credit-total")
     }
 
     updateCreditCost() {
-        const ensembleCreditCost = this.ensembleNodeContainer.nodes.reduce((pv, x) => {
-            pv += x.creditCost
-            return pv
-        }, 0)
+        const ensembleCreditCost = this.ensembleNodeContainer.nodes.reduce((pv, ensemble) => {
+            let {cpu, gpu} = ensemble.creditCost
+            return {
+                cpu: pv['cpu'] += cpu,
+                gpu: pv['gpu'] += gpu
+            }
+        }, {cpu: 0, gpu: 0})
 
-        this.creditTotalNode.value = Math.round(ensembleCreditCost)
+        this.cpuCreditTotalNode.value = Math.round(ensembleCreditCost['cpu'])
+        this.gpuCreditTotalNode.value = Math.round(ensembleCreditCost['gpu'])
     }
 }
 
