@@ -17,7 +17,7 @@ RUN pip3 install -U pip && pip3 install -r /opt/portal/requirements.txt
 COPY register.py /usr/bin
 COPY supervisor-apache.conf /etc/supervisord.d/40-apache.conf
 COPY examples/apache.conf /etc/httpd/conf.d/
-COPY config.py wsgi.py portal /srv/
+COPY wsgi.py portal /srv/
 COPY portal /srv/portal/
 COPY documentation /srv/documentation/
 
