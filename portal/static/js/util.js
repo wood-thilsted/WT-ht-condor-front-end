@@ -134,3 +134,72 @@ let isVisible = (htmlElement) => {
         return false
     }
 }
+
+/**
+ *
+ * @param tagName
+ * @param children {Array}
+ * @param options
+ * @returns {HTMLElement}
+ */
+let createNode = ({tagName, children = [], ...options}) => {
+    let node = document.createElement(tagName)
+    Object.entries(options).forEach(([k, v]) => node[k] = v )
+    children.forEach(n => node.appendChild(n))
+    return node
+}
+
+/** Creates an input element
+ *
+ * @param id
+ * @param parentOptions
+ * @param labelOptions
+ * @param inputOptions
+ * @returns {HTMLElement}
+ */
+let createInput = (id, parentOptions, labelOptions, inputOptions) => {
+    let parentNode = createNode({tagName: "div", ...parentOptions})
+    let labelNode = createNode({tagName: "label", ...labelOptions})
+    let inputNode = createNode({tagName: "input", ...inputOptions})
+    parentNode.appendChild(labelNode)
+    parentNode.appendChild(inputNode)
+    return parentNode
+}
+
+class Input {
+    constructor(id, parentOptions = {}, labelOptions = {}, inputOptions = {}) {
+        this.id = id
+        this.parentNode = createNode({tagName: "div", ...parentOptions})
+        this.labelNode = createNode({
+            tagName: "label",
+            for: id,
+            ...labelOptions
+        })
+        this.inputNode = createNode({
+            tagName: "input",
+            id: id,
+            name: id,
+            className: "form-control",
+            ...inputOptions
+        })
+        this.parentNode.appendChild(this.labelNode)
+        this.parentNode.appendChild(this.inputNode)
+    }
+
+    get node() {
+        return this.parentNode
+    }
+
+    get value() {
+        return this.inputNode.value
+    }
+
+    get json() {
+        return {
+            value: this.value,
+            label: this.labelNode.innerText,
+            name: this.id
+        }
+    }
+}
+

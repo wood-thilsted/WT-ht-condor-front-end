@@ -10,6 +10,12 @@
     </style>
 {% endblock %}
 
+{% block script %}
+
+    <script src="/static/js/pages/credit-request.js"  defer></script>
+    <script src="https://js.hcaptcha.com/1/api.js" defer></script>
+
+{% endblock %}
 
 {% block body %}
     <div class="container-xxl py-4">
@@ -80,85 +86,29 @@
 
                     <h4 class="pt-3">Optional</h4>
                     <p>
-                        If you are unsure of the below answers feel free to leave them blank, and we will provide
-                        guidance during your consultation.
+                        If you are familiar with your computational workloads then you can expedite the application process
+                        by providing us with your expected usage below. All usage should be categorized using ensembles,
+                        tasks, and shared files as defined below.
                     </p>
-                    <div class="border p-2">
-                        <div class="">
-                            <label for="tasks-per-ensemble" class="form-label">
-                                The expected number of self-contained tasks per ensemble
-                                <img
-                                    class="input-tooltip"
-                                    src="/static/index/images/question-circle.svg"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-html="true"
-                                    title="
-                                    <div class='text-start'>
-                                        Ensemble: A group of tasks working toward a common goal<br><br>
-                                        Task: Self-contained and packaged into one or many batch-jobs
-                                    </div>
-                                    "
-                                />
-                            </label>
-                            <input id="tasks-per-ensemble" name="tasks-per-ensemble" class="form-control" type="number" min="1" step="1">
+                    <p>
+                        <b>Ensembles</b>: A set of tasks, and shared files working towards a common goal<br>
+                        <b>Tasks</b>: A job or batch of jobs<br>
+                        <b>Shared Files</b>: A file used by many tasks in an Ensemble
+                    </p>
+
+                    <div class="">
+                        <div class="pb-2">
+                            <label for="credit-total">Credit Total</label>
+                            <input id="credit-total" name="credit-total" class="form-control"/>
                         </div>
-                        <div class="pt-3">
-                            <label for="resource-requirements" class="form-label">
-                                The resource requirements for each task type in the ensemble
-                                <img
-                                    class="input-tooltip"
-                                    src="/static/index/images/question-circle.svg"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-html="true"
-                                    title="
-                                    <div class='text-start'>
-                                        Example:<br>
-                                        Task: Image Processing<br>
-                                        CPU Cores: 4<br>
-                                        Memory: 512 MB<br>
-                                        Wall-Time: 6 Hours<br>
-                                        Scratch Space: 2 GB<br>
-                                        GPUs: 1<br>
-                                    </div>
-                                    "
-                                />
-                            </label>
-                            <textarea id="resource-requirements" name="resource-requirements" class="form-control" rows="4" ></textarea>
-                        </div>
-                        <div class="pt-3">
-                            <label for="io-requirements" class="form-label">
-                               The expected input and output data requirements for each task type
-                            </label>
-                            <textarea id="io-requirements" name="io-requirements" class="form-control" rows="4"></textarea>
-                        </div>
-                        <div class="pt-3">
-                            <label for="expected-ensembles" class="form-label">
-                                The expected number of ensembles
-                            </label>
-                            <input id="expected-ensembles" name="expected-ensembles" class="form-control" type="number" min="1" step="1">
-                        </div>
-                        <div class="pt-3">
-                            <label for="shared-input-files" class="form-label">
-                                The expected number and size of shared input files within an ensemble
-                                <img
-                                    class="input-tooltip"
-                                    src="/static/index/images/question-circle.svg"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-html="true"
-                                    title="Expected number of times each file is read per ensemble. Used for common data sets."
-                                />
-                            </label>
-                            <textarea id="shared-input-files" name="shared-input-files" class="form-control" rows="4"></textarea>
-                        </div>
+                        <h4>Ensembles</h4>
+                        <div id="ensembles"></div>
                     </div>
 
                     <div class="h-captcha mt-3" data-sitekey="deb6e053-975d-4c72-86be-6c91fdf4babf"></div>
                     <div id="form-error" class="alert alert-warning py-2 my-2" role="alert" hidden></div>
                     <button id="submit" type="submit" name="submit" class="form-control btn btn-primary mt-2 w-auto px-3">Submit</button>
                 </form>
-            </div>
-            <div class="col-12 col-xl-7 col-lg-8 col-md-10">
-
             </div>
         </div>
     </div>
@@ -212,72 +162,5 @@
 {% endblock %}
 
 {% block postscript %}
-    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-    <script>
-        let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
 
-        let submitButton = document.getElementById("submit")
-        let form = document.getElementById("request-form")
-
-        let statusSelect = document.getElementById("nsf-fos")
-        statusSelect.addEventListener("change", (e) => {
-            if(e.target.value == "na"){
-                document.getElementById("questions-for-the-nsf").hidden = true
-            } else {
-                document.getElementById("questions-for-the-nsf").hidden = false
-            }
-        })
-
-
-        submitButton.addEventListener(
-            "click",
-            (e) => {
-                let metadata = {
-                    subject: "PATh User - Credit Request"
-                }
-
-                submitForm(e, form, "/api/v1/freshdesk/ticket", callback, metadata)
-            }
-        )
-
-        let callback = (submissionSuccess, json) => {
-            if(submissionSuccess){
-                submissionSuccessCallback(json)
-            } else {
-                console.log(json)
-                submissionFailureCallback()
-            }
-        }
-
-        let submissionSuccessCallback = (json) => {
-            const successModalNode = document.getElementById("success-modal")
-            const successModal = new bootstrap.Modal(successModalNode)
-
-            const userEmail = document.getElementById("user-email")
-            userEmail.textContent = json?.email?.value
-
-            successModal.show()
-        }
-
-        let submissionFailureCallback = () => {
-            const failureModalNode = document.getElementById("failure-modal")
-            const failureModal = new bootstrap.Modal(failureModalNode)
-
-            const formInformationNode = document.getElementById("form-information")
-            const formData = getFormData(form)
-            const formInformation = Object.keys(formData)
-                .filter(key => ['h-captcha-response', 'g-recaptcha-response'].indexOf(key) === -1)
-                .reduce((currentValue, key) => {
-                    currentValue.push(`${formData[key]['label']}\r\n${formData[key]['value']}\r\n`)
-                    return currentValue
-                }, [])
-                .join('\r\n')
-            formInformationNode.textContent = formInformation
-
-            failureModal.show()
-        }
-    </script>
 {% endblock %}

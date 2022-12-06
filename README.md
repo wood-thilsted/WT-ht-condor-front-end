@@ -44,7 +44,7 @@ To run the registration server locally, build and run the testing container imag
     ```
   
 
-1. Access the local portal in your browser by accessing <https://localhost:8443>
+1. Access the local portal in your browser by accessing <https://localhost:8445>
 
 1. For a login shell to the portal, run the following:
 
