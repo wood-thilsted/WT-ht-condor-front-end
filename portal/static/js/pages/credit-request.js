@@ -77,7 +77,7 @@ class CreditCalculator {
         runs = parseInt(runs)
 
         // Report if a task is invalid for calculating
-        if([cpu, memory, walltime, runs].filter(x => isNaN(x)).length > 1){
+        if([cpu, memory, walltime, runs].filter(x => isNaN(x)).length > 0){
             return {
                 gpu: 0,
                 cpu: 0,
@@ -352,10 +352,20 @@ class Ensemble {
                 buttonOptions: { className: "border border-warning form-control"}
             })
 
-            this._node = createNode({tagName: "div", className: "border border-3 rounded p-2 mb-2"})
-            for(const node of [this.titleNode, this.name.node, this.runs.node, this.tasksHeader, this.tasks.node, this.sharedFilesHeader, this.sharedFiles.node]){
-                this._node.appendChild(node)
-            }
+            this._node = createNode({
+                tagName: "div",
+                children: [
+                    this.titleNode,
+                    this.errorNode,
+                    this.name.node,
+                    this.runs.node,
+                    this.tasksHeader,
+                    this.tasks.node,
+                    this.sharedFilesHeader,
+                    this.sharedFiles.node
+                ],
+                className: "border border-3 rounded p-2 mb-2"
+            })
         }
         return this._node
     }
