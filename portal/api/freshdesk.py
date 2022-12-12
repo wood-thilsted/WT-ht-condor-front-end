@@ -130,7 +130,7 @@ class FreshDeskAPI:
 def create_ticket():
     """Endpoint for creating a ticket in Freshdesk"""
 
-    if  verify_captcha(request.json['h-captcha-response']["value"]):
+    if not verify_captcha(request.json['h-captcha-response']["value"]):
         return make_response({'error': "You did not complete the h_captcha"}, 403)
 
     response = FreshDeskAPI().create_path_ticket(

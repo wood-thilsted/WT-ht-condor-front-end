@@ -2,37 +2,20 @@
 // General util functions used sitewide
 //
 
-let submitForm = async (e, form, endpoint, callback, metadata) => {
+let submitForm = async (e, form, endpoint, callback, metadata, bodyFunction) => {
 
     e.preventDefault()
 
     if(!validateForm(form)){ return; } // Validate the form
 
-    const formData = getFormData(form)
-
-    // Build the description text
-    let description = Object.entries(formData).reduce((previousValue, [k, v]) => {
-        if(!['h-captcha-response', 'g-recaptcha-response'].includes(k)){
-            previousValue += `<h5>\n${v['label']}\n</h5>\n`
-            previousValue += `<p>\n${v['value']}\n</p>\n`
-        }
-        return previousValue
-    }, "")
-
-    const body = {
-        ...formData,
-        ...metadata,
-        email: formData['email']['value'],
-        name: formData['full-name']['value'],
-        description: description
-    }
+    let body = bodyFunction(form, metadata)
 
     let response;
     let json;
     try {
         response = await fetch(endpoint, {
             method: "POST",
-            body: JSON.stringify(body),
+            body: body,
             headers: {
               'Content-Type': 'application/json'
             }
@@ -47,7 +30,7 @@ let submitForm = async (e, form, endpoint, callback, metadata) => {
     }
 
     if(callback){
-        callback(response?.ok, formData)
+        callback(response?.ok, getFormData(form))
     }
 }
 
@@ -105,7 +88,7 @@ let getFormData = (form) => {
 
         let element = document.getElementById(name)
 
-        if(element.tagName === "SELECT"){
+        if(element?.tagName === "SELECT"){
             currentValue[name]["value"] = document.querySelectorAll(`option[value=${value}]`)[0].textContent.trim()
         }
 
@@ -144,7 +127,11 @@ let isVisible = (htmlElement) => {
  */
 let createNode = ({tagName, children = [], ...options}) => {
     let node = document.createElement(tagName)
-    Object.entries(options).forEach(([k, v]) => node[k] = v )
+
+    Object.entries(options).forEach(([k, v]) => {
+        node.setAttribute(k, v);
+        node[k] = v;
+    })
     children.forEach(n => node.appendChild(n))
     return node
 }

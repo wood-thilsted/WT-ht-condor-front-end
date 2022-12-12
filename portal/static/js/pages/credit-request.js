@@ -10,6 +10,31 @@ statusSelect.addEventListener("change", (e) => {
     }
 })
 
+function bodyFunction (form, metadata) {
+    const formData = getFormData(form)
+
+    // Build the description text
+    let description = Object.entries(formData).reduce((previousValue, [k, v]) => {
+        if(!['h-captcha-response', 'g-recaptcha-response'].includes(k) && !k.includes(".") && "label" in v){
+            previousValue += `<h4>\n${v['label']}\n</h4>\n`
+            previousValue += `<p>\n${v['value']}\n</p>\n`
+        }
+        return previousValue
+    }, "")
+
+    description += creditRequestPage.ensembleNodeContainer.html
+
+    const body = {
+        ...formData,
+        ...metadata,
+        email: formData['email']['value'],
+        name: formData['full-name']['value'],
+        description: description
+    }
+
+    return JSON.stringify(body)
+}
+
 submitButton.addEventListener(
     "click",
     (e) => {
@@ -17,7 +42,7 @@ submitButton.addEventListener(
             subject: "PATh User - Credit Request"
         }
 
-        submitForm(e, form, "/api/v1/freshdesk/ticket", callback, metadata)
+        submitForm(e, form, "/api/v1/freshdesk/ticket", callback, metadata, bodyFunction)
     }
 )
 
@@ -81,7 +106,7 @@ class CreditCalculator {
             return {
                 gpu: 0,
                 cpu: 0,
-                errors: "Missing Required Value [Runs, CPU, Memory, Walltime, Disk]"
+                errors: "Missing Required Value [Unique Inputs/Simulations, CPU, Memory, Walltime, Disk]"
             }
         }
 
@@ -225,7 +250,10 @@ class CreditCalculator {
 }
 
 class NodeContainer {
-    constructor({id, label, constructor, containerOptions = {}, nodeOptions = {}, buttonOptions = {}}) {
+    constructor({id, constructor, containerOptions = {}, nodeOptions = {}, buttonOptions = {}}) {
+
+        // Private Attribute
+        this._nodes = []
 
         // Set the internal data
         if(id){
@@ -233,24 +261,19 @@ class NodeContainer {
         } else {
             this.container = createNode({tagName: "div"})
         }
-        this.nodes = []
         this.nodeConstructor = constructor
-        this.nodeOptions = nodeOptions
+        this.nodeOptions = { ...nodeOptions, container: this }
 
         // Create the interactive elements
         this.nodeContainer = createNode({tagName: "div", ...containerOptions})
 
-        this.removeNodeButton = createNode({tagName: "button",  innerText: "-", type: "button", ...buttonOptions})
-        this.removeNodeButton.addEventListener("click", this.removeNode.bind(this))
-        this.removeNodeButtonContainer = createNode({tagName: "div", children: [this.removeNodeButton], className: "col-6"})
-
-        this.addNodeButton = createNode({tagName: "button",  innerText: "+", type: "button", ...buttonOptions})
+        this.addNodeButton = createNode({tagName: "button",  innerText: `Add ${constructor.name} +`, type: "button", ...buttonOptions})
         this.addNodeButton.addEventListener("click", this.addNode.bind(this))
-        this.addNodeButtonContainer = createNode({tagName: "div", children: [this.addNodeButton], className: "col-6"})
+        this.addNodeButtonContainer = createNode({tagName: "div", children: [this.addNodeButton], className: "col-12"})
 
         this.buttonContainer = createNode({
             tagName: "div",
-            children: [this.removeNodeButtonContainer, this.addNodeButtonContainer],
+            children: [this.addNodeButtonContainer],
             className: "row mt-2"
         })
 
@@ -263,20 +286,27 @@ class NodeContainer {
     get node() {
         return this.container
     }
+    get nodes() {
+        this._nodes = this._nodes.filter(x => x.node !== null)
+        return this._nodes
+    }
+    get html() {
+        return this.nodes.map(node => node.html).join("\n")
+    }
+    get json() {
+        return this.nodes.map(node => node.json)
+    }
     addNode() {
         let newNode = new this.nodeConstructor({id: this.nodes.length, ...this.nodeOptions})
         this.nodeContainer.appendChild(newNode.node)
         this.nodes.push(newNode)
     }
-    removeNode(){
-        this.nodeContainer.removeChild(this.nodeContainer.lastChild)
-        this.nodes.pop()
-    }
 }
 
 class Ensemble {
-    constructor({ id, updateFunction }) {
-        this.id = id
+    constructor({ container, updateFunction }) {
+        this.id = Math.random().toString().substring(2, 10); // Hope there isn't a collision
+        this.container = container
         this.updateFunction = updateFunction
 
         // Set up the node so I can attach listeners
@@ -302,8 +332,6 @@ class Ensemble {
             this.errorNode.innerText = ""
         }
 
-
-
         return {
             cpu: taskCreditCost['cpu'] * runs,
             gpu: taskCreditCost['gpu'] * runs,
@@ -314,26 +342,35 @@ class Ensemble {
         if(this?.name?.value){
             return this.name?.value
         }
-        return this.id
+        return "<Ensemble Name>"
     }
 
-    updateTitle() {
-        this.titleNode.innerText = `Ensemble ${this.title}`
-        for(const innerObject of [...this.tasks.nodes, ...this.sharedFiles.nodes]){
-            innerObject.updateTitle()
-        }
+    set node(node) {
+        this._node = node
     }
 
     get node() {
         if(!this._node){
+            this.name = new Input(`${this.id}.name`, {}, { innerText: "Name"}, { value: `Ensemble ${this.id.substring(0, 2)}`})
             this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Ensemble - ${this.title}`})
+            this.closeButton = createNode({
+                tagName: "img",
+                src: "/static/index/images/x-square.svg",
+                style: "height: 1.25rem; cursor: pointer;"
+            })
+            this.closeButton.addEventListener("click", this.delete.bind(this))
+            this.topRow = createNode({
+                tagName: "div",
+                children: [this.titleNode, this.closeButton],
+                className: "d-flex justify-content-between"
+            })
+
             this.errorNode = createNode({tagName: "div", className: "text-danger"})
 
             // Set up the input nodes
-            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1"}
+            let inputOptions = {className: "credit-cost-component form-control", type: "number", value: "1", min: "0", step: "1", required: true}
 
-            this.name = new Input(`name-${this.id}`, {}, { innerText: "Name"})
-            this.runs = new Input(`runs-${this.id}`, {}, { innerText: "Runs"}, inputOptions)
+            this.runs = new Input(`${this.id}.runs`, {}, { innerText: "Runs"}, inputOptions)
             this.runs.node.addEventListener("change", this.updateFunction)
 
             // Set up the tasks input
@@ -355,7 +392,7 @@ class Ensemble {
             this._node = createNode({
                 tagName: "div",
                 children: [
-                    this.titleNode,
+                    this.topRow,
                     this.errorNode,
                     this.name.node,
                     this.runs.node,
@@ -369,43 +406,98 @@ class Ensemble {
         }
         return this._node
     }
+
+
+    get html() {
+        return `
+        <div>
+            <h4>Ensemble - ${this.name.value}</h4>
+            <b>Runs: </b>${this.runs.value}<br>
+            <h4>Shared Files</h4>
+            ${this.sharedFiles.html}
+            <h4>Tasks</h4>
+            ${this.tasks.html}
+        </div>
+        `
+    }
+
+    get json() {
+        return {
+            name: this.name.value,
+            runs: this.runs.value,
+            tasks: this.tasks.json,
+            sharedFiles: this.sharedFiles.json
+        }
+    }
+
+    updateTitle() {
+        this.titleNode.innerText = `Ensemble - ${this.title}`
+        for(const innerObject of [...this.tasks.nodes, ...this.sharedFiles.nodes]){
+            innerObject.updateTitle()
+        }
+    }
+
+    delete() {
+        this.node.remove()
+        this.node = null
+    }
 }
 
 class SharedFile {
-    constructor({id, ensemble}) {
+    constructor({ensemble, container}) {
         // Record General Information
-        this.id = id
+        this.id = Math.random().toString().substring(2, 10); // Hope there isn't a collision
         this.ensemble = ensemble
+        this.container = container
 
         // Set up the node so I can attach listeners
         this.node
         this.name.node.addEventListener("change", this.updateTitle.bind(this))
     }
 
+    static get name() {
+        return "Shared File"
+    }
+
     get title() {
         if(this?.name?.value){
             return this.ensemble.title + "." +  this.name?.value
         }
-        return this.ensemble.title + "." +  this.id
+        return this.ensemble.title + ".<Shared File Name>"
     }
 
     updateTitle() {
-        this.titleNode.innerText = `Shared File ${this.title}`
+        this.titleNode.innerText = `Shared File - ${this.title}`
+    }
+
+    set node(node) {
+        this._node = node
     }
 
     get node() {
         if(!this._node){
+            this.name = new Input(`${this.compositeId}.name`, {}, { innerText: "Name"}, { value: `Shared File ${this.id.substring(0, 2)}`})
             this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Shared File - ${this.title}`})
+            this.closeButton = createNode({
+                tagName: "img",
+                src: "/static/index/images/x-square.svg",
+                style: "height: 1.25rem; cursor: pointer;"
+            })
+            this.closeButton.addEventListener("click", this.delete.bind(this))
+            this.topRow = createNode({
+                tagName: "div",
+                children: [this.titleNode, this.closeButton],
+                className: "d-flex justify-content-between"
+            })
 
             // Create the input nodes
-            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1"}
+            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1", required: true}
 
-            this.name = new Input(`name-${this.compositeId}`, {}, { innerText: "Name"})
-            this.size = new Input(`size-${this.compositeId}`, {}, { innerText: "Size ( in gigabytes )"}, inputOptions)
+            this.size = new Input(`${this.compositeId}.size`, {}, { innerText: "Size ( in gigabytes )"}, inputOptions)
 
             // Create Parent Node
             this._node = createNode({tagName: "div", className: "border border-warning rounded p-2 my-2"})
-            this._node.appendChild(this.titleNode)
+            this._node.appendChild(this.topRow)
             for(const input of this.inputs) {
                 this._node.appendChild(input.node)
             }
@@ -421,19 +513,34 @@ class SharedFile {
         return this.ensemble.id + ".sharedFile." +  this.id
     }
 
+    get html() {
+        return `
+        <div>
+            <b>Shared File - ${this.name.value}</b><br>
+            <b>Size: </b>${this.size.value}<br>
+        </div>
+        `
+    }
+
     get json() {
         return {
             name: this.name.json,
             runs: this.size.json
         }
     }
+
+    delete() {
+        this.node.remove()
+        this.node = null
+    }
 }
 
 class Task {
-    constructor({id, ensemble}) {
+    constructor({ensemble, container}) {
         // Log General information
-        this.id = id
+        this.id = Math.random().toString().substr(2, 10);
         this.ensemble = ensemble
+        this.container = container
 
         // Set up the node so I can attach listeners
         this.node
@@ -444,30 +551,47 @@ class Task {
         if(this?.name?.value){
             return this.ensemble.title + "." +  this.name?.value
         }
-        return this.ensemble.title + "." +  this.id
+        return this.ensemble.title + ".<Task Name>"
     }
 
     updateTitle() {
-        this.titleNode.innerText = `Task ${this.title}`
+        this.titleNode.innerText = `Task - ${this.title}`
+    }
+
+    set node(node) {
+        this._node = node
     }
 
     get node() {
         if(! this._node){
-            // Create the input nodes
-            this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Task - ${this.title}`})
+            // Create the name node ( Must be first so the title can use its value )
+            this.name = new Input(`name-${this.compositeId}`, {}, { innerText: "Name"}, { value: `Task ${this.id.substring(0, 2)}`})
+
+            // Create top bar
+            this.titleNode = createNode({tagName: "h5", className: "mb-0", id: this.id, innerText: `Task - ${this.title}`})
+            this.closeButton = createNode({
+                tagName: "img",
+                src: "/static/index/images/x-square.svg",
+                style: "height: 1.25rem; cursor: pointer;"
+            })
+            this.closeButton.addEventListener("click", this.delete.bind(this))
+            this.topRow = createNode({
+                tagName: "div",
+                children: [this.titleNode, this.closeButton],
+                className: "d-flex justify-content-between"
+            })
             this.errorNode = createNode({tagName: "div", className: "text-danger"})
-            this.name = new Input(`name-${this.compositeId}`, {}, { innerText: "Name"})
 
             // Group these together so we can make the task more compact
             let parentOptions = {className: "col-6"}
-            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1"}
+            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1", required: true}
 
-            this.runs = new Input(`runs-${this.compositeId}`, parentOptions, { innerText: "Runs"}, inputOptions)
-            this.cpuCores = new Input(`cpu-cores-${this.compositeId}`, parentOptions, { innerText: "CPU Cores"}, inputOptions)
-            this.gpus = new Input(`gpu-${this.compositeId}`, parentOptions, { innerText: "GPUs"}, inputOptions)
-            this.memory = new Input(`memory-${this.compositeId}`, parentOptions, { innerText: "Memory ( in gigabytes )"}, inputOptions)
-            this.disk = new Input(`disk-${this.compositeId}`, parentOptions, { innerText: "Disk ( in gigabytes )"}, inputOptions)
-            this.walltime = new Input(`walltime-${this.compositeId}`, parentOptions, { innerText: "Walltime ( in hours )"}, inputOptions)
+            this.runs = new Input(`${this.compositeId}.runs`, parentOptions, { innerText: "Unique Inputs/Simulations"}, inputOptions)
+            this.cpuCores = new Input(`${this.compositeId}.cpu-cores`, parentOptions, { innerText: "CPU Cores"}, inputOptions)
+            this.gpus = new Input(`${this.compositeId}.gpu`, parentOptions, { innerText: "GPUs"}, inputOptions)
+            this.memory = new Input(`${this.compositeId}.memory`, parentOptions, { innerText: "Memory ( in gigabytes )"}, inputOptions)
+            this.disk = new Input(`d${this.compositeId}.disk`, parentOptions, { innerText: "Disk ( in gigabytes )"}, inputOptions)
+            this.walltime = new Input(`${this.compositeId}.name`, parentOptions, { innerText: "Walltime ( in hours )"}, inputOptions)
             this.taskInputContainer = createNode({
                 tagName: "div",
                 children: [this.runs.node, this.cpuCores.node, this.gpus.node, this.memory.node, this.disk.node, this.walltime.node],
@@ -477,7 +601,7 @@ class Task {
             // Create Parent Node
             this._node = createNode({
                 tagName: "div",
-                children: [this.titleNode, this.errorNode, this.name.node, this.taskInputContainer],
+                children: [this.topRow, this.errorNode, this.name.node, this.taskInputContainer],
                 className: "border border-info rounded p-2 my-2"
             })
 
@@ -516,6 +640,20 @@ class Task {
         return this.ensemble.id + ".task." +  this.id
     }
 
+    get html() {
+        return `
+        <div>
+            <b>Task - ${this.name.value}</b><br>
+            <b>Runs: </b>${this.runs.value}<br>
+            <b>CPU Cores: </b>${this.cpuCores.value}<br>
+            <b>GPUs: </b>${this.gpus.value}<br>
+            <b>Memory: </b>${this.memory.value}<br>
+            <b>Walltime: </b>${this.walltime.value}<br>
+            <b>Disk: </b>${this.disk.value}<br>
+        </div>
+        `
+    }
+
     get json() {
         return {
             name: this.name.json,
@@ -523,8 +661,14 @@ class Task {
             cpuCores: this.cpuCores.json,
             gpus: this.gpus.json,
             memory: this.memory.json,
-            walltime: this.walltime.json
+            walltime: this.walltime.json,
+            disk: this.disk.json
         }
+    }
+
+    delete() {
+        this.node.remove()
+        this.node = null
     }
 }
 

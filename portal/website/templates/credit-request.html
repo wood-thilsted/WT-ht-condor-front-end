@@ -84,18 +84,77 @@
                         </div>
                     </div>
 
-                    <h4 class="pt-3">Optional</h4>
+                    <h3 class="pt-3">Optional</h3>
                     <p>
                         If you are familiar with your computational workloads then you can expedite the application process
                         by providing us with your expected usage below. All usage should be categorized using ensembles,
                         tasks, and shared files as defined below.
                     </p>
-                    <p>
-                        <b>Ensembles</b>: A set of tasks, and shared files working towards a common goal<br>
-                        <b>Tasks</b>: A job or batch of jobs<br>
-                        <b>Shared Files</b>: A file used by many tasks in an Ensemble
-                    </p>
-
+                    <h4>Definitions</h4>
+                    <div class="accordion pb-2" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Ensemble
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne">
+                                <div class="accordion-body">
+                                    <p>A set of tasks, and shared files working towards a common goal</p>
+                                    <ul>
+                                        <li><b>Name: </b>Arbitrary name of this ensemble</li>
+                                        <li><b>Runs: </b>Number of Unique Inputs or, if randomness, number of times, to run this Ensemble</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
+                                    Task
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse show" aria-labelledby="headingThree">
+                                <div class="accordion-body">
+                                    <p>
+                                        Tasks are the smallest component of the HTC workload, representing a set of jobs
+                                        with unique inputs, and similar resource requirements. In the case of
+                                        simulations, the unique inputs might involve randomness in the jobs themselves.
+                                    </p>
+                                    <ul>
+                                        <li><b>Name: </b>Arbitrary name of this Task</li>
+                                        <li>
+                                            <b>Unique Inputs/Simulations: </b>
+                                            The number of unique inputs, translates directly to number of tasks.
+                                            Typically, will be the size of the input space or in the case of simulations the
+                                            number of simulations to run.
+                                        </li>
+                                        <li><b>CPU Cores: </b>Number of Cores to use in one run of this task</li>
+                                        <li><b>GPUs: </b>Number of GPUs to use in one run of this task</li>
+                                        <li><b>Memory: </b>Memory, in gigabytes, required for one run of this task</li>
+                                        <li><b>Disk: </b>Disk Space, in gigabytes, required for one run of this task</li>
+                                        <li><b>Walltime: </b>Time, in hours, one run of this task will use</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                                    Shared Files
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse show" aria-labelledby="headingTwo">
+                                <div class="accordion-body">
+                                    <p>A file used by many tasks in an Ensemble</p>
+                                    <ul>
+                                        <li><b>Name: </b>Arbitrary name of this file</li>
+                                        <li><b>Size: </b>Size ( in gigabytes ) of this file</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="">
                         <div class="row pb-2">
                             <div class="col-6">
