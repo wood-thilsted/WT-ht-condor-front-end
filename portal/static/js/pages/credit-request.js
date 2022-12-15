@@ -24,6 +24,8 @@ function bodyFunction (form, metadata) {
 
     description += creditRequestPage.ensembleNodeContainer.html
 
+    description += `<h4>Ensemble JSON</h4>\n<code>${JSON.stringify(creditRequestPage.ensembleNodeContainer.json)}</code>`
+
     const body = {
         ...formData,
         ...metadata,
@@ -95,18 +97,18 @@ class CreditCalculator {
      * @returns {Object}
      */
     static calculateCost = ({cpu, memory, gpu, walltime, runs}) => {
-        cpu = parseInt(cpu)
-        memory = parseInt(memory)
-        gpu = parseInt(gpu)
-        walltime = parseInt(walltime)
-        runs = parseInt(runs)
+        cpu = isInt(cpu) ? parseInt(cpu) : NaN
+        memory = isInt(memory) ? parseInt(memory) : NaN
+        gpu = isInt(gpu) ? parseInt(gpu) : NaN
+        walltime = parseFloat(walltime)
+        runs = isInt(runs) ? parseInt(runs) : NaN
 
         // Report if a task is invalid for calculating
         if([cpu, memory, walltime, runs].filter(x => isNaN(x)).length > 0){
             return {
                 gpu: 0,
                 cpu: 0,
-                errors: "Missing Required Value [Unique Inputs/Simulations, CPU, Memory, Walltime, Disk]"
+                errors: "Missing or Invalid Input: Integers allowed for all, Disk and Walltime allow decimals."
             }
         }
 
@@ -190,7 +192,7 @@ class CreditCalculator {
 
     static cpuMemory = (memory, cores) => {
         const nominal = 2
-        memory = nominal - (cores*nominal)
+        memory = memory - (cores*nominal)
         if(memory <= 0){
             return 0 * memory
         } else if(memory <= 6){
@@ -310,7 +312,7 @@ class Ensemble {
         this.updateFunction = updateFunction
 
         // Set up the node so I can attach listeners
-        this.node
+        this.node = this.createNode()
         this.name.node.addEventListener("change", this.updateTitle.bind(this))
     }
 
@@ -345,68 +347,62 @@ class Ensemble {
         return "<Ensemble Name>"
     }
 
-    set node(node) {
-        this._node = node
+    createNode(){
+        this.name = new Input(`${this.id}.name`, {}, { innerText: "Name"}, { value: `Ensemble ${this.id.substring(0, 2)}`})
+        this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Ensemble - ${this.title}`})
+        this.closeButton = createNode({
+            tagName: "img",
+            src: "/static/index/images/x-square.svg",
+            style: "height: 1.25rem; cursor: pointer;"
+        })
+        this.closeButton.addEventListener("click", this.delete.bind(this))
+        this.topRow = createNode({
+            tagName: "div",
+            children: [this.titleNode, this.closeButton],
+            className: "d-flex justify-content-between"
+        })
+
+        this.errorNode = createNode({tagName: "div", className: "text-danger"})
+
+        // Set up the input nodes
+        let inputOptions = {className: "credit-cost-component form-control", type: "number", value: "1", min: "0", step: "1", required: true}
+
+        this.runs = new Input(`${this.id}.runs`, {}, { innerText: "Runs"}, inputOptions)
+        this.runs.node.addEventListener("change", this.updateFunction)
+
+        // Set up the tasks input
+        this.tasksHeader = createNode({tagName: "h4", innerText: "Tasks", className: "text-info"})
+        this.tasks = new NodeContainer({
+            constructor: Task,
+            nodeOptions: { ensemble: this },
+            buttonOptions: { className: "border border-info form-control"}
+        })
+
+        // Set up the Shared Files input
+        this.sharedFilesHeader = createNode({tagName: "h4", innerText: "Shared Files", className: "text-warning"})
+        this.sharedFiles = new NodeContainer({
+            constructor: SharedFile,
+            nodeOptions: { ensemble: this },
+            buttonOptions: { className: "border border-warning form-control"}
+        })
+
+        let node = createNode({
+            tagName: "div",
+            children: [
+                this.topRow,
+                this.errorNode,
+                this.name.node,
+                this.runs.node,
+                this.tasksHeader,
+                this.tasks.node,
+                this.sharedFilesHeader,
+                this.sharedFiles.node
+            ],
+            className: "border border-3 rounded p-2 mb-2"
+        })
+
+        return node
     }
-
-    get node() {
-        if(!this._node){
-            this.name = new Input(`${this.id}.name`, {}, { innerText: "Name"}, { value: `Ensemble ${this.id.substring(0, 2)}`})
-            this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Ensemble - ${this.title}`})
-            this.closeButton = createNode({
-                tagName: "img",
-                src: "/static/index/images/x-square.svg",
-                style: "height: 1.25rem; cursor: pointer;"
-            })
-            this.closeButton.addEventListener("click", this.delete.bind(this))
-            this.topRow = createNode({
-                tagName: "div",
-                children: [this.titleNode, this.closeButton],
-                className: "d-flex justify-content-between"
-            })
-
-            this.errorNode = createNode({tagName: "div", className: "text-danger"})
-
-            // Set up the input nodes
-            let inputOptions = {className: "credit-cost-component form-control", type: "number", value: "1", min: "0", step: "1", required: true}
-
-            this.runs = new Input(`${this.id}.runs`, {}, { innerText: "Runs"}, inputOptions)
-            this.runs.node.addEventListener("change", this.updateFunction)
-
-            // Set up the tasks input
-            this.tasksHeader = createNode({tagName: "h4", innerText: "Tasks", className: "text-info"})
-            this.tasks = new NodeContainer({
-                constructor: Task,
-                nodeOptions: { ensemble: this },
-                buttonOptions: { className: "border border-info form-control"}
-            })
-
-            // Set up the Shared Files input
-            this.sharedFilesHeader = createNode({tagName: "h4", innerText: "Shared Files", className: "text-warning"})
-            this.sharedFiles = new NodeContainer({
-                constructor: SharedFile,
-                nodeOptions: { ensemble: this },
-                buttonOptions: { className: "border border-warning form-control"}
-            })
-
-            this._node = createNode({
-                tagName: "div",
-                children: [
-                    this.topRow,
-                    this.errorNode,
-                    this.name.node,
-                    this.runs.node,
-                    this.tasksHeader,
-                    this.tasks.node,
-                    this.sharedFilesHeader,
-                    this.sharedFiles.node
-                ],
-                className: "border border-3 rounded p-2 mb-2"
-            })
-        }
-        return this._node
-    }
-
 
     get html() {
         return `
@@ -451,8 +447,7 @@ class SharedFile {
         this.container = container
 
         // Set up the node so I can attach listeners
-        this.node
-        this.name.node.addEventListener("change", this.updateTitle.bind(this))
+        this.node = this.createNode()
     }
 
     static get name() {
@@ -470,39 +465,37 @@ class SharedFile {
         this.titleNode.innerText = `Shared File - ${this.title}`
     }
 
-    set node(node) {
-        this._node = node
-    }
+    createNode(){
+        this.name = new Input(`${this.compositeId}.name`, {}, { innerText: "Name"}, { value: `Shared File ${this.id.substring(0, 2)}`})
+        this.name.node.addEventListener("change", this.updateTitle.bind(this))
 
-    get node() {
-        if(!this._node){
-            this.name = new Input(`${this.compositeId}.name`, {}, { innerText: "Name"}, { value: `Shared File ${this.id.substring(0, 2)}`})
-            this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Shared File - ${this.title}`})
-            this.closeButton = createNode({
-                tagName: "img",
-                src: "/static/index/images/x-square.svg",
-                style: "height: 1.25rem; cursor: pointer;"
-            })
-            this.closeButton.addEventListener("click", this.delete.bind(this))
-            this.topRow = createNode({
-                tagName: "div",
-                children: [this.titleNode, this.closeButton],
-                className: "d-flex justify-content-between"
-            })
+        // Create Top Row
+        this.titleNode = createNode({tagName: "h5", id: this.id, innerText: `Shared File - ${this.title}`})
+        this.closeButton = createNode({
+            tagName: "img",
+            src: "/static/index/images/x-square.svg",
+            style: "height: 1.25rem; cursor: pointer;"
+        })
+        this.closeButton.addEventListener("click", this.delete.bind(this))
+        this.topRow = createNode({
+            tagName: "div",
+            children: [this.titleNode, this.closeButton],
+            className: "d-flex justify-content-between"
+        })
 
-            // Create the input nodes
-            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1", required: true}
+        // Create the input nodes
+        let inputOptions = {className: "credit-cost-component form-control", placeholder: "1.0 (Decimal)", required: true}
 
-            this.size = new Input(`${this.compositeId}.size`, {}, { innerText: "Size ( in gigabytes )"}, inputOptions)
+        this.size = new Input(`${this.compositeId}.size`, {}, { innerText: "Size ( in gigabytes )"}, inputOptions)
 
-            // Create Parent Node
-            this._node = createNode({tagName: "div", className: "border border-warning rounded p-2 my-2"})
-            this._node.appendChild(this.topRow)
-            for(const input of this.inputs) {
-                this._node.appendChild(input.node)
-            }
+        // Create Parent Node
+        let node = createNode({tagName: "div", className: "border border-warning rounded p-2 my-2"})
+        node.appendChild(this.topRow)
+        for(const input of this.inputs) {
+            node.appendChild(input.node)
         }
-        return this._node
+
+        return node
     }
 
     get inputs() {
@@ -517,15 +510,15 @@ class SharedFile {
         return `
         <div>
             <b>Shared File - ${this.name.value}</b><br>
-            <b>Size: </b>${this.size.value}<br>
+            <b>Size ( in GB ): </b>${this.size.value}<br>
         </div>
         `
     }
 
     get json() {
         return {
-            name: this.name.json,
-            runs: this.size.json
+            name: this.name.value,
+            runs: this.size.value
         }
     }
 
@@ -543,7 +536,7 @@ class Task {
         this.container = container
 
         // Set up the node so I can attach listeners
-        this.node
+        this.node = this.createNode()
         this.name.node.addEventListener("change", this.updateTitle.bind(this))
     }
 
@@ -558,60 +551,54 @@ class Task {
         this.titleNode.innerText = `Task - ${this.title}`
     }
 
-    set node(node) {
-        this._node = node
-    }
+    createNode(){
+        // Create the name node ( Must be first so the title can use its value )
+        this.name = new Input(`name-${this.compositeId}`, {}, { innerText: "Name"}, { value: `Task ${this.id.substring(0, 2)}`})
 
-    get node() {
-        if(! this._node){
-            // Create the name node ( Must be first so the title can use its value )
-            this.name = new Input(`name-${this.compositeId}`, {}, { innerText: "Name"}, { value: `Task ${this.id.substring(0, 2)}`})
+        // Create top bar
+        this.titleNode = createNode({tagName: "h5", className: "mb-0", id: this.id, innerText: `Task - ${this.title}`})
+        this.closeButton = createNode({
+            tagName: "img",
+            src: "/static/index/images/x-square.svg",
+            style: "height: 1.25rem; cursor: pointer;"
+        })
+        this.closeButton.addEventListener("click", this.delete.bind(this))
+        this.topRow = createNode({
+            tagName: "div",
+            children: [this.titleNode, this.closeButton],
+            className: "d-flex justify-content-between"
+        })
+        this.errorNode = createNode({tagName: "div", className: "text-danger"})
 
-            // Create top bar
-            this.titleNode = createNode({tagName: "h5", className: "mb-0", id: this.id, innerText: `Task - ${this.title}`})
-            this.closeButton = createNode({
-                tagName: "img",
-                src: "/static/index/images/x-square.svg",
-                style: "height: 1.25rem; cursor: pointer;"
-            })
-            this.closeButton.addEventListener("click", this.delete.bind(this))
-            this.topRow = createNode({
-                tagName: "div",
-                children: [this.titleNode, this.closeButton],
-                className: "d-flex justify-content-between"
-            })
-            this.errorNode = createNode({tagName: "div", className: "text-danger"})
+        // Group these together so we can make the task more compact
+        let parentOptions = {className: "col-6"}
+        let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1", placeholder: "1 (Integer)", required: true}
 
-            // Group these together so we can make the task more compact
-            let parentOptions = {className: "col-6"}
-            let inputOptions = {className: "credit-cost-component form-control", type: "number", min: "0", step: "1", required: true}
+        this.runs = new Input(`${this.compositeId}.runs`, parentOptions, { innerText: "Unique Inputs/Simulations"}, inputOptions)
+        this.cpuCores = new Input(`${this.compositeId}.cpu-cores`, parentOptions, { innerText: "CPU Cores"}, inputOptions)
+        this.gpus = new Input(`${this.compositeId}.gpu`, parentOptions, { innerText: "GPUs"}, inputOptions)
+        this.memory = new Input(`${this.compositeId}.memory`, parentOptions, { innerText: "Memory ( in gigabytes )"}, inputOptions)
+        this.disk = new Input(`d${this.compositeId}.disk`, parentOptions, { innerText: "Disk ( in gigabytes )"}, {className: "credit-cost-component form-control", placeholder: "1.0 (Decimal)", required: true})
+        this.walltime = new Input(`${this.compositeId}.name`, parentOptions, { innerText: "Walltime ( in hours )"}, {className: "credit-cost-component form-control", placeholder: "1.0 (Decimal)", required: true})
+        this.taskInputContainer = createNode({
+            tagName: "div",
+            children: [this.runs.node, this.cpuCores.node, this.gpus.node, this.memory.node, this.disk.node, this.walltime.node],
+            className: "row"
+        })
 
-            this.runs = new Input(`${this.compositeId}.runs`, parentOptions, { innerText: "Unique Inputs/Simulations"}, inputOptions)
-            this.cpuCores = new Input(`${this.compositeId}.cpu-cores`, parentOptions, { innerText: "CPU Cores"}, inputOptions)
-            this.gpus = new Input(`${this.compositeId}.gpu`, parentOptions, { innerText: "GPUs"}, inputOptions)
-            this.memory = new Input(`${this.compositeId}.memory`, parentOptions, { innerText: "Memory ( in gigabytes )"}, inputOptions)
-            this.disk = new Input(`d${this.compositeId}.disk`, parentOptions, { innerText: "Disk ( in gigabytes )"}, inputOptions)
-            this.walltime = new Input(`${this.compositeId}.name`, parentOptions, { innerText: "Walltime ( in hours )"}, inputOptions)
-            this.taskInputContainer = createNode({
-                tagName: "div",
-                children: [this.runs.node, this.cpuCores.node, this.gpus.node, this.memory.node, this.disk.node, this.walltime.node],
-                className: "row"
-            })
+        // Add listeners to the input nodes
+        this.inputs.forEach(input => {
+            input.node.addEventListener("change", this.ensemble.updateFunction)
+        })
 
-            // Create Parent Node
-            this._node = createNode({
-                tagName: "div",
-                children: [this.topRow, this.errorNode, this.name.node, this.taskInputContainer],
-                className: "border border-info rounded p-2 my-2"
-            })
+        // Create Parent Node
+        let node = createNode({
+            tagName: "div",
+            children: [this.topRow, this.errorNode, this.name.node, this.taskInputContainer],
+            className: "border border-info rounded p-2 my-2"
+        })
 
-            // Add listeners to the input nodes
-            this.inputs.forEach(input => {
-                input.node.addEventListener("change", this.ensemble.updateFunction)
-            })
-        }
-
-        return this._node
+        return node
     }
 
     get inputs() {
@@ -647,22 +634,22 @@ class Task {
             <b>Runs: </b>${this.runs.value}<br>
             <b>CPU Cores: </b>${this.cpuCores.value}<br>
             <b>GPUs: </b>${this.gpus.value}<br>
-            <b>Memory: </b>${this.memory.value}<br>
-            <b>Walltime: </b>${this.walltime.value}<br>
-            <b>Disk: </b>${this.disk.value}<br>
+            <b>Memory ( in GB ): </b>${this.memory.value}<br>
+            <b>Walltime ( in Hours ): </b>${this.walltime.value}<br>
+            <b>Disk ( in GB ): </b>${this.disk.value}<br>
         </div>
         `
     }
 
     get json() {
         return {
-            name: this.name.json,
-            runs: this.runs.json,
-            cpuCores: this.cpuCores.json,
-            gpus: this.gpus.json,
-            memory: this.memory.json,
-            walltime: this.walltime.json,
-            disk: this.disk.json
+            name: this.name.value,
+            runs: this.runs.value,
+            cpuCores: this.cpuCores.value,
+            gpus: this.gpus.value,
+            memory: this.memory.value,
+            walltime: this.walltime.value,
+            disk: this.disk.value
         }
     }
 

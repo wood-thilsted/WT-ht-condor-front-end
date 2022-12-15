@@ -109,6 +109,18 @@ let getFormData = (form) => {
     return namesAndInputs
 }
 
+let formDataToHtml = (formData) => {
+    const html = Object.entries(formData).reduce((previousValue, [k, v]) => {
+        if(!['h-captcha-response', 'g-recaptcha-response'].includes(k) && !k.includes(".") && "label" in v){
+            previousValue += `<h4>\n${v['label']}\n</h4>\n`
+            previousValue += `<p>\n${v['value']}\n</p>\n`
+        }
+        return previousValue
+    }, "")
+
+    return html
+}
+
 let isVisible = (htmlElement) => {
     try {
         return htmlElement.offsetParent !== null
@@ -116,6 +128,10 @@ let isVisible = (htmlElement) => {
         console.error(e)
         return false
     }
+}
+
+function isInt(v){
+    return parseInt(v) === parseFloat(v)
 }
 
 /**
