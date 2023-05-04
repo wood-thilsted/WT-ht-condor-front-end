@@ -97,8 +97,7 @@ class FreshDeskAPI:
             'description': description,
             'priority': priority,
             'status': status,
-            'type': type,
-            **kwargs
+            'type': type
         })
 
         headers = {"Content-Type": "application/json"}
@@ -109,7 +108,8 @@ class FreshDeskAPI:
             self,
             name: str,
             email: str,
-            description: str
+            description: str,
+            **kwargs
     ):
         ticket_data = {
             "name": name,
@@ -119,7 +119,8 @@ class FreshDeskAPI:
             "group_id": 12000007319,
             "priority": 1,
             "status": 2,
-            "type": "User Facilitation-Account or login"
+            "type": "User Facilitation-Account or login",
+            **kwargs
         }
 
         return self.create_ticket(**ticket_data)
@@ -132,24 +133,8 @@ def create_ticket():
     if not verify_captcha(request.json['h-captcha-response']["value"]):
         return make_response({'error': "You did not complete the h_captcha"}, 403)
 
-    json = request.json
-
-    # Grab the standard information
-    email = json["email"]['value']
-    name = json["full-name"]['value']
-
-    # Delete extraneous information to parse the description
-    del json['email']
-    del json['full-name']
-    del json['h-captcha-response']
-    del json['g-recaptcha-response']
-
-    # Grab the description
-    description = ""
-    for key in json.keys():
-        description += f"<h5>\n{json[key]['label']}\n</h5>\n"
-        description += f"<p>\n{json[key]['value']}\n</p>\n"
-
-    response = FreshDeskAPI().create_path_ticket(name=name, email=email, description=description)
+    response = FreshDeskAPI().create_path_ticket(
+        **request.json
+    )
 
     return make_response(response.json(), response.status_code)

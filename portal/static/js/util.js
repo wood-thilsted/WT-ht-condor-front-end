@@ -2,14 +2,13 @@
 // General util functions used sitewide
 //
 
-let submitForm = async (e, form, endpoint, callback) => {
+let submitForm = async (e, form, endpoint, callback, metadata, bodyFunction) => {
 
     e.preventDefault()
 
     if(!validateForm(form)){ return; } // Validate the form
 
-    const formData = getFormData(form)
-    const body = JSON.stringify(formData)
+    let body = bodyFunction(form, metadata)
 
     let response;
     let json;
@@ -31,7 +30,7 @@ let submitForm = async (e, form, endpoint, callback) => {
     }
 
     if(callback){
-        callback(response?.ok, formData)
+        callback(response?.ok, getFormData(form))
     }
 }
 
@@ -89,6 +88,10 @@ let getFormData = (form) => {
 
         let element = document.getElementById(name)
 
+        if(element?.tagName === "SELECT"){
+            currentValue[name]["value"] = document.querySelectorAll(`option[value=${value}]`)[0].textContent.trim()
+        }
+
         if(isVisible(element)){
             currentValue[name]["label"] = document.getElementById(name).labels[0].textContent.trim()
         }
@@ -106,6 +109,18 @@ let getFormData = (form) => {
     return namesAndInputs
 }
 
+let formDataToHtml = (formData) => {
+    const html = Object.entries(formData).reduce((previousValue, [k, v]) => {
+        if(!['h-captcha-response', 'g-recaptcha-response'].includes(k) && !k.includes(".") && "label" in v){
+            previousValue += `<h4>\n${v['label']}\n</h4>\n`
+            previousValue += `<p>\n${v['value']}\n</p>\n`
+        }
+        return previousValue
+    }, "")
+
+    return html
+}
+
 let isVisible = (htmlElement) => {
     try {
         return htmlElement.offsetParent !== null
@@ -114,3 +129,80 @@ let isVisible = (htmlElement) => {
         return false
     }
 }
+
+function isInt(v){
+    return parseInt(v) === parseFloat(v)
+}
+
+/**
+ *
+ * @param tagName
+ * @param children {Array}
+ * @param options
+ * @returns {HTMLElement}
+ */
+let createNode = ({tagName, children = [], ...options}) => {
+    let node = document.createElement(tagName)
+
+    Object.entries(options).forEach(([k, v]) => {
+        node.setAttribute(k, v);
+        node[k] = v;
+    })
+    children.forEach(n => node.appendChild(n))
+    return node
+}
+
+/** Creates an input element
+ *
+ * @param id
+ * @param parentOptions
+ * @param labelOptions
+ * @param inputOptions
+ * @returns {HTMLElement}
+ */
+let createInput = (id, parentOptions, labelOptions, inputOptions) => {
+    let parentNode = createNode({tagName: "div", ...parentOptions})
+    let labelNode = createNode({tagName: "label", ...labelOptions})
+    let inputNode = createNode({tagName: "input", ...inputOptions})
+    parentNode.appendChild(labelNode)
+    parentNode.appendChild(inputNode)
+    return parentNode
+}
+
+class Input {
+    constructor(id, parentOptions = {}, labelOptions = {}, inputOptions = {}) {
+        this.id = id
+        this.parentNode = createNode({tagName: "div", ...parentOptions})
+        this.labelNode = createNode({
+            tagName: "label",
+            for: id,
+            ...labelOptions
+        })
+        this.inputNode = createNode({
+            tagName: "input",
+            id: id,
+            name: id,
+            className: "form-control",
+            ...inputOptions
+        })
+        this.parentNode.appendChild(this.labelNode)
+        this.parentNode.appendChild(this.inputNode)
+    }
+
+    get node() {
+        return this.parentNode
+    }
+
+    get value() {
+        return this.inputNode.value
+    }
+
+    get json() {
+        return {
+            value: this.value,
+            label: this.labelNode.innerText,
+            name: this.id
+        }
+    }
+}
+

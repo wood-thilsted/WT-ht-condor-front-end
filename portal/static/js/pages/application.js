@@ -5,9 +5,26 @@
 let submitButton = document.getElementById("submit")
 let form = document.getElementById("consultation-form")
 
-submitButton.addEventListener("click", (e) => submitForm(e, form, "/api/v1/freshdesk/ticket", callback))
+let bodyFunction = (form, metadata) => {
 
-let statusSelect = document.getElementById("status")
+    // Build the description text
+    const formData = getFormData(form)
+    const html = formDataToHtml(formData)
+
+    const body = {
+        ...formData,
+        ...metadata,
+        email: formData['email']['value'],
+        name: formData['full-name']['value'],
+        description: html
+    }
+
+    return JSON.stringify(body)
+}
+
+submitButton.addEventListener("click", (e) => submitForm(e, form, "/api/v1/freshdesk/ticket", callback, {}, bodyFunction))
+
+let statusSelect = document.getElementById("researcher-status")
 statusSelect.addEventListener("change", (e) => {
     if(e.target.value == "awarded"){
         document.getElementById("questions-for-the-awarded").hidden = false

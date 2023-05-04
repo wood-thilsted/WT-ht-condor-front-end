@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block title %}Facility Credit Application{% endblock %}
+
+{% block style %}
+    <style>
+        .input-tooltip {
+            padding-bottom: 3px;
+        }
+    </style>
+{% endblock %}
+
+{% block script %}
+
+    <script src="/static/js/pages/credit-request.js"  defer></script>
+    <script src="https://js.hcaptcha.com/1/api.js" defer></script>
+
+{% endblock %}
+
+{% block body %}
+    <div class="container-xxl py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-xl-7 col-lg-8 col-md-10">
+                <h1>Facility Credit Request</h1>
+                <p>
+                    Gain access to the <a href="https://path-cc.io/facility/">PATh Facility</a> by filling out the
+                    request form below. On submission, we will assign you a ticket and follow up to get you started.
+                </p>
+                <h2>Request Form</h2>
+                <form id="request-form" name="request-form" method="post" action="">
+
+                    <div class="rounded border border-primary p-2">
+                        <div class="">
+                            <label for="full-name" class="form-label" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="Required">
+                                Full Name*
+                            </label>
+                            <input id="full-name" name="full-name" type="text" class="form-control" placeholder="First Last" required>
+                        </div>
+                        <div class="pt-3">
+                            <label for="email" class="form-label" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="Required">
+                                Email*
+                            </label>
+                            <input id="email" name="email" type="email" class="form-control" placeholder="username@domain.ext" required>
+                        </div>
+                        <div class="pt-3">
+                            <label for="institution" class="form-label" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="Required">
+                                Institution*
+                            </label>
+                            <textarea id="institution" name="institution" class="form-control" rows="1" required></textarea>
+                        </div>
+                        <div class="pt-3">
+                            <label for="description" class="form-label" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="Required">
+                                Short description of the science or computing project*
+                            </label>
+                            <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="pt-3">
+                            <label for="nsf-fos" class="form-label" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" title="Required">
+                                NSF Program*
+                            </label>
+                            <select id="nsf-fos" name="nsf-fos" class="form-control" required>
+                                <option value="na" selected>Not Applicable</option>
+                                <option value="cds-and-e">Computational and Data-Enabled Science and Engineering</option>
+                                <option value="cssi">Cyberinfrastructure for Sustained Scientific Innovation</option>
+                                <option value="bio-dbi">Innovation: Bioinformatics</option>
+                                <option value="bios-ios">Neural Systems</option>
+                                <option value="crcns">Collaborative Research in Computational Neuroscience</option>
+                                <option value="aag">Astronomy and Astrophysics Research Grants</option>
+                                <option value="ctmc">Chemical Theory, Models, and Computational Methods</option>
+                                <option value="cmmt">Condensed Matter and Materials Theory</option>
+                                <option value="a-m-o-physics">Atomic, Molecular and Optical Physics ‒ Theory</option>
+                                <option value="nuclear-physics">Nuclear Physics ‒ Theory</option>
+                                <option value="gi">Geoinformatics</option>
+                                <option value="ph">Geophysics</option>
+                                <option value="artic-research-opps">Arctic Research Opportunities</option>
+                                <option value="anartic-research">Antarctic Research</option>
+                            </select>
+                        </div>
+                        <div id="questions-for-the-nsf" class="pt-3" hidden>
+                            <label for="nsf-award-number" class="form-label">
+                                NSF Award Number*
+                            </label>
+                            <input id="nsf-award-number" name="nsf-award-number" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <h3 class="pt-3">Optional</h3>
+                    <p>
+                        If you are familiar with your computational workloads then you can expedite the application process
+                        by providing us with your expected usage below. All usage should be categorized using ensembles,
+                        tasks, and shared files as defined below.
+                    </p>
+                    <h4>Definitions</h4>
+                    <div class="accordion pb-2" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    Ensemble
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+                                <div class="accordion-body">
+                                    <p>A set of tasks, and shared files working towards a common goal</p>
+                                    <ul>
+                                        <li><b>Name: </b>Arbitrary name of this ensemble</li>
+                                        <li>
+                                            <b>Runs: </b>
+                                            Number of times to run this Ensemble. Typical aligns with number of unique
+                                            ensemble inputs or if the ensemble is a simulation, the number of simulations.
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Task
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree">
+                                <div class="accordion-body">
+                                    <p>
+                                        Tasks are the smallest component of the HTC workload and are grouped by function.
+                                        All tasks of the same function are expected to use similar resource requirements,
+                                        with their differences laying in input variables or randomness in the function itself.
+                                    </p>
+                                    <ul>
+                                        <li><b>Name: </b>Arbitrary name of this task</li>
+                                        <li>
+                                            <b>Unique Inputs/Simulation Runs: </b>
+                                            Either the number of inputs or simulation runs of a single task
+                                        </li>
+                                        <li><b>CPU Cores: </b>Number of Cores to use in one run of this task</li>
+                                        <li><b>GPUs: </b>Number of GPUs to use in one run of this task</li>
+                                        <li><b>Memory: </b>Memory, in gigabytes, required for one run of this task</li>
+                                        <li><b>Disk: </b>Disk Space, in gigabytes, required for one run of this task</li>
+                                        <li><b>Walltime: </b>Time, in hours, one run of this task will use</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Shared Files
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo">
+                                <div class="accordion-body">
+                                    <p>A file used by many tasks in an Ensemble. Can be shared data, code files, etc.</p>
+                                    <ul>
+                                        <li><b>Name: </b>Arbitrary name of this file</li>
+                                        <li><b>Size: </b>Size ( in gigabytes ) of this file</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="">
+                        <div class="row pb-2">
+                            <div class="col-6">
+                                <label for="cpu-credit-total">CPU Credit Total</label>
+                                <input id="cpu-credit-total" name="cpu-credit-total" class="form-control"/>
+                            </div>
+                            <div class="col-6">
+                                <label for="gpu-credit-total">GPU Credit Total</label>
+                                <input id="gpu-credit-total" name="gpu-credit-total" class="form-control"/>
+                            </div>
+                        </div>
+
+                        <h4>Ensembles</h4>
+                        <div id="ensembles"></div>
+                    </div>
+
+                    <div class="h-captcha mt-3" data-sitekey="deb6e053-975d-4c72-86be-6c91fdf4babf"></div>
+                    <div id="form-error" class="alert alert-warning py-2 my-2" role="alert" hidden></div>
+                    <button id="submit" type="submit" name="submit" class="form-control btn btn-primary mt-2 w-auto px-3">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="success-modal" class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">We look forward to meeting with you!</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>
+                Please check your inbox at <b id="user-email"></b> for an email which you can use
+                to follow up or adjust any provided information as needed.
+            </p>
+            <p>
+                You can expect our Research Facilitation team to <b>respond in 1 business day!</b>
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="failure-modal" class="modal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">Application Submission Failed</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>
+                Your automatic application submission failed, please copy the below text and email it to
+                us at <a href="mailto:support@path-cc.io">support@osg-htc.org</a> so that we can create a ticket manually.
+            </p>
+            <div class="rounded bg-light p-2">
+                <pre id="form-information" class="text-black mb-0"></pre>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock %}
+
+{% block postscript %}
+
+{% endblock %}
