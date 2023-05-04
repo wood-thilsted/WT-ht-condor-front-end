@@ -28,10 +28,6 @@ def index():
 def application():
     return make_response(render_template("application.html"))
 
-@website_bp.route("/credit-request")
-def credit_request():
-    return make_response(render_template("credit-request.html"))
-
 @website_bp.route("/health")
 def health():
     return "Hello!"
