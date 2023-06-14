@@ -98,13 +98,19 @@ def get_tags() -> list:
     return tags
 
 
-def get_incremented_release_tag(tags: list):
-
+def get_most_recent_production_tag(tags: list):
     tags = [Tag(tag['name'], **tag) for tag in tags]
 
     prod_tags = filter(lambda tag: not tag.is_itb(), tags)
 
     most_recent_production_tag = max(prod_tags)
+
+    return most_recent_production_tag
+
+
+def get_incremented_release_tag(tags: list):
+
+    most_recent_production_tag = get_most_recent_production_tag(tags)
 
     most_recent_production_tag.increment_doc_tag()
 
@@ -113,8 +119,8 @@ def get_incremented_release_tag(tags: list):
 
 def create_updated_documentation_release(token):
     tags = get_tags()
-    incremented_release_tag = get_incremented_release_tag(tags)
-    create_release(str(incremented_release_tag), token)
+    most_recent_production_tag = get_most_recent_production_tag(tags)
+    create_release(str(most_recent_production_tag), token)
 
 
 if __name__ == "__main__":

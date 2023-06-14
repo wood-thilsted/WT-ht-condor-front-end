@@ -51,7 +51,7 @@ jobs:
         tag_list=()
         for registry in hub.opensciencegrid.org; do
           for image_tag in "latest${ITB_SUFFIX}" "${GITHUB_TAG}" "$(git rev-parse HEAD)"; do
-            tag_list+=("$registry/$docker_repo":"$image_tag")
+            tag_list+=("$registry/$docker_repo":"$image_tag-$(date +%s)")
           done
         done
         # This causes the tag_list array to be comma-separated below,
