@@ -1,7 +1,7 @@
 
 ARG IMAGE_BASE_TAG=release
 
-FROM opensciencegrid/software-base:3.6-el7-$IMAGE_BASE_TAG
+FROM opensciencegrid/software-base:3.6-el8-$IMAGE_BASE_TAG
 
 LABEL maintainer OSG Software <support@opensciencegrid.org>
 
