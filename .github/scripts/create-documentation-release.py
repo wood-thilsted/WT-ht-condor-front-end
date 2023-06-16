@@ -117,7 +117,7 @@ def get_incremented_release_tag(tags: list):
     return most_recent_production_tag
 
 
-def create_updated_documentation_release(token):
+def print_most_recent_production_tag():
     tags = get_tags()
     most_recent_production_tag = get_most_recent_production_tag(tags)
     print(str(most_recent_production_tag), end="")
@@ -125,4 +125,4 @@ def create_updated_documentation_release(token):
 
 if __name__ == "__main__":
     gh_token = sys.argv[1]
-    create_updated_documentation_release(gh_token)
+    print_most_recent_production_tag()
