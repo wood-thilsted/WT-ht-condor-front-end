@@ -57,7 +57,7 @@ jobs:
         # This causes the tag_list array to be comma-separated below,
         # which is required for build-push-action
         IFS=,
-        echo "taglist=${tag_list[*]}" >> $GITHUB_OUPUT
+        echo "taglist=${tag_list[*]}" >> $GITHUB_OUTPUT
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2.7.0

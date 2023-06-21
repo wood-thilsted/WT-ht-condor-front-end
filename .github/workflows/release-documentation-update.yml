@@ -43,7 +43,7 @@ jobs:
     - name: Publish a new release
       id: publish-new-release-tag
       run: |
-        echo "tag=$( python3 ./.github/scripts/create-documentation-release.py ${{ secrets.GITHUB_TOKEN }} )" >> $GITHUB_OUPUT
+        echo "tag=$( python3 ./.github/scripts/create-documentation-release.py ${{ secrets.GITHUB_TOKEN }} )" >> $GITHUB_OUTPUT
         
   Call-publish-container:
     if: startsWith(github.repository, 'osg-htc/')
