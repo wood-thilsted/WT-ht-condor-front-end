@@ -17,14 +17,6 @@ dictConfig(
             }
         },
         "handlers": {
-            "file": {
-                "class": "logging.handlers.RotatingFileHandler",
-                "level": "DEBUG",
-                "formatter": "default",
-                "filename": os.path.join(logdir, "registration.log"),
-                "maxBytes": 10485760,
-                "backupCount": 5,
-            },
             "wsgi": {
                 "class": "logging.StreamHandler",
                 "level": "DEBUG",
@@ -32,7 +24,7 @@ dictConfig(
                 "stream": "ext://flask.logging.wsgi_errors_stream",
             },
         },
-        "root": {"level": "DEBUG", "handlers": ["file", "wsgi"]},
+        "root": {"level": "DEBUG", "handlers": ["wsgi"]},
     }
 )
 
